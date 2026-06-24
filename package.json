@@ -1,0 +1,96 @@
+{
+  "name": "wecom-ai-customer-service",
+  "version": "0.1.0",
+  "description": "黑卫士七维AI营销系统 1.0 桌面演示版",
+  "author": "黑卫士七维AI营销系统",
+  "desktopName": "heiweishi-ai-marketing",
+  "private": true,
+  "type": "module",
+  "main": "desktop/main.cjs",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "desktop:dev": "electron .",
+    "desktop:pack:mac": "electron-builder --mac dir --arm64",
+    "desktop:pack:mac:arm64": "electron-builder --mac dir --arm64",
+    "desktop:pack:mac:x64": "electron-builder --mac dir --x64",
+    "desktop:dist:mac": "electron-builder --mac dmg --arm64",
+    "desktop:dist:mac:arm64": "electron-builder --mac dmg --arm64",
+    "desktop:dist:mac:x64": "electron-builder --mac dmg --x64",
+    "desktop:pack:win": "electron-builder --win nsis --x64",
+    "desktop:pack:win:x64": "electron-builder --win nsis --x64",
+    "desktop:pack:win:arm64": "electron-builder --win nsis --arm64",
+    "desktop:pack:linux": "electron-builder --linux AppImage --x64",
+    "desktop:pack:linux:x64": "electron-builder --linux AppImage --x64",
+    "admin": "node src/admin.js",
+    "local:status": "node scripts/local.js status",
+    "local:start": "node scripts/local.js start",
+    "local:stop": "node scripts/local.js stop",
+    "local:backup": "node scripts/local.js backup",
+    "local:restore": "node scripts/local.js restore",
+    "local:import": "node scripts/local.js import-knowledge",
+    "local:export": "node scripts/local.js export-knowledge",
+    "blockers:watch": "node scripts/blocker-watch.js",
+    "hermes:command": "node scripts/hermes-command-inbox.js",
+    "doctor": "node scripts/doctor.js",
+    "demo:check": "node scripts/demo-check.js",
+    "test": "node --test",
+    "test:coverage": "node --test --experimental-test-coverage"
+  },
+  "dependencies": {
+    "@wecom/aibot-node-sdk": "^1.0.7",
+    "dotenv": "^17.4.2",
+    "nanoid": "^5.1.14",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.0",
+    "electron": "^42.4.1",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.heiweishi.ai-marketing",
+    "productName": "黑卫士七维AI营销系统",
+    "copyright": "Copyright © 2026 黑卫士七维AI营销系统",
+    "asar": true,
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "desktop/**/*",
+      "src/**/*",
+      "public/**/*",
+      "data/**/*",
+      "package.json",
+      "node_modules/**/*",
+      ".env.example"
+    ],
+    "extraResources": [
+      {
+        "from": "docs",
+        "to": "docs"
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.business",
+      "target": [
+        "dir",
+        "dmg"
+      ],
+      "identity": null
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Office",
+      "syncDesktopName": true
+    }
+  }
+}

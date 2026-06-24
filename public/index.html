@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0c7c59" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="黑卫士七维AI" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <title>黑卫士七维AI营销系统</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <h1>黑卫士七维AI营销系统</h1>
+          <p id="statusLine">正在读取系统状态...</p>
+        </div>
+        <button id="refreshButton" class="icon-button" title="刷新">↻</button>
+      </header>
+
+      <nav id="primaryNav" class="primary-nav" aria-label="一级业务菜单">
+        <button type="button" data-workflow-tab="target">1 锚定目标</button>
+        <button type="button" data-workflow-tab="content">2 生成内容</button>
+        <button type="button" data-workflow-tab="engagement">3 评论私信</button>
+        <button type="button" data-workflow-tab="private-message">4 加私信</button>
+        <button type="button" data-workflow-tab="ai-service">5 AI客服</button>
+        <button type="button" data-workflow-tab="conversion">6 引流成交</button>
+        <button type="button" data-workflow-tab="system">7 系统配置</button>
+      </nav>
+
+      <section class="workflow-context">
+        <div>
+          <h2 id="workflowTitle">锚定目标</h2>
+          <p id="workflowDescription">先看系统目标、七维闭环和当前运行状态。</p>
+        </div>
+        <span id="workflowStep" class="count">1 / 7</span>
+      </section>
+
+      <section class="panel appearance-panel" data-workflow-view="system">
+        <div class="panel-head">
+          <h2>界面设置</h2>
+          <span class="count">颜色 / 字体 / 字号</span>
+        </div>
+        <form id="appearanceForm" class="appearance-grid">
+          <label>
+            主色
+            <input id="accentColorInput" type="color" value="#0c7c59" />
+          </label>
+          <label>
+            背景
+            <input id="backgroundColorInput" type="color" value="#f5f7f8" />
+          </label>
+          <label>
+            面板
+            <input id="panelColorInput" type="color" value="#ffffff" />
+          </label>
+          <label>
+            文字
+            <input id="textColorInput" type="color" value="#16201d" />
+          </label>
+          <label>
+            字体
+            <select id="fontPresetInput">
+              <option value="system">系统默认</option>
+              <option value="heiti">黑体 / 微软雅黑</option>
+              <option value="songti">宋体</option>
+              <option value="kaiti">楷体</option>
+              <option value="mono">等宽字体</option>
+              <option value="custom">自定义字体</option>
+            </select>
+          </label>
+          <label>
+            自定义字体
+            <input id="customFontInput" maxlength="120" placeholder="例如：PingFang SC, Microsoft YaHei" />
+          </label>
+          <label class="font-size-control">
+            字号 <span id="fontSizeLabel">16px</span>
+            <input id="fontSizeInput" type="range" min="13" max="24" step="1" value="16" />
+          </label>
+          <label>
+            字号数值
+            <input id="fontSizeNumberInput" type="number" min="13" max="24" step="1" value="16" />
+          </label>
+          <button id="resetAppearanceButton" class="secondary" type="button">恢复默认</button>
+        </form>
+      </section>
+
+      <section class="layout">
+        <aside class="panel status-panel" data-workflow-view="target">
+          <h2>运行状态</h2>
+          <dl id="statusList"></dl>
+          <div class="local-tools">
+            <div class="panel-head compact-head">
+              <h2>本机工具</h2>
+              <span class="count">加急版</span>
+            </div>
+            <div class="local-tool-actions">
+              <button type="button" class="secondary" id="localStatusButton">检查</button>
+              <button type="button" class="secondary" id="localBackupButton">备份</button>
+              <button type="button" class="secondary" id="localExportButton">导出</button>
+              <button type="button" class="secondary" id="localTemplateButton">模板</button>
+            </div>
+            <pre id="localToolsBox" class="tool-output">等待操作...</pre>
+          </div>
+        </aside>
+
+        <section class="panel knowledge-panel" data-workflow-view="content">
+          <div class="panel-head">
+            <h2>知识库</h2>
+            <span id="knowledgeCount" class="count">0 条</span>
+          </div>
+          <form id="knowledgeForm" class="form">
+            <input id="knowledgeId" type="hidden" />
+            <label>
+              标题
+              <input id="titleInput" name="title" maxlength="120" placeholder="例如：合同签署资料" required />
+            </label>
+            <label>
+              标签
+              <input id="tagsInput" name="tags" maxlength="200" placeholder="例如：合同, 安装, 售后" />
+            </label>
+            <div class="two-col">
+              <label>
+                分类
+                <input id="categoryInput" name="category" maxlength="80" placeholder="例如：售前 / 售后 / 技术支持" />
+              </label>
+              <label>
+                适用场景
+                <input id="scenariosInput" name="scenarios" maxlength="240" placeholder="例如：签合同, 新客户开户" />
+              </label>
+            </div>
+            <label>
+              关键概念
+              <input id="conceptsInput" name="concepts" maxlength="300" placeholder="例如：营业执照, 联系人, 开票信息" />
+            </label>
+            <label>
+              处理步骤
+              <textarea id="stepsInput" name="steps" rows="4" maxlength="1200" placeholder="每行一步，例如：&#10;准备营业执照&#10;确认联系人手机号&#10;提交开票信息"></textarea>
+            </label>
+            <label>
+              内容
+              <textarea id="contentInput" name="content" rows="8" maxlength="8000" placeholder="把客服标准答案、流程、资料要求写在这里。" required></textarea>
+            </label>
+            <div class="actions">
+              <button type="submit">保存知识</button>
+              <button type="button" id="resetFormButton" class="secondary">清空</button>
+            </div>
+          </form>
+          <div id="knowledgeList" class="knowledge-list"></div>
+        </section>
+
+        <section class="panel qa-panel" data-workflow-view="ai-service">
+          <h2>问答测试</h2>
+          <form id="askForm" class="ask-form">
+            <textarea id="questionInput" rows="5" maxlength="1000" placeholder="@智能客服 合同怎么签？" required></textarea>
+            <button type="submit">测试回答</button>
+          </form>
+          <div id="answerBox" class="answer-box"></div>
+
+          <div class="panel-head graph-head">
+            <h2>知识图谱</h2>
+            <span id="graphCount" class="count">0 节点</span>
+          </div>
+          <div id="graphBox" class="graph-box"></div>
+
+          <div class="panel-head logs-head">
+            <h2>最近消息</h2>
+            <span id="logCount" class="count">0 条</span>
+          </div>
+          <div id="conversationList" class="conversation-list"></div>
+        </section>
+      </section>
+
+      <section class="panel channel-panel" data-workflow-view="system">
+        <div class="panel-head">
+          <h2>平台凭证配置中心</h2>
+          <span id="platformConfigSummary" class="count">加载中</span>
+        </div>
+        <div class="platform-config-notice">
+          配置只保存在本机；页面只显示“已配置/未配置”，不会显示密钥明文。保存后建议重启后台或桌面 App，再做真实平台联调。
+        </div>
+        <div id="platformConfigList" class="platform-config-list"></div>
+        <pre id="platformConfigBox" class="tool-output">等待配置...</pre>
+      </section>
+
+      <section class="panel channel-panel" data-workflow-view="ai-service">
+        <div class="panel-head">
+          <h2>多平台客服端口</h2>
+          <span id="channelPortSummary" class="count">加载中</span>
+        </div>
+        <div id="integrationRoadmap" class="integration-roadmap"></div>
+        <div id="channelPortList" class="channel-port-grid"></div>
+      </section>
+
+      <section class="panel simulate-panel" data-workflow-view="ai-service">
+        <div class="panel-head">
+          <h2>端口模拟器</h2>
+          <span class="count">先封装，再接真平台</span>
+        </div>
+        <form id="channelSimulateForm" class="form">
+          <div class="two-col">
+            <label>
+              选择端口
+              <select id="channelSimulateChannelInput">
+                <option value="wecom">企业微信</option>
+                <option value="wechat-miniapp">微信小程序客服</option>
+                <option value="wechat-personal">个人微信</option>
+                <option value="douyin">抖音客服</option>
+                <option value="kuaishou">快手客服</option>
+                <option value="xiaohongshu">小红书客服</option>
+                <option value="wechat-channels">视频号客服</option>
+                <option value="taobao">淘宝客服</option>
+                <option value="pinduoduo">拼多多客服</option>
+                <option value="jd">京东客服</option>
+                <option value="sms">短信</option>
+                <option value="toutiao">头条号/今日头条</option>
+                <option value="baijiahao">百度百家号</option>
+                <option value="bilibili">B站</option>
+                <option value="zhihu">知乎</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="facebook">Facebook</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="x-twitter">X/Twitter</option>
+                <option value="tiktok">TikTok</option>
+              </select>
+            </label>
+            <label>
+              会话编号
+              <input id="channelSimulateRoomInput" maxlength="120" placeholder="可选，例如：room-001" />
+            </label>
+          </div>
+          <label>
+            客户标识
+            <input id="channelSimulateSenderInput" maxlength="120" placeholder="可选，例如：user-001" />
+          </label>
+          <label>
+            客户消息
+            <textarea id="channelSimulateTextInput" rows="4" maxlength="1000" placeholder="例如：合同怎么签？" required></textarea>
+          </label>
+          <button type="submit">模拟回复</button>
+        </form>
+        <div id="channelSimulateBox" class="answer-box"></div>
+      </section>
+
+      <section class="panel marketing-system-panel" data-workflow-view="target">
+        <div class="panel-head">
+          <h2>黑卫士七维AI营销系统</h2>
+          <span id="marketingSummary" class="count">加载中</span>
+        </div>
+        <div id="marketingModuleList" class="marketing-module-list"></div>
+        <div class="marketing-bottom">
+          <section>
+            <h3>闭环流转</h3>
+            <ol id="marketingPipeline"></ol>
+          </section>
+          <section>
+            <h3>合规边界</h3>
+            <ul id="marketingCompliance"></ul>
+          </section>
+        </div>
+      </section>
+
+      <section class="panel private-message-panel" data-workflow-view="private-message">
+        <div class="panel-head">
+          <h2>自动私信生成器</h2>
+          <span class="count">来源透明 / 价值钩子 / 人工确认</span>
+        </div>
+        <form id="privateMessageForm" class="form private-message-form">
+          <div class="three-col">
+            <label>
+              私信平台
+              <input id="privatePlatformInput" maxlength="80" value="抖音私信" placeholder="抖音私信 / 小红书私信 / 企业微信" />
+            </label>
+            <label>
+              客户称呼
+              <input id="privateCustomerInput" maxlength="120" placeholder="例如：张先生 / 林女士" />
+            </label>
+            <label>
+              需求对象
+              <select id="privateNeedOwnerInput">
+                <option value="未知">未知</option>
+                <option value="本人">本人</option>
+                <option value="家人">家人</option>
+                <option value="朋友">朋友</option>
+              </select>
+            </label>
+          </div>
+          <div class="three-col">
+            <label>
+              IP 省份
+              <input id="privateIpProvinceInput" maxlength="80" placeholder="例如：广东" />
+            </label>
+            <label>
+              IP 城市
+              <input id="privateIpCityInput" maxlength="80" placeholder="例如：深圳" />
+            </label>
+            <label>
+              性别判断
+              <select id="privateGenderInput">
+                <option value="unknown">未知</option>
+                <option value="female">女</option>
+                <option value="male">男</option>
+              </select>
+            </label>
+          </div>
+          <div class="three-col">
+            <label>
+              作品平台
+              <input id="privatePostPlatformInput" maxlength="80" value="抖音" placeholder="抖音 / 快手 / 小红书 / 视频号" />
+            </label>
+            <label>
+              作品/账号位置
+              <input id="privatePostLocationInput" maxlength="120" placeholder="例如：深圳本地账号 / 杭州服务号" />
+            </label>
+            <label>
+              作品标题
+              <input id="privatePostTitleInput" maxlength="160" placeholder="例如：过敏护理清单" />
+            </label>
+          </div>
+          <div class="two-col">
+            <label>
+              作品发布时间
+              <input id="privatePostPublishedAtInput" maxlength="80" placeholder="例如：2026-06-22 10:30" />
+            </label>
+            <label>
+              留言时间
+              <input id="privateCommentedAtInput" maxlength="80" placeholder="例如：今天晚上 8 点" />
+            </label>
+          </div>
+          <label>
+            留言内容
+            <textarea id="privateCommentTextInput" rows="4" maxlength="1000" placeholder="把客户的评论或私信原文放这里。" required></textarea>
+          </label>
+          <div class="two-col">
+            <label>
+              留言和作品的关系
+              <textarea id="privateContentRelationInput" rows="3" maxlength="500" placeholder="例如：留言提到孩子反复过敏，和作品护理方案直接相关。"></textarea>
+            </label>
+            <label>
+              情绪判断
+              <select id="privateSentimentInput">
+                <option value="positive">正向 / 有兴趣</option>
+                <option value="negative">负面 / 质疑</option>
+                <option value="neutral">中性 / 询问</option>
+                <option value="unknown">未知</option>
+              </select>
+            </label>
+          </div>
+          <div class="two-col">
+            <label>
+              我们能提供什么
+              <textarea id="privateSolutionInput" rows="3" maxlength="300" placeholder="例如：儿童过敏护理咨询、检测报告复核、选型方案。"></textarea>
+            </label>
+            <label>
+              资料/优惠/小权益
+              <textarea id="privateOfferInput" rows="3" maxlength="300" placeholder="例如：免费护理清单，首次咨询减免 30 元。"></textarea>
+            </label>
+          </div>
+          <div class="three-col">
+            <label>
+              官方核验链接
+              <input id="privateOfficialSiteInput" maxlength="500" placeholder="https://..." />
+            </label>
+            <label>
+              加群链接
+              <input id="privateGroupInviteInput" maxlength="500" placeholder="https://..." />
+            </label>
+            <label>
+              联系入口
+              <input id="privateContactInput" maxlength="500" placeholder="https://..." />
+            </label>
+          </div>
+          <label>
+            正规机构说明
+            <input id="privateVerificationInput" maxlength="500" placeholder="例如：企业主体、资质、官网和公开联系方式都可核验。" />
+          </label>
+          <button type="submit">生成一次性私信</button>
+        </form>
+        <div id="privateMessageBox" class="private-message-result"></div>
+        <div class="panel-head logs-head">
+          <h3>私信审批队列</h3>
+          <span id="privateApprovalSummary" class="count">0 条待审</span>
+        </div>
+        <div id="privateApprovalList" class="private-approval-list"></div>
+      </section>
+
+      <section class="insight-layout">
+        <section class="panel lifecycle-panel" data-workflow-view="conversion">
+          <div class="panel-head">
+            <h2>客户生命周期</h2>
+            <span id="lifecycleSummary" class="count">加载中</span>
+          </div>
+          <div id="lifecycleStageList" class="lifecycle-stage-list"></div>
+        </section>
+
+        <section class="panel playbook-panel" data-workflow-view="engagement">
+          <div class="panel-head">
+            <h2>私信/评论转化剧本</h2>
+            <span id="playbookSummary" class="count">加载中</span>
+          </div>
+          <div id="playbookList" class="playbook-list"></div>
+        </section>
+      </section>
+
+      <section class="panel hermes-panel" data-workflow-view="system">
+        <div class="panel-head">
+          <h2>Hermes 指令收件箱 / 双向中心</h2>
+          <span id="hermesSummary" class="count">加载中</span>
+        </div>
+        <div id="hermesDirectionSummary" class="hermes-direction-summary"></div>
+        <form id="hermesCommandForm" class="hermes-command-form">
+          <label>
+            方向
+            <select id="hermesDirectionInput">
+              <option value="inbound">用户给 Codex</option>
+              <option value="outbound">Codex 回传用户</option>
+            </select>
+          </label>
+          <label>
+            类型
+            <select id="hermesTypeInput">
+              <option value="task">用户指令</option>
+              <option value="blocker">阻塞说明</option>
+              <option value="progress">进度同步</option>
+              <option value="split">任务拆分</option>
+              <option value="merge">合并关口</option>
+            </select>
+          </label>
+          <label>
+            来源人
+            <input id="hermesSenderInput" maxlength="120" placeholder="例如：apple" />
+          </label>
+          <label>
+            优先级
+            <select id="hermesPriorityInput">
+              <option value="normal">普通</option>
+              <option value="high">紧急</option>
+            </select>
+          </label>
+          <label>
+            目标
+            <input id="hermesTargetInput" maxlength="160" placeholder="例如：前端 / 文档 / Codex" />
+          </label>
+          <label>
+            模块
+            <input id="hermesModuleInput" maxlength="120" placeholder="例如：hermes-merge" />
+          </label>
+          <label>
+            任务
+            <input id="hermesTaskInput" maxlength="120" placeholder="例如：task-001" />
+          </label>
+          <label class="hermes-text-field">
+            指令内容
+            <input id="hermesTextInput" maxlength="3000" placeholder="用户指令或 Codex 回传的阻塞/进度说明。" required />
+          </label>
+          <button type="submit">加入双向中心</button>
+        </form>
+        <div id="hermesCommandList" class="hermes-command-list"></div>
+      </section>
+
+      <section class="panel orchestration-panel" data-workflow-view="system">
+        <div class="panel-head">
+          <h2>并行任务调度</h2>
+          <span id="orchestrationSummary" class="count">加载中</span>
+        </div>
+        <div id="orchestrationPlanMeta" class="orchestration-plan-meta"></div>
+        <div class="orchestration-layout">
+          <div>
+            <h3>工作流</h3>
+            <div id="orchestrationWorkstreamList" class="orchestration-workstream-list"></div>
+          </div>
+          <div>
+            <h3>合并与回传</h3>
+            <div id="orchestrationMergeList" class="orchestration-merge-list"></div>
+            <div id="orchestrationHermesPolicy" class="orchestration-hermes-policy"></div>
+            <button type="button" id="blockerReportButton" class="secondary">回传阻塞/进度</button>
+            <pre id="blockerReportBox" class="tool-output">等待 Codex 回传。</pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="growth-layout">
+        <section class="panel growth-panel" data-workflow-view="conversion">
+          <div class="panel-head">
+            <h2>私域引流 1.0</h2>
+            <span id="growthSummary" class="count">加载中</span>
+          </div>
+          <form id="growthForm" class="form">
+            <div class="two-col">
+              <label>
+                平台
+                <input id="growthPlatformInput" maxlength="80" value="企业微信" placeholder="企业微信 / 抖音 / 淘宝 / 拼多多 / 京东" />
+              </label>
+              <label>
+                客户阶段
+                <input id="growthStageInput" maxlength="80" value="陌生" placeholder="陌生 / 已咨询 / 已购买" />
+              </label>
+            </div>
+            <div class="two-col">
+              <label>
+                引导目标
+                <input id="growthGoalInput" maxlength="80" value="加企微" placeholder="加企微 / 领资料 / 看案例 / 预约" />
+              </label>
+              <label>
+                互动次数
+                <input id="growthInteractionInput" type="number" min="1" max="50" value="1" />
+              </label>
+            </div>
+            <label>
+              客户称呼
+              <input id="growthCustomerInput" maxlength="120" placeholder="可选，例如：张先生" />
+            </label>
+            <label>
+              客户消息
+              <textarea id="growthMessageInput" rows="5" maxlength="1000" placeholder="例如：这个怎么选？多少钱？有没有案例？" required></textarea>
+            </label>
+            <button type="submit">生成引流话术</button>
+          </form>
+          <div id="growthReplyBox" class="answer-box"></div>
+        </section>
+
+        <aside class="panel growth-side" data-workflow-view="conversion">
+          <div class="panel-head">
+            <h2>高意向线索</h2>
+            <span id="leadCount" class="count">0 条</span>
+          </div>
+          <div id="leadList" class="conversation-list"></div>
+          <div class="panel-head logs-head">
+            <h2>话术/素材/规则</h2>
+          </div>
+          <div id="growthLibrary" class="conversation-list"></div>
+        </aside>
+      </section>
+    </main>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
