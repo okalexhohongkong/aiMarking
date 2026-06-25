@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -600,6 +600,47 @@ test('admin API exposes integration roadmap without leaking secret values', asyn
     assert.equal(roadmap.steps[1].id, 'douyin');
     assert.ok(roadmap.steps.every((step) => step.percentText.endsWith('%')));
     assert.equal(serialized.includes('secret-value'), false);
+  } finally {
+    server.close();
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('admin API exposes wecom readiness without leaking secret values', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'wecom-admin-'));
+  const envPath = join(dir, '.env');
+  await writeFile(
+    envPath,
+    [
+      'WECOM_BOT_ID="bot-001"',
+      'WECOM_BOT_SECRET="real-secret-value"',
+      'OPENAI_API_KEY="openai-secret-value"',
+      'BOT_MENTION_NAME="黑卫士"'
+    ].join('\n'),
+    'utf8'
+  );
+  const store = new JsonDataStore({ dataDir: join(dir, 'data') });
+  await store.init();
+  const server = createAdminServer({
+    store,
+    answerService: { answer: async () => ({ answer: '', matches: [] }) },
+    configSummary: {},
+    platformConfigEnvPath: envPath,
+    env: {}
+  });
+
+  try {
+    server.listen(0, '127.0.0.1');
+    await once(server, 'listening');
+    const readiness = await requestJson(`http://127.0.0.1:${server.address().port}/api/wecom/readiness`);
+    const serialized = JSON.stringify(readiness);
+
+    assert.equal(readiness.ready, true);
+    assert.equal(readiness.percentText, '100.0%');
+    assert.match(readiness.groupTest.triggerText, /@黑卫士/);
+    assert.equal(serialized.includes('real-secret-value'), false);
+    assert.equal(serialized.includes('openai-secret-value'), false);
+    assert.equal(serialized.includes('bot-001'), false);
   } finally {
     server.close();
     await rm(dir, { recursive: true, force: true });

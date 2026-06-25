@@ -284,6 +284,10 @@ button.secondary:hover {
   margin-top: 16px;
 }
 
+.wecom-readiness-panel {
+  margin-top: 16px;
+}
+
 .simulate-panel {
   margin-top: 16px;
 }
@@ -430,6 +434,122 @@ button.secondary:hover {
 
 .integration-step.queued .roadmap-meter span {
   background: #9aa5ae;
+}
+
+.readiness-box {
+  display: grid;
+  gap: 12px;
+}
+
+.readiness-summary {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-left: 4px solid #d94b45;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fbfcfc;
+}
+
+.readiness-summary.ready {
+  border-left-color: #17a96b;
+}
+
+.readiness-summary strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--ink);
+  font-size: 16px;
+}
+
+.readiness-summary p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.readiness-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.readiness-check {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-height: 148px;
+  border: 1px solid var(--line);
+  border-left: 4px solid #9aa5ae;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fbfcfc;
+}
+
+.readiness-check.ready {
+  border-left-color: #17a96b;
+}
+
+.readiness-check.blocked {
+  border-left-color: #d94b45;
+}
+
+.readiness-check.active {
+  border-left-color: #2f73df;
+}
+
+.readiness-check h3,
+.readiness-plan h3 {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.readiness-check p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.readiness-plan {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.readiness-plan section {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: #f8faf9;
+}
+
+.readiness-plan ol,
+.readiness-plan ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.readiness-plan li,
+.readiness-plan p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.readiness-plan p {
+  margin: 8px 0 0;
+}
+
+.readiness-plan pre {
+  margin: 8px 0 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  white-space: pre-wrap;
+  background: var(--panel);
 }
 
 .platform-config-notice {
@@ -1328,6 +1448,11 @@ textarea:focus {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .readiness-grid,
+  .readiness-plan {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .module-columns,
   .module-columns.three,
   .marketing-bottom,
@@ -1410,7 +1535,9 @@ textarea:focus {
   }
 
   .platform-config-list,
-  .platform-field-grid {
+  .platform-field-grid,
+  .readiness-grid,
+  .readiness-plan {
     grid-template-columns: 1fr;
   }
 

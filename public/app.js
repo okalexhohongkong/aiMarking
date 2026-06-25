@@ -60,6 +60,7 @@ const state = {
   marketingSystem: null,
   projectProgress: null,
   integrationRoadmap: null,
+  wecomReadiness: null,
   platformConfig: null,
   customerLifecycle: null,
   engagementPlaybooks: null,
@@ -117,6 +118,8 @@ const elements = {
   fontSizeLabel: $('#fontSizeLabel'),
   resetAppearance: $('#resetAppearanceButton'),
   channelPortSummary: $('#channelPortSummary'),
+  wecomReadinessSummary: $('#wecomReadinessSummary'),
+  wecomReadinessBox: $('#wecomReadinessBox'),
   platformConfigSummary: $('#platformConfigSummary'),
   platformConfigList: $('#platformConfigList'),
   platformConfigBox: $('#platformConfigBox'),
@@ -247,6 +250,7 @@ async function refreshAll() {
     marketingSystem,
     projectProgress,
     integrationRoadmap,
+    wecomReadiness,
     customerLifecycle,
     engagementPlaybooks,
     hermesCommands,
@@ -261,6 +265,7 @@ async function refreshAll() {
     api('/api/marketing-system'),
     api('/api/project-progress'),
     api('/api/integration-roadmap'),
+    api('/api/wecom/readiness'),
     api('/api/customer-lifecycle'),
     api('/api/engagement-playbooks'),
     api('/api/hermes/commands'),
@@ -275,6 +280,7 @@ async function refreshAll() {
   state.marketingSystem = marketingSystem;
   state.projectProgress = projectProgress;
   state.integrationRoadmap = integrationRoadmap;
+  state.wecomReadiness = wecomReadiness;
   state.customerLifecycle = customerLifecycle;
   state.engagementPlaybooks = engagementPlaybooks;
   state.hermesCommands = hermesCommands;
@@ -294,6 +300,7 @@ async function refreshAll() {
   renderKnowledge();
   renderGraph();
   renderIntegrationRoadmap();
+  renderWecomReadiness();
   renderPlatformConfig();
   renderChannelPorts(status.channelPorts);
   renderChannelSelect();
@@ -550,6 +557,59 @@ function renderIntegrationRoadmap() {
     <div class="integration-step-list">
       ${roadmap.steps.map((step) => renderIntegrationStep(step)).join('')}
     </div>
+  `;
+}
+
+function renderWecomReadiness() {
+  const readiness = state.wecomReadiness;
+  if (!readiness) {
+    elements.wecomReadinessSummary.textContent = '待加载';
+    elements.wecomReadinessBox.innerHTML = '<div class="empty">正在检查企业微信真实接入条件。</div>';
+    return;
+  }
+
+  elements.wecomReadinessSummary.textContent = `${readiness.percentText} · ${readiness.ready ? '可联调' : '缺资料'}`;
+  elements.wecomReadinessBox.innerHTML = `
+    <div class="readiness-summary ${readiness.ready ? 'ready' : 'blocked'}">
+      <div>
+        <strong>${escapeHtml(readiness.launch.title)}</strong>
+        <p>${escapeHtml(readiness.launch.nextCommand)}</p>
+      </div>
+      <span class="tag status ${readiness.ready ? 'connected' : 'needs-credentials'}">${readiness.ready ? '可以联调' : '等待凭证'}</span>
+    </div>
+    <div class="readiness-grid">
+      ${(readiness.checks || []).map(renderReadinessCheck).join('')}
+    </div>
+    <div class="readiness-plan">
+      <section>
+        <h3>下一步动作</h3>
+        <ol>${(readiness.launch.nextSteps || []).map((step) => `<li>${escapeHtml(step)}</li>`).join('')}</ol>
+      </section>
+      <section>
+        <h3>测试群验证</h3>
+        <p>${escapeHtml(readiness.groupTest.testGroup)}</p>
+        <pre>${escapeHtml(readiness.groupTest.triggerText)}</pre>
+        <ul>${(readiness.groupTest.passCriteria || []).map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
+      </section>
+      <section>
+        <h3>安全边界</h3>
+        <ul>${(readiness.safety || []).map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
+      </section>
+    </div>
+  `;
+}
+
+function renderReadinessCheck(check) {
+  return `
+    <article class="readiness-check ${readinessStatusClass(check.status)}">
+      <div class="channel-port-head">
+        <h3>${escapeHtml(check.label)}</h3>
+        <span class="tag status ${readinessStatusClass(check.status)}">${escapeHtml(readinessStatusLabel(check.status))}</span>
+      </div>
+      <p>${escapeHtml(check.detail)}</p>
+      <div class="meta-line">${check.required ? '必填' : '选填'} · ${check.sensitive ? '敏感项已脱敏' : '非敏感项'}</div>
+      <div class="meta-line">下一步：${escapeHtml(check.nextStep)}</div>
+    </article>
   `;
 }
 
@@ -1502,6 +1562,23 @@ function platformConfigStatusLabel(status) {
     reserved: '待配置'
   };
   return labels[status] || status || '待配置';
+}
+
+function readinessStatusClass(status) {
+  if (status === 'ready') return 'ready';
+  if (status === 'missing') return 'blocked';
+  if (status === 'defaulted') return 'active';
+  return 'queued';
+}
+
+function readinessStatusLabel(status) {
+  const labels = {
+    ready: '已具备',
+    missing: '缺少',
+    optional: '选填',
+    defaulted: '默认值'
+  };
+  return labels[status] || status || '待检查';
 }
 
 function platformSectionPercent(section) {

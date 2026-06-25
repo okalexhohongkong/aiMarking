@@ -8,7 +8,7 @@ import { getMarketingSystemBlueprint } from './aiMarketingSystem.js';
 import { getChannelAdapter } from './channelAdapters.js';
 import { ChannelMessageService } from './channelMessageService.js';
 import { listChannelPorts } from './channelPorts.js';
-import { readConfigSummary } from './config.js';
+import { readAdminConfig, readConfigSummary } from './config.js';
 import { getCustomerLifecycleBlueprint } from './customerLifecycle.js';
 import { getEngagementPlaybooks } from './engagementPlaybooks.js';
 import { generateGrowthReply } from './growthEngine.js';
@@ -20,6 +20,7 @@ import { buildPlatformConfigStatus, getPlatformConfigEnvPath, readPlatformConfig
 import { generatePrivateMessageContext } from './privateMessageGenerator.js';
 import { buildProjectProgress } from './projectProgress.js';
 import { retrieveKnowledge } from './retriever.js';
+import { buildWecomReadiness } from './wecomReadiness.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const publicDir = join(__dirname, '..', 'public');
@@ -291,6 +292,21 @@ async function routeRequest({
 
   if (url.pathname === '/api/integration-roadmap' && request.method === 'GET') {
     sendJson(response, 200, buildIntegrationRoadmap({ env: await resolveServerEnv(env, platformConfigEnvPath) }));
+    return;
+  }
+
+  if (url.pathname === '/api/wecom/readiness' && request.method === 'GET') {
+    const runtimeEnv = await resolveServerEnv(env, platformConfigEnvPath);
+    const adminConfig = readAdminConfig(runtimeEnv);
+    sendJson(
+      response,
+      200,
+      buildWecomReadiness({
+        env: runtimeEnv,
+        host: adminConfig.admin.host,
+        port: adminConfig.admin.port
+      })
+    );
     return;
   }
 

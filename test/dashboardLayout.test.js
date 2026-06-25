@@ -19,3 +19,16 @@ test('places the primary workflow menu in a left sidebar beside the content', as
   assert.match(app, /function renderWorkflowMenu\(\)/);
   assert.match(app, /data-menu-tone/);
 });
+
+test('shows a dedicated wecom readiness panel in the AI service workflow', async () => {
+  const html = await readFile('public/index.html', 'utf8');
+  const css = await readFile('public/styles.css', 'utf8');
+  const app = await readFile('public/app.js', 'utf8');
+
+  assert.match(html, /id="wecomReadinessSummary"/);
+  assert.match(html, /id="wecomReadinessBox"/);
+  assert.match(html, /企业微信真实接入检查/);
+  assert.match(css, /\.readiness-grid\s*{/);
+  assert.match(app, /api\('\/api\/wecom\/readiness'\)/);
+  assert.match(app, /function renderWecomReadiness\(\)/);
+});
