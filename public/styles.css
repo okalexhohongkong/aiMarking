@@ -59,9 +59,25 @@ button.secondary:hover {
 }
 
 .app-shell {
-  width: min(1440px, 100%);
+  width: min(1500px, 100%);
   margin: 0 auto;
-  padding: 20px;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 156px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.app-sidebar {
+  position: sticky;
+  top: 12px;
+  align-self: start;
+  max-height: calc(100vh - 24px);
+  overflow: auto;
+}
+
+.app-content {
+  min-width: 0;
 }
 
 .topbar {
@@ -69,7 +85,7 @@ button.secondary:hover {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 8px 2px 18px;
+  padding: 2px 2px 12px;
 }
 
 .topbar h1,
@@ -79,7 +95,7 @@ button.secondary:hover {
 }
 
 .topbar h1 {
-  font-size: 28px;
+  font-size: 26px;
   line-height: 1.2;
 }
 
@@ -96,14 +112,12 @@ button.secondary:hover {
 }
 
 .primary-nav {
-  position: sticky;
-  top: 0;
   z-index: 10;
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 8px;
-  margin: 0 0 12px;
-  padding: 10px;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  margin: 0;
+  padding: 8px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.96);
@@ -112,14 +126,59 @@ button.secondary:hover {
 }
 
 .primary-nav button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   min-width: 0;
-  min-height: 44px;
+  min-height: 46px;
   border: 1px solid transparent;
+  border-left: 3px solid transparent;
   background: #eef3f0;
   color: var(--ink);
+  justify-content: flex-start;
   font-weight: 720;
+  font-size: 13px;
   line-height: 1.2;
+  padding: 0 10px;
+  text-align: left;
   white-space: normal;
+}
+
+.primary-nav .menu-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 26px;
+  height: 24px;
+  border-radius: 6px;
+  background: rgba(12, 124, 89, 0.1);
+  color: var(--accent-strong);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.primary-nav .menu-copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.primary-nav .menu-title,
+.primary-nav .menu-meta {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.primary-nav .menu-title {
+  color: inherit;
+}
+
+.primary-nav .menu-meta {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.15;
 }
 
 .primary-nav button:hover {
@@ -128,8 +187,26 @@ button.secondary:hover {
 }
 
 .primary-nav button.active {
+  border-left-color: var(--accent-strong);
   background: var(--accent);
   color: var(--accent-contrast);
+}
+
+.primary-nav button.active .menu-step {
+  background: rgba(255, 255, 255, 0.22);
+  color: var(--accent-contrast);
+}
+
+.primary-nav button.active .menu-meta {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.primary-nav button[data-menu-tone="paused"]:not(.active) {
+  border-left-color: var(--bad);
+}
+
+.primary-nav button[data-menu-tone="ahead"]:not(.active) {
+  border-left-color: var(--accent);
 }
 
 .workflow-context {
@@ -1204,8 +1281,15 @@ textarea:focus {
 }
 
 @media (max-width: 1100px) {
-  .primary-nav {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+  .app-shell {
+    grid-template-columns: 136px minmax(0, 1fr);
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .primary-nav button {
+    min-height: 44px;
+    padding: 0 8px;
   }
 
   .layout,
@@ -1254,12 +1338,34 @@ textarea:focus {
 
 @media (max-width: 640px) {
   .app-shell {
+    display: block;
     padding: 12px;
   }
 
-  .primary-nav {
+  .app-sidebar {
     position: static;
+    max-height: none;
+    margin-bottom: 10px;
+    overflow: visible;
+  }
+
+  .primary-nav {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .primary-nav button {
+    justify-content: center;
+    min-height: 36px;
+    border-left-width: 1px;
+    text-align: center;
+  }
+
+  .primary-nav .menu-step {
+    display: none;
+  }
+
+  .primary-nav .menu-copy {
+    justify-items: center;
   }
 
   .workflow-context {

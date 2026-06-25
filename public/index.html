@@ -13,23 +13,18 @@
   </head>
   <body>
     <main class="app-shell">
-      <header class="topbar">
-        <div>
-          <h1>黑卫士七维AI营销系统</h1>
-          <p id="statusLine">正在读取系统状态...</p>
-        </div>
-        <button id="refreshButton" class="icon-button" title="刷新">↻</button>
-      </header>
+      <aside class="app-sidebar">
+        <nav id="primaryNav" class="primary-nav" aria-label="一级业务菜单"></nav>
+      </aside>
 
-      <nav id="primaryNav" class="primary-nav" aria-label="一级业务菜单">
-        <button type="button" data-workflow-tab="target">1 锚定目标</button>
-        <button type="button" data-workflow-tab="content">2 生成内容</button>
-        <button type="button" data-workflow-tab="engagement">3 评论私信</button>
-        <button type="button" data-workflow-tab="private-message">4 加私信</button>
-        <button type="button" data-workflow-tab="ai-service">5 AI客服</button>
-        <button type="button" data-workflow-tab="conversion">6 引流成交</button>
-        <button type="button" data-workflow-tab="system">7 系统配置</button>
-      </nav>
+      <div class="app-content">
+        <header class="topbar">
+          <div>
+            <h1>黑卫士七维AI营销系统</h1>
+            <p id="statusLine">正在读取系统状态...</p>
+          </div>
+          <button id="refreshButton" class="icon-button" title="刷新">↻</button>
+        </header>
 
       <section class="workflow-context">
         <div>
@@ -534,6 +529,7 @@
           <div id="growthLibrary" class="conversation-list"></div>
         </aside>
       </section>
+      </div>
     </main>
     <script type="module" src="/app.js"></script>
   </body>

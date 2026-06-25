@@ -5,43 +5,50 @@ const workflowViews = [
     id: 'target',
     title: '锚定目标',
     step: '1 / 7',
-    description: '先看系统目标、七维闭环、运行状态和当前项目定位。'
+    description: '先看系统目标、七维闭环、运行状态和当前项目定位。',
+    moduleIds: ['marketing', 'status']
   },
   {
     id: 'content',
     title: '生成内容',
     step: '2 / 7',
-    description: '整理知识库、知识图谱和内容资产，为后续问答、私信和成交承接提供素材。'
+    description: '整理知识库、知识图谱和内容资产，为后续问答、私信和成交承接提供素材。',
+    moduleIds: ['knowledge']
   },
   {
     id: 'engagement',
     title: '评论私信管理',
     step: '3 / 7',
-    description: '把评论、私信、资料领取、报价、案例和活动咨询沉淀为可复用转化剧本。'
+    description: '把评论、私信、资料领取、报价、案例和活动咨询沉淀为可复用转化剧本。',
+    moduleIds: ['playbooks']
   },
   {
     id: 'private-message',
     title: '加私信',
     step: '4 / 7',
-    description: '根据来源、地域、作品、留言和权益生成一次性私信，并进入人工审批队列。'
+    description: '根据来源、地域、作品、留言和权益生成一次性私信，并进入人工审批队列。',
+    moduleIds: ['private-message']
   },
   {
     id: 'ai-service',
     title: 'AI客服',
     step: '5 / 7',
-    description: '查看多平台客服端口，用端口模拟器和问答测试验证统一客服引擎。'
+    description: '查看多平台客服端口，用端口模拟器和问答测试验证统一客服引擎。',
+    moduleIds: ['qa', 'channels', 'simulator']
   },
   {
     id: 'conversion',
     title: '引流成交',
     step: '6 / 7',
-    description: '按客户生命周期、高意向线索和私域话术推动预约、定金、下单和复购。'
+    description: '按客户生命周期、高意向线索和私域话术推动预约、定金、下单和复购。',
+    moduleIds: ['lifecycle', 'growth', 'leads']
   },
   {
     id: 'system',
     title: '系统配置',
     step: '7 / 7',
-    description: '集中管理平台凭证、界面风格、本机工具、Hermes 指令和并行任务调度。'
+    description: '集中管理平台凭证、界面风格、本机工具、Hermes 指令和并行任务调度。',
+    moduleIds: ['appearance', 'hermes']
   }
 ];
 
@@ -281,6 +288,7 @@ async function refreshAll() {
     rules: await api('/api/growth/rules'),
     leads: await api('/api/growth/leads')
   };
+  renderWorkflowMenu();
   renderStatus(status);
   renderProgressBadges();
   renderKnowledge();
@@ -301,6 +309,7 @@ async function refreshAll() {
 }
 
 function initializeWorkflowMenu() {
+  renderWorkflowMenu();
   showWorkflowView(currentWorkflowFromHash(), { updateHash: false });
 }
 
@@ -344,6 +353,60 @@ function showWorkflowView(viewId, { updateHash = true } = {}) {
   if (updateHash) {
     window.history.replaceState(null, '', `#${view.id}`);
   }
+}
+
+function renderWorkflowMenu() {
+  elements.primaryNav.innerHTML = workflowViews.map((view) => {
+    const summary = workflowMenuSummary(view);
+    return `
+      <button type="button" data-workflow-tab="${escapeHtml(view.id)}" data-menu-tone="${escapeHtml(summary.tone)}" title="${escapeHtml(summary.title)}">
+        <span class="menu-step">${escapeHtml(workflowStepNumber(view.step))}</span>
+        <span class="menu-copy">
+          <span class="menu-title">${escapeHtml(view.title)}</span>
+          <span class="menu-meta">${escapeHtml(summary.meta)}</span>
+        </span>
+      </button>
+    `;
+  }).join('');
+}
+
+function workflowMenuSummary(view) {
+  const modules = workflowModules(view);
+  if (!modules.length) {
+    return {
+      meta: '流程数据加载中',
+      tone: 'normal',
+      title: `${view.title} · 等待流程数据`
+    };
+  }
+
+  const paused = modules.filter((module) => module.tone === 'paused');
+  const ahead = modules.filter((module) => module.tone === 'ahead');
+  const average = modules.reduce((sum, module) => sum + module.percent, 0) / modules.length;
+  const leadModule = paused[0] || modules.find((module) => module.remainingHours > 0) || ahead[0] || modules[0];
+  const tone = paused.length ? 'paused' : ahead.length === modules.length ? 'ahead' : 'normal';
+  const stateText = paused.length ? `${paused.length} 项暂停` : `${modules.length} 项流程`;
+
+  return {
+    meta: `${stateText} · ${formatProgressPercent(average)}`,
+    tone,
+    title: `${view.title} · 下一步：${leadModule.nextStep}`
+  };
+}
+
+function workflowModules(view) {
+  const progressById = new Map((state.projectProgress?.modules || []).map((module) => [module.id, module]));
+  return (view.moduleIds || []).map((id) => progressById.get(id)).filter(Boolean);
+}
+
+function workflowStepNumber(step) {
+  const number = String(step || '').split('/')[0].trim();
+  return number.padStart(2, '0');
+}
+
+function formatProgressPercent(value) {
+  const normalized = Math.max(0, Math.min(100, Number(value) || 0));
+  return `${normalized.toFixed(1)}%`;
 }
 
 function renderProgressBadges() {
