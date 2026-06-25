@@ -1,16 +1,16 @@
 .env
 .env.*
 !.env.example
+
+# Dependencies
 node_modules/
+
+# Local runtime and generated build output
 coverage/
 npm-debug.log*
 .DS_Store
 .runtime/
 release/
-backups/
-exports/
-tmp/
-data/
 *.log
 *.dmg
 *.exe

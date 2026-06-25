@@ -1,0 +1,192 @@
+{
+  "scripts": [
+    {
+      "id": "seed-script-consultant",
+      "scene": "选型",
+      "customerStage": "陌生",
+      "painPoint": "选择困难",
+      "tone": "顾问",
+      "goal": "加企微",
+      "template": "你这个情况先别急着定，我建议先看一份{material}，能少走很多弯路。",
+      "createdAt": "2026-06-18T22:25:01.956Z"
+    },
+    {
+      "id": "seed-script-case",
+      "scene": "案例",
+      "customerStage": "已咨询",
+      "painPoint": "信任不足",
+      "tone": "专业",
+      "goal": "领案例",
+      "template": "你问的这个点，最好结合真实案例看。我可以发你一份{material}，你对照自己的情况会更清楚。",
+      "createdAt": "2026-06-18T22:25:01.956Z"
+    },
+    {
+      "id": "6T_IsUp9rTyqJmOv26mXV",
+      "scene": "报价",
+      "customerStage": "已咨询",
+      "painPoint": "担心预算",
+      "tone": "顾问",
+      "goal": "领报价表",
+      "template": "价格要看具体需求，直接报一个数反而容易不准。我可以先给你一份{material}，你按表填完就能更快得到准确方案。",
+      "createdAt": "2026-06-18T22:43:52.644Z"
+    },
+    {
+      "id": "R1evYXlWpywIirsSmyDlm",
+      "scene": "合作",
+      "customerStage": "高意向",
+      "painPoint": "想确认合作方式",
+      "tone": "专业",
+      "goal": "预约沟通",
+      "template": "你已经问到合作细节了，我建议让顾问按你的情况做一次确认。我可以先发你{material}，再安排人工接一下。",
+      "createdAt": "2026-06-18T22:43:52.644Z"
+    },
+    {
+      "id": "AKDfIGWDYE5Mn2Gpl11Dg",
+      "scene": "售后安抚",
+      "customerStage": "已购买",
+      "painPoint": "遇到问题",
+      "tone": "安抚",
+      "goal": "转人工",
+      "template": "这个问题我先帮你记录处理。你可以把订单号和问题截图发来，我会按{material}里的流程转给对应同事确认。",
+      "createdAt": "2026-06-18T22:43:52.644Z"
+    },
+    {
+      "id": "5FRZ9d5LQx8paauggxhS-",
+      "scene": "平台内承接",
+      "customerStage": "陌生",
+      "painPoint": "平台合规限制",
+      "tone": "客服",
+      "goal": "平台内咨询",
+      "template": "这个问题可以在当前平台客服窗口继续沟通。我先发你{material}里的关键信息，你看完后直接在这里追问就行。",
+      "createdAt": "2026-06-18T22:43:52.644Z"
+    }
+  ],
+  "materials": [
+    {
+      "id": "seed-material-checklist",
+      "name": "选型避坑清单",
+      "type": "资料",
+      "description": "帮助客户判断型号、场景和常见风险。",
+      "cta": "回复“资料”领取。",
+      "createdAt": "2026-06-18T22:25:01.956Z"
+    },
+    {
+      "id": "seed-material-casebook",
+      "name": "客户案例集",
+      "type": "案例",
+      "description": "展示不同客户场景下的解决方案。",
+      "cta": "回复“案例”领取。",
+      "createdAt": "2026-06-18T22:25:01.956Z"
+    },
+    {
+      "id": "uG8xFMqLiFy3hDubbcM1k",
+      "name": "新客户入门资料包",
+      "type": "资料",
+      "description": "包含基础介绍、常见问题、合作流程和准备资料。",
+      "cta": "回复“入门”领取。",
+      "createdAt": "2026-06-18T22:43:52.645Z"
+    },
+    {
+      "id": "-Zfc-B0SfaV6n1YciKUac",
+      "name": "报价前需求确认表",
+      "type": "表格",
+      "description": "用于确认报价前必须明确的场景、数量、预算和交付要求。",
+      "cta": "回复“报价表”领取。",
+      "createdAt": "2026-06-18T22:43:52.645Z"
+    },
+    {
+      "id": "qMa1RCl6yro0SofqhIT1j",
+      "name": "售后处理信息清单",
+      "type": "清单",
+      "description": "整理订单号、联系方式、问题截图和期望处理方式。",
+      "cta": "请在当前窗口发送订单号和问题截图。",
+      "createdAt": "2026-06-18T22:43:52.645Z"
+    }
+  ],
+  "rules": [
+    {
+      "id": "seed-rule-select",
+      "name": "选型咨询",
+      "keywords": [
+        "怎么选",
+        "推荐",
+        "适合",
+        "哪个好"
+      ],
+      "scene": "选型",
+      "enabled": true,
+      "createdAt": "2026-06-18T22:25:01.956Z"
+    },
+    {
+      "id": "seed-rule-price",
+      "name": "价格咨询",
+      "keywords": [
+        "多少钱",
+        "价格",
+        "报价",
+        "费用"
+      ],
+      "scene": "报价",
+      "enabled": true,
+      "createdAt": "2026-06-18T22:25:01.956Z"
+    },
+    {
+      "id": "KLziG-tMffnIWGeAkI4Da",
+      "name": "案例兴趣",
+      "keywords": [
+        "案例",
+        "效果",
+        "成功客户",
+        "有没有客户"
+      ],
+      "scene": "案例",
+      "enabled": true,
+      "createdAt": "2026-06-18T22:43:52.645Z"
+    },
+    {
+      "id": "jXDof6KrAPu2CVlXs2RPk",
+      "name": "合作意向",
+      "keywords": [
+        "合作",
+        "加盟",
+        "代理",
+        "采购",
+        "下单",
+        "签约"
+      ],
+      "scene": "合作",
+      "enabled": true,
+      "createdAt": "2026-06-18T22:43:52.645Z"
+    },
+    {
+      "id": "0wzYoKSMjSdsJPjeavQX6",
+      "name": "售后安抚",
+      "keywords": [
+        "售后",
+        "投诉",
+        "退款",
+        "差评",
+        "不满意",
+        "坏了"
+      ],
+      "scene": "售后安抚",
+      "enabled": true,
+      "createdAt": "2026-06-18T22:43:52.646Z"
+    },
+    {
+      "id": "BTcvbavWDxuyzmM5SUN_y",
+      "name": "平台内承接",
+      "keywords": [
+        "淘宝",
+        "拼多多",
+        "京东",
+        "店铺",
+        "订单"
+      ],
+      "scene": "平台内承接",
+      "enabled": true,
+      "createdAt": "2026-06-18T22:43:52.646Z"
+    }
+  ],
+  "leads": []
+}
