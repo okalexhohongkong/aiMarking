@@ -33,8 +33,8 @@ const workflowViews = [
     id: 'ai-service',
     title: 'AI客服',
     step: '5 / 7',
-    description: '查看多平台客服端口，用端口模拟器和问答测试验证统一客服引擎。',
-    moduleIds: ['qa', 'channels', 'simulator']
+    description: '在同一工作台查看平台接入、端口、问答测试和知识图谱，验证统一客服引擎。',
+    moduleIds: ['channels', 'qa', 'simulator']
   },
   {
     id: 'conversion',
@@ -87,6 +87,8 @@ const elements = {
   workflowTitle: $('#workflowTitle'),
   workflowDescription: $('#workflowDescription'),
   workflowStep: $('#workflowStep'),
+  workflowOverviewSummary: $('#workflowOverviewSummary'),
+  workflowOverviewCards: $('#workflowOverviewCards'),
   statusList: $('#statusList'),
   knowledgeCount: $('#knowledgeCount'),
   knowledgeList: $('#knowledgeList'),
@@ -120,12 +122,8 @@ const elements = {
   fontSizeLabel: $('#fontSizeLabel'),
   resetAppearance: $('#resetAppearanceButton'),
   channelPortSummary: $('#channelPortSummary'),
-  wecomReadinessSummary: $('#wecomReadinessSummary'),
-  wecomReadinessBox: $('#wecomReadinessBox'),
-  douyinReadinessSummary: $('#douyinReadinessSummary'),
-  douyinReadinessBox: $('#douyinReadinessBox'),
-  wechatPersonalReadinessSummary: $('#wechatPersonalReadinessSummary'),
-  wechatPersonalReadinessBox: $('#wechatPersonalReadinessBox'),
+  readinessHubSummary: $('#readinessHubSummary'),
+  readinessHub: $('#readinessHub'),
   platformConfigSummary: $('#platformConfigSummary'),
   platformConfigList: $('#platformConfigList'),
   platformConfigBox: $('#platformConfigBox'),
@@ -309,12 +307,11 @@ async function refreshAll() {
   renderWorkflowMenu();
   renderStatus(status);
   renderProgressBadges();
+  renderWorkflowOverview();
   renderKnowledge();
   renderGraph();
   renderIntegrationRoadmap();
-  renderWecomReadiness();
-  renderDouyinReadiness();
-  renderWechatPersonalReadiness();
+  renderReadinessHub();
   renderPlatformConfig();
   renderChannelPorts(status.channelPorts);
   renderChannelSelect();
@@ -428,6 +425,53 @@ function workflowStepNumber(step) {
 function formatProgressPercent(value) {
   const normalized = Math.max(0, Math.min(100, Number(value) || 0));
   return `${normalized.toFixed(1)}%`;
+}
+
+function renderWorkflowOverview() {
+  const modules = state.projectProgress?.modules || [];
+  const summary = state.projectProgress?.summary;
+  if (!modules.length) {
+    elements.workflowOverviewSummary.textContent = '流程数据加载中';
+    elements.workflowOverviewCards.innerHTML = '<div class="empty">正在读取七维流程进度。</div>';
+    return;
+  }
+
+  elements.workflowOverviewSummary.textContent = summary
+    ? `${summary.percentText} · 剩余 ${Number(summary.remainingHours || 0).toFixed(1)} 小时 · ${summary.reportCountdownText}`
+    : `${modules.length} 个模块`;
+
+  elements.workflowOverviewCards.innerHTML = workflowViews.map((view) => {
+    const viewModules = workflowModules(view);
+    const average = viewModules.length
+      ? viewModules.reduce((sum, module) => sum + module.percent, 0) / viewModules.length
+      : 0;
+    const remaining = viewModules.reduce((sum, module) => sum + module.remainingHours, 0);
+    const paused = viewModules.filter((module) => module.tone === 'paused');
+    const ahead = viewModules.filter((module) => module.tone === 'ahead');
+    const tone = paused.length ? 'paused' : ahead.length === viewModules.length && ahead.length ? 'ahead' : 'normal';
+    const leadModule = paused[0] || viewModules.find((module) => module.remainingHours > 0) || viewModules[0];
+    const relatedNames = viewModules.map((module) => module.title).join(' / ') || '待接入模块';
+
+    return `
+      <button type="button" class="workflow-overview-card ${escapeHtml(tone)}" data-workflow-jump="${escapeHtml(view.id)}">
+        <span class="workflow-overview-step">${escapeHtml(workflowStepNumber(view.step))}</span>
+        <span class="workflow-overview-copy">
+          <strong>${escapeHtml(view.title)}</strong>
+          <em>${escapeHtml(view.description)}</em>
+          <small>${escapeHtml(relatedNames)}</small>
+        </span>
+        <span class="workflow-overview-progress">
+          <b>${escapeHtml(formatProgressPercent(average))}</b>
+          <small>倒计时 ${escapeHtml(`${remaining.toFixed(1)} 小时`)}</small>
+          <small>下一步：${escapeHtml(leadModule?.nextStep || '等待加载')}</small>
+        </span>
+      </button>
+    `;
+  }).join('');
+
+  elements.workflowOverviewCards.querySelectorAll('[data-workflow-jump]').forEach((button) => {
+    button.addEventListener('click', () => showWorkflowView(button.dataset.workflowJump));
+  });
 }
 
 function renderProgressBadges() {
@@ -574,68 +618,114 @@ function renderIntegrationRoadmap() {
   `;
 }
 
-function renderWecomReadiness() {
-  renderReadinessPanel({
-    readiness: state.wecomReadiness,
-    summaryElement: elements.wecomReadinessSummary,
-    boxElement: elements.wecomReadinessBox,
-    emptyText: '正在检查企业微信真实接入条件。'
-  });
-}
-
-function renderDouyinReadiness() {
-  renderReadinessPanel({
-    readiness: state.douyinReadiness,
-    summaryElement: elements.douyinReadinessSummary,
-    boxElement: elements.douyinReadinessBox,
-    emptyText: '正在检查抖音私信/客服接入条件。'
-  });
-}
-
-function renderWechatPersonalReadiness() {
-  renderReadinessPanel({
-    readiness: state.wechatPersonalReadiness,
-    summaryElement: elements.wechatPersonalReadinessSummary,
-    boxElement: elements.wechatPersonalReadinessBox,
-    emptyText: '正在检查个人微信/EasyClaw 接入条件。'
-  });
-}
-
-function renderReadinessPanel({ readiness, summaryElement, boxElement, emptyText }) {
-  if (!readiness) {
-    summaryElement.textContent = '待加载';
-    boxElement.innerHTML = `<div class="empty">${escapeHtml(emptyText)}</div>`;
+function renderReadinessHub() {
+  const items = getReadinessItems();
+  const loaded = items.filter((item) => item.readiness);
+  if (!loaded.length) {
+    elements.readinessHubSummary.textContent = '待加载';
+    elements.readinessHub.innerHTML = '<div class="empty">正在检查企业微信、抖音和个人微信接入条件。</div>';
     return;
   }
 
-  summaryElement.textContent = `${readiness.percentText} · ${readiness.ready ? '可联调' : '缺资料'}`;
-  boxElement.innerHTML = `
-    <div class="readiness-summary ${readiness.ready ? 'ready' : 'blocked'}">
-      <div>
-        <strong>${escapeHtml(readiness.launch.title)}</strong>
-        <p>${escapeHtml(readiness.launch.nextCommand)}</p>
+  const readyCount = loaded.filter((item) => item.readiness.ready).length;
+  const missingCount = loaded.reduce((sum, item) => sum + (item.readiness.missingRequired?.length || 0), 0);
+  const average = loaded.reduce((sum, item) => sum + Number(item.readiness.percent || 0), 0) / loaded.length;
+  elements.readinessHubSummary.textContent =
+    `${readyCount}/${loaded.length} 可联调 · ${formatProgressPercent(average)} · ${missingCount ? `缺 ${missingCount} 项资料` : '资料齐全'}`;
+
+  elements.readinessHub.innerHTML = `
+    <div class="readiness-hub-grid">
+      ${items.map(renderReadinessPlatformCard).join('')}
+    </div>
+  `;
+}
+
+function getReadinessItems() {
+  return [
+    {
+      id: 'wecom',
+      name: '企业微信',
+      shortName: '企微',
+      focus: '群内 @ 智能客服、客户群承接、企业身份可信',
+      readiness: state.wecomReadiness
+    },
+    {
+      id: 'douyin',
+      name: '抖音私信/客服',
+      shortName: '抖音',
+      focus: '评论私信承接、一次性开场、平台内客服对话',
+      readiness: state.douyinReadiness
+    },
+    {
+      id: 'wechat-personal',
+      name: '个人微信/EasyClaw',
+      shortName: '个微',
+      focus: '人工确认后承接、私域关系维护、低风险跟进',
+      readiness: state.wechatPersonalReadiness
+    }
+  ];
+}
+
+function renderReadinessPlatformCard(item) {
+  const readiness = item.readiness;
+  if (!readiness) {
+    return `
+      <article class="readiness-platform-card queued">
+        <div class="readiness-platform-head">
+          <span>${escapeHtml(item.shortName)}</span>
+          <div>
+            <h3>${escapeHtml(item.name)}</h3>
+            <p>${escapeHtml(item.focus)}</p>
+          </div>
+          <strong>加载中</strong>
+        </div>
+        <div class="empty">正在读取接入检查。</div>
+      </article>
+    `;
+  }
+
+  const missing = readiness.missingRequired || [];
+  return `
+    <article class="readiness-platform-card ${readiness.ready ? 'ready' : 'blocked'}">
+      <div class="readiness-platform-head">
+        <span>${escapeHtml(item.shortName)}</span>
+        <div>
+          <h3>${escapeHtml(item.name)}</h3>
+          <p>${escapeHtml(item.focus)}</p>
+        </div>
+        <strong>${escapeHtml(readiness.percentText)}</strong>
       </div>
-      <span class="tag status ${readiness.ready ? 'connected' : 'needs-credentials'}">${readiness.ready ? '可以联调' : '等待凭证'}</span>
-    </div>
-    <div class="readiness-grid">
-      ${(readiness.checks || []).map(renderReadinessCheck).join('')}
-    </div>
-    <div class="readiness-plan">
-      <section>
-        <h3>下一步动作</h3>
-        <ol>${(readiness.launch.nextSteps || []).map((step) => `<li>${escapeHtml(step)}</li>`).join('')}</ol>
-      </section>
-      <section>
-        <h3>测试群验证</h3>
-        <p>${escapeHtml(readiness.groupTest.testGroup)}</p>
-        <pre>${escapeHtml(readiness.groupTest.triggerText)}</pre>
-        <ul>${(readiness.groupTest.passCriteria || []).map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
-      </section>
-      <section>
-        <h3>安全边界</h3>
-        <ul>${(readiness.safety || []).map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
-      </section>
-    </div>
+      <div class="roadmap-meter" aria-label="${escapeHtml(item.name)}接入完成度${escapeHtml(readiness.percentText)}">
+        <span style="width: ${Math.max(0, Math.min(100, Number(readiness.percent || 0)))}%"></span>
+      </div>
+      <div class="readiness-brief">
+        <span class="tag status ${readiness.ready ? 'connected' : 'needs-credentials'}">${readiness.ready ? '可以联调' : '等待资料'}</span>
+        <span>${missing.length ? `缺 ${escapeHtml(missing.join('、'))}` : '必填项已具备'}</span>
+      </div>
+      <p>${escapeHtml(readiness.launch?.title || '等待接入检查')}</p>
+      <div class="readiness-action-line">下一步：${escapeHtml(readiness.launch?.nextSteps?.[0] || readiness.launch?.nextCommand || '等待接入条件')}</div>
+      <details class="readiness-detail">
+        <summary>查看检查明细</summary>
+        <div class="readiness-detail-grid">
+          ${(readiness.checks || []).map(renderReadinessCheck).join('')}
+        </div>
+        <div class="readiness-plan compact">
+          <section>
+            <h3>下一步动作</h3>
+            <ol>${(readiness.launch?.nextSteps || []).map((step) => `<li>${escapeHtml(step)}</li>`).join('')}</ol>
+          </section>
+          <section>
+            <h3>测试验证</h3>
+            <p>${escapeHtml(readiness.groupTest?.testGroup || '待配置测试群')}</p>
+            <pre>${escapeHtml(readiness.groupTest?.triggerText || '待配置触发文本')}</pre>
+          </section>
+          <section>
+            <h3>安全边界</h3>
+            <ul>${(readiness.safety || []).map((entry) => `<li>${escapeHtml(entry)}</li>`).join('')}</ul>
+          </section>
+        </div>
+      </details>
+    </article>
   `;
 }
 
@@ -1185,11 +1275,17 @@ async function savePlatformConfig(event) {
     state.platformConfig = result.config;
     state.channelPorts = await api('/api/channel-ports');
     state.integrationRoadmap = await api('/api/integration-roadmap');
+    state.wecomReadiness = await api('/api/wecom/readiness');
+    state.douyinReadiness = await api('/api/douyin/readiness');
+    state.wechatPersonalReadiness = await api('/api/wechat-personal/readiness');
     state.projectProgress = await api('/api/project-progress');
     renderStatus(status);
     renderPlatformConfig();
     renderIntegrationRoadmap();
+    renderReadinessHub();
     renderChannelPorts(status.channelPorts);
+    renderWorkflowMenu();
+    renderWorkflowOverview();
     renderProgressBadges();
     elements.platformConfigBox.textContent = [
       '保存完成',

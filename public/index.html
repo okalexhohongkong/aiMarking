@@ -34,6 +34,14 @@
         <span id="workflowStep" class="count">1 / 7</span>
       </section>
 
+      <section class="panel workflow-overview-panel" data-workflow-view="target">
+        <div class="panel-head">
+          <h2>七维流程总控台</h2>
+          <span id="workflowOverviewSummary" class="count">加载中</span>
+        </div>
+        <div id="workflowOverviewCards" class="workflow-overview-grid"></div>
+      </section>
+
       <section class="panel appearance-panel" data-workflow-view="system">
         <div class="panel-head">
           <h2>界面设置</h2>
@@ -190,28 +198,12 @@
         <div id="channelPortList" class="channel-port-grid"></div>
       </section>
 
-      <section class="panel wecom-readiness-panel" data-workflow-view="ai-service">
+      <section class="panel readiness-hub-panel" data-workflow-view="ai-service">
         <div class="panel-head">
-          <h2>企业微信真实接入检查</h2>
-          <span id="wecomReadinessSummary" class="count">加载中</span>
+          <h2>接入检查台</h2>
+          <span id="readinessHubSummary" class="count">加载中</span>
         </div>
-        <div id="wecomReadinessBox" class="readiness-box"></div>
-      </section>
-
-      <section class="panel douyin-readiness-panel" data-workflow-view="ai-service">
-        <div class="panel-head">
-          <h2>抖音私信/客服接入检查</h2>
-          <span id="douyinReadinessSummary" class="count">加载中</span>
-        </div>
-        <div id="douyinReadinessBox" class="readiness-box"></div>
-      </section>
-
-      <section class="panel wechat-personal-readiness-panel" data-workflow-view="ai-service">
-        <div class="panel-head">
-          <h2>个人微信/EasyClaw接入检查</h2>
-          <span id="wechatPersonalReadinessSummary" class="count">加载中</span>
-        </div>
-        <div id="wechatPersonalReadinessBox" class="readiness-box"></div>
+        <div id="readinessHub" class="readiness-hub"></div>
       </section>
 
       <section class="panel simulate-panel" data-workflow-view="ai-service">
