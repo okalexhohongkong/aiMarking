@@ -284,7 +284,8 @@ button.secondary:hover {
   margin-top: 16px;
 }
 
-.wecom-readiness-panel {
+.wecom-readiness-panel,
+.douyin-readiness-panel {
   margin-top: 16px;
 }
 

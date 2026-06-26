@@ -32,3 +32,16 @@ test('shows a dedicated wecom readiness panel in the AI service workflow', async
   assert.match(app, /api\('\/api\/wecom\/readiness'\)/);
   assert.match(app, /function renderWecomReadiness\(\)/);
 });
+
+test('shows a dedicated douyin readiness panel in the AI service workflow', async () => {
+  const html = await readFile('public/index.html', 'utf8');
+  const css = await readFile('public/styles.css', 'utf8');
+  const app = await readFile('public/app.js', 'utf8');
+
+  assert.match(html, /id="douyinReadinessSummary"/);
+  assert.match(html, /id="douyinReadinessBox"/);
+  assert.match(html, /抖音私信\/客服接入检查/);
+  assert.match(css, /\.douyin-readiness-panel/);
+  assert.match(app, /api\('\/api\/douyin\/readiness'\)/);
+  assert.match(app, /function renderDouyinReadiness\(\)/);
+});

@@ -10,6 +10,7 @@ import { ChannelMessageService } from './channelMessageService.js';
 import { listChannelPorts } from './channelPorts.js';
 import { readAdminConfig, readConfigSummary } from './config.js';
 import { getCustomerLifecycleBlueprint } from './customerLifecycle.js';
+import { buildDouyinReadiness } from './douyinReadiness.js';
 import { getEngagementPlaybooks } from './engagementPlaybooks.js';
 import { generateGrowthReply } from './growthEngine.js';
 import { buildHermesCommandPayload } from './hermesCommandInbox.js';
@@ -302,6 +303,21 @@ async function routeRequest({
       response,
       200,
       buildWecomReadiness({
+        env: runtimeEnv,
+        host: adminConfig.admin.host,
+        port: adminConfig.admin.port
+      })
+    );
+    return;
+  }
+
+  if (url.pathname === '/api/douyin/readiness' && request.method === 'GET') {
+    const runtimeEnv = await resolveServerEnv(env, platformConfigEnvPath);
+    const adminConfig = readAdminConfig(runtimeEnv);
+    sendJson(
+      response,
+      200,
+      buildDouyinReadiness({
         env: runtimeEnv,
         host: adminConfig.admin.host,
         port: adminConfig.admin.port

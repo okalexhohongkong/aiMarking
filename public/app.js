@@ -61,6 +61,7 @@ const state = {
   projectProgress: null,
   integrationRoadmap: null,
   wecomReadiness: null,
+  douyinReadiness: null,
   platformConfig: null,
   customerLifecycle: null,
   engagementPlaybooks: null,
@@ -120,6 +121,8 @@ const elements = {
   channelPortSummary: $('#channelPortSummary'),
   wecomReadinessSummary: $('#wecomReadinessSummary'),
   wecomReadinessBox: $('#wecomReadinessBox'),
+  douyinReadinessSummary: $('#douyinReadinessSummary'),
+  douyinReadinessBox: $('#douyinReadinessBox'),
   platformConfigSummary: $('#platformConfigSummary'),
   platformConfigList: $('#platformConfigList'),
   platformConfigBox: $('#platformConfigBox'),
@@ -251,6 +254,7 @@ async function refreshAll() {
     projectProgress,
     integrationRoadmap,
     wecomReadiness,
+    douyinReadiness,
     customerLifecycle,
     engagementPlaybooks,
     hermesCommands,
@@ -266,6 +270,7 @@ async function refreshAll() {
     api('/api/project-progress'),
     api('/api/integration-roadmap'),
     api('/api/wecom/readiness'),
+    api('/api/douyin/readiness'),
     api('/api/customer-lifecycle'),
     api('/api/engagement-playbooks'),
     api('/api/hermes/commands'),
@@ -281,6 +286,7 @@ async function refreshAll() {
   state.projectProgress = projectProgress;
   state.integrationRoadmap = integrationRoadmap;
   state.wecomReadiness = wecomReadiness;
+  state.douyinReadiness = douyinReadiness;
   state.customerLifecycle = customerLifecycle;
   state.engagementPlaybooks = engagementPlaybooks;
   state.hermesCommands = hermesCommands;
@@ -301,6 +307,7 @@ async function refreshAll() {
   renderGraph();
   renderIntegrationRoadmap();
   renderWecomReadiness();
+  renderDouyinReadiness();
   renderPlatformConfig();
   renderChannelPorts(status.channelPorts);
   renderChannelSelect();
@@ -561,15 +568,32 @@ function renderIntegrationRoadmap() {
 }
 
 function renderWecomReadiness() {
-  const readiness = state.wecomReadiness;
+  renderReadinessPanel({
+    readiness: state.wecomReadiness,
+    summaryElement: elements.wecomReadinessSummary,
+    boxElement: elements.wecomReadinessBox,
+    emptyText: '正在检查企业微信真实接入条件。'
+  });
+}
+
+function renderDouyinReadiness() {
+  renderReadinessPanel({
+    readiness: state.douyinReadiness,
+    summaryElement: elements.douyinReadinessSummary,
+    boxElement: elements.douyinReadinessBox,
+    emptyText: '正在检查抖音私信/客服接入条件。'
+  });
+}
+
+function renderReadinessPanel({ readiness, summaryElement, boxElement, emptyText }) {
   if (!readiness) {
-    elements.wecomReadinessSummary.textContent = '待加载';
-    elements.wecomReadinessBox.innerHTML = '<div class="empty">正在检查企业微信真实接入条件。</div>';
+    summaryElement.textContent = '待加载';
+    boxElement.innerHTML = `<div class="empty">${escapeHtml(emptyText)}</div>`;
     return;
   }
 
-  elements.wecomReadinessSummary.textContent = `${readiness.percentText} · ${readiness.ready ? '可联调' : '缺资料'}`;
-  elements.wecomReadinessBox.innerHTML = `
+  summaryElement.textContent = `${readiness.percentText} · ${readiness.ready ? '可联调' : '缺资料'}`;
+  boxElement.innerHTML = `
     <div class="readiness-summary ${readiness.ready ? 'ready' : 'blocked'}">
       <div>
         <strong>${escapeHtml(readiness.launch.title)}</strong>
@@ -1567,7 +1591,7 @@ function platformConfigStatusLabel(status) {
 function readinessStatusClass(status) {
   if (status === 'ready') return 'ready';
   if (status === 'missing') return 'blocked';
-  if (status === 'defaulted') return 'active';
+  if (status === 'defaulted' || status === 'manual') return 'active';
   return 'queued';
 }
 
@@ -1576,7 +1600,8 @@ function readinessStatusLabel(status) {
     ready: '已具备',
     missing: '缺少',
     optional: '选填',
-    defaulted: '默认值'
+    defaulted: '默认值',
+    manual: '需确认'
   };
   return labels[status] || status || '待检查';
 }
