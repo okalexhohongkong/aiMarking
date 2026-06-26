@@ -18,6 +18,46 @@ const moduleDefinitions = [
     nextStep: '接入真实平台状态'
   },
   {
+    id: 'input-center',
+    title: '统一输入中心',
+    basePercent: 70,
+    plannedHours: 5,
+    tone: 'normal',
+    nextStep: '接入表格上传和数据库映射'
+  },
+  {
+    id: 'data-import',
+    title: '数据导入中心',
+    basePercent: 62,
+    plannedHours: 8,
+    tone: 'normal',
+    nextStep: '补客户画像、评论私信样本导入模板'
+  },
+  {
+    id: 'device-ports',
+    title: '外设接口',
+    basePercent: 46,
+    plannedHours: 12,
+    tone: 'normal',
+    nextStep: '定义手机、语音和平台终端授权边界'
+  },
+  {
+    id: 'api-center',
+    title: 'API接口中心',
+    basePercent: 52,
+    plannedHours: 14,
+    tone: 'normal',
+    nextStep: '把平台凭证和 Webhook 回调统一成接口清单'
+  },
+  {
+    id: 'voice-input',
+    title: 'AI语音输入',
+    basePercent: 60,
+    plannedHours: 8,
+    tone: 'normal',
+    nextStep: '接入语音转写后的结构化分发'
+  },
+  {
     id: 'knowledge',
     title: '知识库',
     basePercent: 88,

@@ -2,55 +2,91 @@ import { bindAppearanceSettings } from './appearanceSettings.js';
 
 const workflowSettingsStorageKey = 'wecom-ai-customer-service.workflow-settings';
 const targetProfileStorageKey = 'wecom-ai-customer-service.target-profile';
+const sidebarLayoutStorageKey = 'wecom-ai-customer-service.sidebar-layout';
 
 const workflowViews = [
   {
     id: 'target',
     title: '锚定目标',
-    step: '1 / 7',
+    step: '1 / 12',
     description: '先看系统目标、七维闭环、运行状态和当前项目定位。',
     moduleIds: ['marketing', 'status']
   },
   {
     id: 'content',
     title: '生成内容',
-    step: '2 / 7',
+    step: '2 / 12',
     description: '整理知识库、知识图谱和内容资产，为后续问答、私信和成交承接提供素材。',
     moduleIds: ['knowledge']
   },
   {
     id: 'engagement',
     title: '评论私信管理',
-    step: '3 / 7',
+    step: '3 / 12',
     description: '把评论、私信、资料领取、报价、案例和活动咨询沉淀为可复用转化剧本。',
     moduleIds: ['playbooks']
   },
   {
     id: 'private-message',
     title: '加私信',
-    step: '4 / 7',
+    step: '4 / 12',
     description: '根据来源、地域、作品、留言和权益生成一次性私信，并进入人工审批队列。',
     moduleIds: ['private-message']
   },
   {
     id: 'ai-service',
     title: 'AI客服',
-    step: '5 / 7',
+    step: '5 / 12',
     description: '在同一工作台查看平台接入、端口、问答测试和知识图谱，验证统一客服引擎。',
     moduleIds: ['channels', 'qa', 'simulator']
   },
   {
     id: 'conversion',
     title: '引流成交',
-    step: '6 / 7',
+    step: '6 / 12',
     description: '按客户生命周期、高意向线索和私域话术推动预约、定金、下单和复购。',
     moduleIds: ['lifecycle', 'growth', 'leads']
   },
   {
-    id: 'system',
-    title: '系统配置',
-    step: '7 / 7',
-    description: '集中管理平台凭证、界面风格、本机工具、Hermes 指令和并行任务调度。',
+    id: 'input-center',
+    title: '输入中心',
+    step: '7 / 12',
+    description: '统一管理手动输入、表格导入、数据库导入、API 导入和 AI 语音输入。',
+    moduleIds: ['input-center']
+  },
+  {
+    id: 'data-import',
+    title: '数据导入',
+    step: '8 / 12',
+    description: '把知识库、评论私信样本、目标画像和外部业务数据统一导入系统。',
+    moduleIds: ['data-import']
+  },
+  {
+    id: 'device-ports',
+    title: '外设接口',
+    step: '9 / 12',
+    description: '预留手机、企业微信、个人微信、平台客服终端、语音录音和会议输入。',
+    moduleIds: ['device-ports']
+  },
+  {
+    id: 'api-center',
+    title: 'API接口',
+    step: '10 / 12',
+    description: '集中管理平台开放 API、业务系统 API、Webhook 回调和凭证配置。',
+    moduleIds: ['api-center', 'channels']
+  },
+  {
+    id: 'voice-input',
+    title: '语音输入',
+    step: '11 / 12',
+    description: '用语音描述目标、内容、评论、私信、客服和成交要求，再写入对应模块。',
+    moduleIds: ['voice-input']
+  },
+  {
+    id: 'settings',
+    title: '系统设置',
+    step: '12 / 12',
+    description: '集中管理界面皮肤、母菜单、模块排序、交付入口、Hermes 指令和并行任务调度。',
     moduleIds: ['appearance', 'hermes']
   }
 ];
@@ -80,15 +116,32 @@ const state = {
     rules: [],
     leads: []
   },
+  voiceRecognition: null,
   workflowSettings: loadWorkflowSettings(window.localStorage),
-  targetProfile: loadTargetProfile(window.localStorage)
+  targetProfile: loadTargetProfile(window.localStorage),
+  sidebarLayout: loadSidebarLayout(window.localStorage),
+  menuSearch: ''
 };
+
+const inputModeRows = [
+  ['锚定目标', '品牌、人群、区域、竞品、消费行为、媒体偏好', ['手动', '表格', '数据库', 'API', '语音']],
+  ['生成内容', '知识库、知识图谱、头部内容参考、文案素材', ['手动', '表格', '数据库', 'API', '语音']],
+  ['评论私信管理', '评论、私信、资料领取、负面反馈和意向分级', ['手动', '表格', '数据库', 'API', '语音']],
+  ['加私信', '一次性私信、来源说明、价值钩子、权益和链接', ['手动', '表格', '数据库', 'API', '语音']],
+  ['AI客服', '客户问题、平台消息、知识库答案和图谱推理', ['手动', '表格', '数据库', 'API', '语音']],
+  ['引流成交', '线索阶段、成交目标、复购跟单和权益策略', ['手动', '表格', '数据库', 'API', '语音']]
+];
 
 const $ = (selector) => document.querySelector(selector);
 
 const elements = {
   statusLine: $('#statusLine'),
   primaryNav: $('#primaryNav'),
+  menuSearch: $('#menuSearchInput'),
+  sidebarSettings: $('#sidebarSettingsButton'),
+  sidebarLock: $('#sidebarLockButton'),
+  sidebarCollapse: $('#sidebarCollapseButton'),
+  sidebarResizeHandle: $('#sidebarResizeHandle'),
   workflowTitle: $('#workflowTitle'),
   workflowDescription: $('#workflowDescription'),
   workflowStep: $('#workflowStep'),
@@ -137,6 +190,7 @@ const elements = {
   resetForm: $('#resetFormButton'),
   appearanceForm: $('#appearanceForm'),
   accentColor: $('#accentColorInput'),
+  sidebarColor: $('#sidebarColorInput'),
   backgroundColor: $('#backgroundColorInput'),
   panelColor: $('#panelColorInput'),
   textColor: $('#textColorInput'),
@@ -149,6 +203,14 @@ const elements = {
   moduleSettingsSummary: $('#moduleSettingsSummary'),
   moduleSettingsList: $('#moduleSettingsList'),
   resetModuleSettings: $('#resetModuleSettingsButton'),
+  inputModeMatrix: $('#inputModeMatrix'),
+  voiceInputSummary: $('#voiceInputSummary'),
+  voiceTarget: $('#voiceTargetInput'),
+  voiceLanguage: $('#voiceLanguageInput'),
+  voiceTranscript: $('#voiceTranscriptInput'),
+  startVoiceInput: $('#startVoiceInputButton'),
+  stopVoiceInput: $('#stopVoiceInputButton'),
+  applyVoiceInput: $('#applyVoiceInputButton'),
   channelPortSummary: $('#channelPortSummary'),
   readinessHubSummary: $('#readinessHubSummary'),
   readinessHub: $('#readinessHub'),
@@ -237,6 +299,7 @@ bindAppearanceSettings({
   elements: {
     form: elements.appearanceForm,
     accentColor: elements.accentColor,
+    sidebarColor: elements.sidebarColor,
     backgroundColor: elements.backgroundColor,
     panelColor: elements.panelColor,
     textColor: elements.textColor,
@@ -252,10 +315,16 @@ bindAppearanceSettings({
 });
 
 initializeWorkflowMenu();
+applySidebarLayout();
 await refreshAll();
 
 elements.refresh.addEventListener('click', refreshAll);
 elements.primaryNav.addEventListener('click', handleWorkflowNavClick);
+elements.menuSearch.addEventListener('input', handleMenuSearchInput);
+elements.sidebarSettings.addEventListener('click', () => showWorkflowView('settings'));
+elements.sidebarLock.addEventListener('click', toggleSidebarLock);
+elements.sidebarCollapse.addEventListener('click', toggleSidebarCollapse);
+elements.sidebarResizeHandle.addEventListener('pointerdown', startSidebarResize);
 elements.targetProfileForm.addEventListener('submit', saveTargetProfile);
 elements.targetProfileForm.addEventListener('input', previewTargetProfileFromForm);
 elements.resetTargetProfile.addEventListener('click', resetTargetProfile);
@@ -265,6 +334,9 @@ elements.moduleSettingsList.addEventListener('dragover', handleWorkflowDragOver)
 elements.moduleSettingsList.addEventListener('drop', handleWorkflowDrop);
 elements.moduleSettingsList.addEventListener('dragend', handleWorkflowDragEnd);
 elements.resetModuleSettings.addEventListener('click', resetWorkflowSettings);
+elements.startVoiceInput.addEventListener('click', startVoiceInput);
+elements.stopVoiceInput.addEventListener('click', stopVoiceInput);
+elements.applyVoiceInput.addEventListener('click', applyVoiceInput);
 window.addEventListener('hashchange', () => showWorkflowView(currentWorkflowFromHash(), { updateHash: false }));
 elements.resetForm.addEventListener('click', resetKnowledgeForm);
 elements.form.addEventListener('submit', saveKnowledge);
@@ -343,6 +415,7 @@ async function refreshAll() {
   };
   renderWorkflowMenu();
   renderModuleSettings();
+  renderInputModeMatrix();
   renderTargetProfile();
   renderStatus(status);
   renderProgressBadges();
@@ -376,6 +449,11 @@ function handleWorkflowNavClick(event) {
     return;
   }
   showWorkflowView(button.dataset.workflowTab);
+}
+
+function handleMenuSearchInput(event) {
+  state.menuSearch = normalizeSearchText(event.target.value);
+  renderWorkflowMenu();
 }
 
 function currentWorkflowFromHash() {
@@ -414,7 +492,8 @@ function showWorkflowView(viewId, { updateHash = true } = {}) {
 }
 
 function renderWorkflowMenu() {
-  elements.primaryNav.innerHTML = visibleWorkflowViews().map((view) => {
+  const views = filteredWorkflowViews();
+  elements.primaryNav.innerHTML = views.length ? views.map((view) => {
     const summary = workflowMenuSummary(view);
     return `
       <button type="button" data-workflow-tab="${escapeHtml(view.id)}" data-menu-tone="${escapeHtml(summary.tone)}" title="${escapeHtml(summary.title)}">
@@ -425,7 +504,7 @@ function renderWorkflowMenu() {
         </span>
       </button>
     `;
-  }).join('');
+  }).join('') : '<div class="menu-empty">没有匹配菜单</div>';
 }
 
 function orderedWorkflowViews() {
@@ -439,6 +518,22 @@ function orderedWorkflowViews() {
 function visibleWorkflowViews() {
   const hidden = new Set(state.workflowSettings.hidden || []);
   return orderedWorkflowViews().filter((view) => !hidden.has(view.id));
+}
+
+function filteredWorkflowViews() {
+  const query = state.menuSearch;
+  if (!query) {
+    return visibleWorkflowViews();
+  }
+  return visibleWorkflowViews().filter((view) => workflowSearchText(view).includes(query));
+}
+
+function workflowSearchText(view) {
+  return normalizeSearchText([view.title, view.description, view.id, ...(view.moduleIds || [])].join(' '));
+}
+
+function normalizeSearchText(value) {
+  return String(value || '').trim().toLowerCase();
 }
 
 function renderModuleSettings() {
@@ -658,6 +753,192 @@ function resetWorkflowSettings() {
   state.workflowSettings = defaultWorkflowSettings();
   saveWorkflowSettings();
   showWorkflowView(workflowViews[0].id);
+}
+
+function loadSidebarLayout(storage) {
+  const defaults = defaultSidebarLayout();
+  if (!storage) {
+    return defaults;
+  }
+  try {
+    return normalizeSidebarLayout(JSON.parse(storage.getItem(sidebarLayoutStorageKey) || '{}'));
+  } catch {
+    return defaults;
+  }
+}
+
+function defaultSidebarLayout() {
+  return {
+    locked: true,
+    collapsed: false,
+    width: 208
+  };
+}
+
+function normalizeSidebarLayout(input = {}) {
+  return {
+    locked: input.locked !== false,
+    collapsed: Boolean(input.collapsed),
+    width: clampSidebarWidth(input.width)
+  };
+}
+
+function saveSidebarLayout() {
+  state.sidebarLayout = normalizeSidebarLayout(state.sidebarLayout);
+  window.localStorage?.setItem(sidebarLayoutStorageKey, JSON.stringify(state.sidebarLayout));
+  applySidebarLayout();
+}
+
+function applySidebarLayout() {
+  const layout = normalizeSidebarLayout(state.sidebarLayout);
+  state.sidebarLayout = layout;
+  document.documentElement.style.setProperty('--sidebar-width', `${layout.width}px`);
+  document.body.classList.toggle('sidebar-unlocked', !layout.locked && !layout.collapsed);
+  document.body.classList.toggle('sidebar-collapsed', layout.collapsed);
+  elements.sidebarLock.setAttribute('aria-pressed', String(layout.locked));
+  elements.sidebarLock.textContent = layout.locked ? '🔒' : '🔓';
+  elements.sidebarLock.title = layout.locked ? '解锁菜单布局' : '锁定菜单布局';
+  elements.sidebarLock.setAttribute('aria-label', elements.sidebarLock.title);
+  elements.sidebarCollapse.setAttribute('aria-pressed', String(layout.collapsed));
+  elements.sidebarCollapse.textContent = layout.collapsed ? '⇥' : '⇤';
+  elements.sidebarCollapse.title = layout.collapsed ? '展开菜单' : '收缩菜单';
+  elements.sidebarCollapse.setAttribute('aria-label', elements.sidebarCollapse.title);
+}
+
+function toggleSidebarLock() {
+  state.sidebarLayout.locked = !state.sidebarLayout.locked;
+  saveSidebarLayout();
+}
+
+function toggleSidebarCollapse() {
+  state.sidebarLayout.collapsed = !state.sidebarLayout.collapsed;
+  saveSidebarLayout();
+}
+
+function startSidebarResize(event) {
+  if (state.sidebarLayout.locked || state.sidebarLayout.collapsed) {
+    return;
+  }
+  event.preventDefault();
+  const startX = event.clientX;
+  const startWidth = state.sidebarLayout.width;
+  document.body.classList.add('sidebar-resizing');
+  elements.sidebarResizeHandle.setPointerCapture?.(event.pointerId);
+
+  const resize = (moveEvent) => {
+    const nextWidth = clampSidebarWidth(startWidth + moveEvent.clientX - startX);
+    state.sidebarLayout.width = nextWidth;
+    document.documentElement.style.setProperty('--sidebar-width', `${nextWidth}px`);
+  };
+
+  const stop = () => {
+    document.body.classList.remove('sidebar-resizing');
+    window.removeEventListener('pointermove', resize);
+    window.removeEventListener('pointerup', stop);
+    saveSidebarLayout();
+  };
+
+  window.addEventListener('pointermove', resize);
+  window.addEventListener('pointerup', stop, { once: true });
+}
+
+function clampSidebarWidth(value) {
+  const width = Number.parseInt(value, 10);
+  if (!Number.isFinite(width)) {
+    return 208;
+  }
+  return Math.max(166, Math.min(340, width));
+}
+
+function renderInputModeMatrix() {
+  if (!elements.inputModeMatrix) {
+    return;
+  }
+
+  elements.inputModeMatrix.innerHTML = inputModeRows.map(([moduleName, scope, modes]) => `
+    <article class="input-mode-row">
+      <div>
+        <strong>${escapeHtml(moduleName)}</strong>
+        <p>${escapeHtml(scope)}</p>
+      </div>
+      <div class="input-mode-tags">
+        ${modes.map((mode) => `<span>${escapeHtml(mode)}</span>`).join('')}
+      </div>
+    </article>
+  `).join('');
+}
+
+function startVoiceInput() {
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Recognition) {
+    setVoiceSummary('当前浏览器不支持语音识别，可先手动粘贴转写文字。');
+    return;
+  }
+
+  stopVoiceInput();
+  const recognition = new Recognition();
+  recognition.lang = elements.voiceLanguage.value || 'zh-CN';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.onstart = () => setVoiceSummary('正在听写...');
+  recognition.onerror = () => setVoiceSummary('语音识别中断，请检查浏览器麦克风权限。');
+  recognition.onend = () => {
+    if (state.voiceRecognition === recognition) {
+      state.voiceRecognition = null;
+      setVoiceSummary('语音输入已停止');
+    }
+  };
+  recognition.onresult = (event) => {
+    const text = [...event.results]
+      .map((result) => result[0]?.transcript || '')
+      .join('')
+      .trim();
+    if (text) {
+      elements.voiceTranscript.value = text;
+    }
+  };
+  state.voiceRecognition = recognition;
+  recognition.start();
+}
+
+function stopVoiceInput() {
+  if (state.voiceRecognition) {
+    state.voiceRecognition.stop();
+    state.voiceRecognition = null;
+  }
+  setVoiceSummary('语音输入已停止');
+}
+
+function applyVoiceInput() {
+  const text = elements.voiceTranscript.value.trim();
+  if (!text) {
+    setVoiceSummary('请先输入或识别一段文字');
+    return;
+  }
+
+  const targetMap = {
+    'target-pain': elements.targetPain,
+    'target-behavior': elements.targetBehavior,
+    'knowledge-content': elements.content,
+    'private-comment': elements.privateCommentText,
+    'qa-question': elements.question,
+    'growth-message': elements.growthMessage,
+    'hermes-command': elements.hermesText
+  };
+  const target = targetMap[elements.voiceTarget.value];
+  if (!target) {
+    setVoiceSummary('目标输入框不存在');
+    return;
+  }
+  target.value = target.value ? `${target.value}\n${text}` : text;
+  target.dispatchEvent(new Event('input', { bubbles: true }));
+  setVoiceSummary('已写入目标模块');
+}
+
+function setVoiceSummary(message) {
+  if (elements.voiceInputSummary) {
+    elements.voiceInputSummary.textContent = message;
+  }
 }
 
 function renderTargetProfile() {

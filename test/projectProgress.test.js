@@ -22,6 +22,11 @@ test('builds countdown progress for all dashboard sections', () => {
   assert.deepEqual(ids, [
     'appearance',
     'status',
+    'input-center',
+    'data-import',
+    'device-ports',
+    'api-center',
+    'voice-input',
     'knowledge',
     'qa',
     'channels',
@@ -40,6 +45,9 @@ test('builds countdown progress for all dashboard sections', () => {
   assert.ok(progress.modules.some((module) => module.title === '客户生命周期'));
   assert.ok(progress.modules.some((module) => module.title === '私信/评论转化剧本'));
   assert.ok(progress.modules.some((module) => module.title === 'Hermes 指令收件箱'));
+  assert.ok(progress.modules.some((module) => module.title === '统一输入中心'));
+  assert.ok(progress.modules.some((module) => module.title === 'API接口中心'));
+  assert.ok(progress.modules.some((module) => module.title === 'AI语音输入'));
 
   const channels = progress.modules.find((module) => module.id === 'channels');
   assert.equal(channels.percentText.endsWith('%'), true);

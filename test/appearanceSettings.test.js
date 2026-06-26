@@ -14,6 +14,7 @@ import {
 test('normalizes appearance settings to safe colors, font, and size', () => {
   const settings = normalizeAppearance({
     accentColor: '#ABC',
+    sidebarColor: '#123',
     backgroundColor: 'not-a-color',
     panelColor: '#111111',
     textColor: '#222222',
@@ -23,7 +24,8 @@ test('normalizes appearance settings to safe colors, font, and size', () => {
   });
 
   assert.equal(settings.accentColor, '#aabbcc');
-  assert.equal(settings.backgroundColor, '#f5f7f8');
+  assert.equal(settings.sidebarColor, '#112233');
+  assert.equal(settings.backgroundColor, '#f0f8ff');
   assert.equal(settings.panelColor, '#111111');
   assert.equal(settings.textColor, '#222222');
   assert.equal(settings.fontPreset, 'custom');
@@ -42,6 +44,7 @@ test('applies appearance settings as css variables', () => {
   const applied = applyAppearanceSettings(
     {
       accentColor: '#123456',
+      sidebarColor: '#0c4a6e',
       backgroundColor: '#eeeeee',
       panelColor: '#ffffff',
       textColor: '#101010',
@@ -53,6 +56,7 @@ test('applies appearance settings as css variables', () => {
 
   assert.equal(applied.fontSize, 18);
   assert.equal(properties.get('--accent'), '#123456');
+  assert.equal(properties.get('--sidebar-bg'), '#0c4a6e');
   assert.equal(properties.get('--bg'), '#eeeeee');
   assert.equal(properties.get('--font-base'), '18px');
   assert.match(properties.get('--app-font-family'), /SFMono-Regular/);
@@ -68,6 +72,7 @@ test('loads and saves appearance settings from browser storage', () => {
 
   const saved = saveAppearanceSettings(storage, {
     accentColor: '#990000',
+    sidebarColor: '#101010',
     backgroundColor: '#ffffff',
     panelColor: '#fafafa',
     textColor: '#111111',

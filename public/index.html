@@ -14,7 +14,30 @@
   <body>
     <main class="app-shell">
       <aside class="app-sidebar">
+        <div class="sidebar-brand">
+          <span class="sidebar-brand-mark">AI</span>
+          <div>
+            <strong>黑卫士七维AI</strong>
+            <small>营销中台 1.0</small>
+          </div>
+        </div>
+        <div class="sidebar-status-card">
+          <strong>母菜单总纲</strong>
+          <small>业务流程、输入方式、接口外设和系统设置统一入口。</small>
+        </div>
+        <div class="sidebar-toolbar" aria-label="菜单快捷入口">
+          <label class="menu-search">
+            <span>搜索菜单</span>
+            <input id="menuSearchInput" type="search" placeholder="搜索流程 / 接口 / 设置" autocomplete="off" />
+          </label>
+          <div class="sidebar-actions">
+            <button id="sidebarSettingsButton" class="sidebar-tool-button" type="button" title="系统设置" aria-label="系统设置">⚙</button>
+            <button id="sidebarLockButton" class="sidebar-tool-button" type="button" title="解锁菜单布局" aria-label="解锁菜单布局" aria-pressed="true">🔒</button>
+            <button id="sidebarCollapseButton" class="sidebar-tool-button" type="button" title="收缩菜单" aria-label="收缩菜单" aria-pressed="false">⇤</button>
+          </div>
+        </div>
         <nav id="primaryNav" class="primary-nav" aria-label="一级业务菜单"></nav>
+        <button id="sidebarResizeHandle" class="sidebar-resize-handle" type="button" aria-label="拖拽调整菜单宽度" title="解锁后拖拽调整菜单宽度"></button>
       </aside>
 
       <div class="app-content">
@@ -31,7 +54,7 @@
           <h2 id="workflowTitle">锚定目标</h2>
           <p id="workflowDescription">先看系统目标、七维闭环和当前运行状态。</p>
         </div>
-        <span id="workflowStep" class="count">1 / 7</span>
+        <span id="workflowStep" class="count">1 / 12</span>
       </section>
 
       <section class="panel workflow-overview-panel" data-workflow-view="target">
@@ -157,7 +180,7 @@
         </div>
       </section>
 
-      <section class="panel appearance-panel" data-workflow-view="system">
+      <section class="panel appearance-panel" data-workflow-view="settings">
         <div class="panel-head">
           <h2>界面设置</h2>
           <span class="count">颜色 / 字体 / 字号</span>
@@ -165,11 +188,15 @@
         <form id="appearanceForm" class="appearance-grid">
           <label>
             主色
-            <input id="accentColorInput" type="color" value="#0c7c59" />
+            <input id="accentColorInput" type="color" value="#0284c7" />
+          </label>
+          <label>
+            母菜单
+            <input id="sidebarColorInput" type="color" value="#0c4a6e" />
           </label>
           <label>
             背景
-            <input id="backgroundColorInput" type="color" value="#f5f7f8" />
+            <input id="backgroundColorInput" type="color" value="#f0f8ff" />
           </label>
           <label>
             面板
@@ -177,7 +204,7 @@
           </label>
           <label>
             文字
-            <input id="textColorInput" type="color" value="#16201d" />
+            <input id="textColorInput" type="color" value="#1f2937" />
           </label>
           <label>
             字体
@@ -195,18 +222,18 @@
             <input id="customFontInput" maxlength="120" placeholder="例如：PingFang SC, Microsoft YaHei" />
           </label>
           <label class="font-size-control">
-            字号 <span id="fontSizeLabel">16px</span>
-            <input id="fontSizeInput" type="range" min="13" max="24" step="1" value="16" />
+            字号 <span id="fontSizeLabel">14px</span>
+            <input id="fontSizeInput" type="range" min="13" max="24" step="1" value="14" />
           </label>
           <label>
             字号数值
-            <input id="fontSizeNumberInput" type="number" min="13" max="24" step="1" value="16" />
+            <input id="fontSizeNumberInput" type="number" min="13" max="24" step="1" value="14" />
           </label>
           <button id="resetAppearanceButton" class="secondary" type="button">恢复默认</button>
         </form>
       </section>
 
-      <section class="panel module-settings-panel" data-workflow-view="system">
+      <section class="panel module-settings-panel" data-workflow-view="settings">
         <div class="panel-head">
           <h2>模块管理</h2>
           <span id="moduleSettingsSummary" class="count">加载中</span>
@@ -217,7 +244,7 @@
         </div>
       </section>
 
-      <section class="panel delivery-panel" data-workflow-view="system">
+      <section class="panel delivery-panel" data-workflow-view="settings">
         <div class="panel-head">
           <h2>交付入口</h2>
           <span class="count">演示 / 安装包 / 仓库</span>
@@ -235,6 +262,153 @@
             <h3>GitHub 仓库</h3>
             <p>github.com/okalexhohongkong/aiMarking</p>
           </article>
+        </div>
+      </section>
+
+      <section class="panel input-center-panel" data-workflow-view="input-center">
+        <div class="panel-head">
+          <h2>统一输入中心</h2>
+          <span class="count">手动 / 表格 / 数据库 / API / 语音</span>
+        </div>
+        <div class="input-method-grid">
+          <article>
+            <strong>手动输入</strong>
+            <p>适合锚定目标、知识库、私信、评论处理和成交话术的即时录入。</p>
+          </article>
+          <article>
+            <strong>表格导入</strong>
+            <p>适合批量导入客户画像、评论样本、知识条目、线索清单和话术素材。</p>
+          </article>
+          <article>
+            <strong>数据库导入</strong>
+            <p>预留 CRM、商城、医院 HIS、门店系统和自有私域数据库接入。</p>
+          </article>
+          <article>
+            <strong>API 接口导入</strong>
+            <p>预留各平台 Webhook、开放平台接口和内部系统接口。</p>
+          </article>
+          <article>
+            <strong>AI 语音输入</strong>
+            <p>用语音描述目标、内容、评论、私信和客服要求，转成结构化文字后进入对应模块。</p>
+          </article>
+        </div>
+        <div id="inputModeMatrix" class="input-mode-matrix"></div>
+      </section>
+
+      <section class="panel data-import-panel" data-workflow-view="data-import">
+        <div class="panel-head">
+          <h2>数据导入中心</h2>
+          <span class="count">模板 / 表格 / 数据库</span>
+        </div>
+        <div class="import-route-grid">
+          <article>
+            <h3>知识库导入</h3>
+            <p>用模板批量整理行业知识、FAQ、案例、资质和成交话术。</p>
+          </article>
+          <article>
+            <h3>评论私信样本导入</h3>
+            <p>导入抖音、小红书、快手、视频号、电商客服的留言和私信样本，用于分级和生成话术。</p>
+          </article>
+          <article>
+            <h3>目标画像导入</h3>
+            <p>导入品牌、区域、竞品、人群、消费行为、媒体偏好和成交目标。</p>
+          </article>
+          <article>
+            <h3>数据库接入</h3>
+            <p>预留 CRM、企微客户池、商城订单、表单系统、医院/门店业务系统的数据入口。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel device-port-panel" data-workflow-view="device-ports">
+        <div class="panel-head">
+          <h2>外设接口</h2>
+          <span class="count">手机 / 语音 / 平台终端</span>
+        </div>
+        <div class="device-port-grid">
+          <article>
+            <h3>企业微信与个人微信终端</h3>
+            <p>预留企业微信、个人微信、EasyClaw、群机器人和私域承接终端。</p>
+          </article>
+          <article>
+            <h3>内容平台客服终端</h3>
+            <p>预留抖音、快手、小红书、视频号、B站、知乎、头条号和百家号。</p>
+          </article>
+          <article>
+            <h3>电商客服终端</h3>
+            <p>预留淘宝、拼多多、京东等平台内客服和售后消息。</p>
+          </article>
+          <article>
+            <h3>语音与录音终端</h3>
+            <p>预留麦克风、通话录音、会议录音和客服录音转写，默认需要明确授权。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel api-center-panel" data-workflow-view="api-center">
+        <div class="panel-head">
+          <h2>API接口中心</h2>
+          <span class="count">凭证 / Webhook / 回调</span>
+        </div>
+        <div class="api-center-grid">
+          <article>
+            <h3>平台开放 API</h3>
+            <p>集中管理企业微信、抖音、快手、小红书、视频号、电商和海外平台的授权状态。</p>
+          </article>
+          <article>
+            <h3>业务系统 API</h3>
+            <p>预留 CRM、订单、商城、预约、会员和复购系统的接口。</p>
+          </article>
+          <article>
+            <h3>Webhook 回调</h3>
+            <p>预留平台消息推送、表单提交、支付结果、用户行为和客服消息回调。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel voice-input-panel" data-workflow-view="voice-input">
+        <div class="panel-head">
+          <h2>AI语音输入</h2>
+          <span id="voiceInputSummary" class="count">浏览器语音</span>
+        </div>
+        <div class="voice-input-layout">
+          <form id="voiceInputForm" class="form">
+            <div class="two-col">
+              <label>
+                输入目标
+                <select id="voiceTargetInput">
+                  <option value="target-pain">锚定目标：痛点/顾虑</option>
+                  <option value="target-behavior">锚定目标：消费行为</option>
+                  <option value="knowledge-content">知识库：内容</option>
+                  <option value="private-comment">私信生成：留言内容</option>
+                  <option value="qa-question">AI客服：问答测试</option>
+                  <option value="growth-message">引流成交：客户消息</option>
+                  <option value="hermes-command">Hermes：指令内容</option>
+                </select>
+              </label>
+              <label>
+                识别语言
+                <select id="voiceLanguageInput">
+                  <option value="zh-CN">普通话</option>
+                  <option value="zh-HK">粤语/繁体中文</option>
+                  <option value="en-US">英语</option>
+                </select>
+              </label>
+            </div>
+            <label>
+              语音转文字结果
+              <textarea id="voiceTranscriptInput" rows="7" maxlength="3000" placeholder="点击开始语音，或把语音转写文字粘贴到这里。"></textarea>
+            </label>
+            <div class="actions">
+              <button id="startVoiceInputButton" type="button">开始语音</button>
+              <button id="stopVoiceInputButton" class="secondary" type="button">停止</button>
+              <button id="applyVoiceInputButton" class="secondary" type="button">写入目标模块</button>
+            </div>
+          </form>
+          <aside class="voice-policy-box">
+            <h3>使用边界</h3>
+            <p>语音输入只把你主动说出的内容转成文字；录音、会议、通话和平台语音消息必须在授权后接入。</p>
+          </aside>
         </div>
       </section>
 
@@ -324,7 +498,7 @@
         </section>
       </section>
 
-      <section class="panel channel-panel" data-workflow-view="system">
+      <section class="panel channel-panel" data-workflow-view="api-center">
         <div class="panel-head">
           <h2>平台凭证配置中心</h2>
           <span id="platformConfigSummary" class="count">加载中</span>
@@ -563,7 +737,7 @@
         </section>
       </section>
 
-      <section class="panel hermes-panel" data-workflow-view="system">
+      <section class="panel hermes-panel" data-workflow-view="settings">
         <div class="panel-head">
           <h2>Hermes 指令收件箱 / 双向中心</h2>
           <span id="hermesSummary" class="count">加载中</span>
@@ -619,7 +793,7 @@
         <div id="hermesCommandList" class="hermes-command-list"></div>
       </section>
 
-      <section class="panel orchestration-panel" data-workflow-view="system">
+      <section class="panel orchestration-panel" data-workflow-view="settings">
         <div class="panel-head">
           <h2>并行任务调度</h2>
           <span id="orchestrationSummary" class="count">加载中</span>
