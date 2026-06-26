@@ -21,6 +21,7 @@ import { buildPlatformConfigStatus, getPlatformConfigEnvPath, readPlatformConfig
 import { generatePrivateMessageContext } from './privateMessageGenerator.js';
 import { buildProjectProgress } from './projectProgress.js';
 import { retrieveKnowledge } from './retriever.js';
+import { buildWechatPersonalReadiness } from './wechatPersonalReadiness.js';
 import { buildWecomReadiness } from './wecomReadiness.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
@@ -318,6 +319,21 @@ async function routeRequest({
       response,
       200,
       buildDouyinReadiness({
+        env: runtimeEnv,
+        host: adminConfig.admin.host,
+        port: adminConfig.admin.port
+      })
+    );
+    return;
+  }
+
+  if (url.pathname === '/api/wechat-personal/readiness' && request.method === 'GET') {
+    const runtimeEnv = await resolveServerEnv(env, platformConfigEnvPath);
+    const adminConfig = readAdminConfig(runtimeEnv);
+    sendJson(
+      response,
+      200,
+      buildWechatPersonalReadiness({
         env: runtimeEnv,
         host: adminConfig.admin.host,
         port: adminConfig.admin.port

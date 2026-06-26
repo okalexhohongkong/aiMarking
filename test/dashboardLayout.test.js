@@ -45,3 +45,16 @@ test('shows a dedicated douyin readiness panel in the AI service workflow', asyn
   assert.match(app, /api\('\/api\/douyin\/readiness'\)/);
   assert.match(app, /function renderDouyinReadiness\(\)/);
 });
+
+test('shows a dedicated personal wechat readiness panel in the AI service workflow', async () => {
+  const html = await readFile('public/index.html', 'utf8');
+  const css = await readFile('public/styles.css', 'utf8');
+  const app = await readFile('public/app.js', 'utf8');
+
+  assert.match(html, /id="wechatPersonalReadinessSummary"/);
+  assert.match(html, /id="wechatPersonalReadinessBox"/);
+  assert.match(html, /个人微信\/EasyClaw接入检查/);
+  assert.match(css, /\.wechat-personal-readiness-panel/);
+  assert.match(app, /api\('\/api\/wechat-personal\/readiness'\)/);
+  assert.match(app, /function renderWechatPersonalReadiness\(\)/);
+});

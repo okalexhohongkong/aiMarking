@@ -62,6 +62,7 @@ const state = {
   integrationRoadmap: null,
   wecomReadiness: null,
   douyinReadiness: null,
+  wechatPersonalReadiness: null,
   platformConfig: null,
   customerLifecycle: null,
   engagementPlaybooks: null,
@@ -123,6 +124,8 @@ const elements = {
   wecomReadinessBox: $('#wecomReadinessBox'),
   douyinReadinessSummary: $('#douyinReadinessSummary'),
   douyinReadinessBox: $('#douyinReadinessBox'),
+  wechatPersonalReadinessSummary: $('#wechatPersonalReadinessSummary'),
+  wechatPersonalReadinessBox: $('#wechatPersonalReadinessBox'),
   platformConfigSummary: $('#platformConfigSummary'),
   platformConfigList: $('#platformConfigList'),
   platformConfigBox: $('#platformConfigBox'),
@@ -255,6 +258,7 @@ async function refreshAll() {
     integrationRoadmap,
     wecomReadiness,
     douyinReadiness,
+    wechatPersonalReadiness,
     customerLifecycle,
     engagementPlaybooks,
     hermesCommands,
@@ -271,6 +275,7 @@ async function refreshAll() {
     api('/api/integration-roadmap'),
     api('/api/wecom/readiness'),
     api('/api/douyin/readiness'),
+    api('/api/wechat-personal/readiness'),
     api('/api/customer-lifecycle'),
     api('/api/engagement-playbooks'),
     api('/api/hermes/commands'),
@@ -287,6 +292,7 @@ async function refreshAll() {
   state.integrationRoadmap = integrationRoadmap;
   state.wecomReadiness = wecomReadiness;
   state.douyinReadiness = douyinReadiness;
+  state.wechatPersonalReadiness = wechatPersonalReadiness;
   state.customerLifecycle = customerLifecycle;
   state.engagementPlaybooks = engagementPlaybooks;
   state.hermesCommands = hermesCommands;
@@ -308,6 +314,7 @@ async function refreshAll() {
   renderIntegrationRoadmap();
   renderWecomReadiness();
   renderDouyinReadiness();
+  renderWechatPersonalReadiness();
   renderPlatformConfig();
   renderChannelPorts(status.channelPorts);
   renderChannelSelect();
@@ -582,6 +589,15 @@ function renderDouyinReadiness() {
     summaryElement: elements.douyinReadinessSummary,
     boxElement: elements.douyinReadinessBox,
     emptyText: '正在检查抖音私信/客服接入条件。'
+  });
+}
+
+function renderWechatPersonalReadiness() {
+  renderReadinessPanel({
+    readiness: state.wechatPersonalReadiness,
+    summaryElement: elements.wechatPersonalReadinessSummary,
+    boxElement: elements.wechatPersonalReadinessBox,
+    emptyText: '正在检查个人微信/EasyClaw 接入条件。'
   });
 }
 

@@ -687,6 +687,45 @@ test('admin API exposes douyin readiness without leaking secret values', async (
   }
 });
 
+test('admin API exposes personal wechat readiness without leaking secret values', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'wecom-admin-'));
+  const envPath = join(dir, '.env');
+  await writeFile(
+    envPath,
+    [
+      'EASYCLAW_BASE_URL="http://127.0.0.1:10027"',
+      'EASYCLAW_ACCESS_TOKEN="easyclaw-secret-value"',
+      'OPENAI_API_KEY="openai-secret-value"'
+    ].join('\n'),
+    'utf8'
+  );
+  const store = new JsonDataStore({ dataDir: join(dir, 'data') });
+  await store.init();
+  const server = createAdminServer({
+    store,
+    answerService: { answer: async () => ({ answer: '', matches: [] }) },
+    configSummary: {},
+    platformConfigEnvPath: envPath,
+    env: {}
+  });
+
+  try {
+    server.listen(0, '127.0.0.1');
+    await once(server, 'listening');
+    const readiness = await requestJson(`http://127.0.0.1:${server.address().port}/api/wechat-personal/readiness`);
+    const serialized = JSON.stringify(readiness);
+
+    assert.equal(readiness.ready, true);
+    assert.equal(readiness.percentText, '100.0%');
+    assert.match(readiness.groupTest.triggerText, /客户微信/);
+    assert.equal(serialized.includes('easyclaw-secret-value'), false);
+    assert.equal(serialized.includes('openai-secret-value'), false);
+  } finally {
+    server.close();
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test('admin API saves platform config without returning secret values', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'wecom-admin-'));
   const store = new JsonDataStore({ dataDir: join(dir, 'data') });

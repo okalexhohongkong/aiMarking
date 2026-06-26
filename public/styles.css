@@ -285,7 +285,8 @@ button.secondary:hover {
 }
 
 .wecom-readiness-panel,
-.douyin-readiness-panel {
+.douyin-readiness-panel,
+.wechat-personal-readiness-panel {
   margin-top: 16px;
 }
 
