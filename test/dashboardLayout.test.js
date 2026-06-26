@@ -52,3 +52,20 @@ test('integrates platform readiness checks into one AI service hub', async () =>
   assert.match(app, /api\('\/api\/douyin\/readiness'\)/);
   assert.match(app, /api\('\/api\/wechat-personal\/readiness'\)/);
 });
+
+test('adds AI HR style module management and delivery entry points', async () => {
+  const html = await readFile('public/index.html', 'utf8');
+  const css = await readFile('public/styles.css', 'utf8');
+  const app = await readFile('public/app.js', 'utf8');
+
+  assert.match(html, /模块管理/);
+  assert.match(html, /id="moduleSettingsList"/);
+  assert.match(html, /交付入口/);
+  assert.match(html, /黑卫士七维AI营销系统-1.0安装包/);
+  assert.match(css, /\.module-setting-card\s*{/);
+  assert.match(css, /\.delivery-grid\s*{/);
+  assert.match(app, /workflowSettingsStorageKey/);
+  assert.match(app, /function orderedWorkflowViews\(\)/);
+  assert.match(app, /function handleWorkflowDrop/);
+  assert.match(app, /draggable="true"/);
+});

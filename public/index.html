@@ -91,6 +91,38 @@
         </form>
       </section>
 
+      <section class="panel module-settings-panel" data-workflow-view="system">
+        <div class="panel-head">
+          <h2>模块管理</h2>
+          <span id="moduleSettingsSummary" class="count">加载中</span>
+        </div>
+        <div id="moduleSettingsList" class="module-settings-list"></div>
+        <div class="module-settings-actions">
+          <button id="resetModuleSettingsButton" class="secondary" type="button">恢复默认顺序</button>
+        </div>
+      </section>
+
+      <section class="panel delivery-panel" data-workflow-view="system">
+        <div class="panel-head">
+          <h2>交付入口</h2>
+          <span class="count">演示 / 安装包 / 仓库</span>
+        </div>
+        <div class="delivery-grid">
+          <article>
+            <h3>本机演示</h3>
+            <p>http://127.0.0.1:8787/</p>
+          </article>
+          <article>
+            <h3>桌面安装包</h3>
+            <p>/Users/apple/Desktop/黑卫士七维AI营销系统-1.0安装包</p>
+          </article>
+          <article>
+            <h3>GitHub 仓库</h3>
+            <p>github.com/okalexhohongkong/aiMarking</p>
+          </article>
+        </div>
+      </section>
+
       <section class="layout">
         <aside class="panel status-panel" data-workflow-view="target">
           <h2>运行状态</h2>

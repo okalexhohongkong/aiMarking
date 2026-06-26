@@ -256,6 +256,11 @@ button.secondary:hover {
   margin-bottom: 16px;
 }
 
+.module-settings-panel,
+.delivery-panel {
+  margin-bottom: 16px;
+}
+
 .appearance-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(112px, 1fr)) minmax(160px, 1.1fr) minmax(220px, 1.4fr) minmax(180px, 1fr) minmax(110px, 0.7fr) auto;
@@ -270,6 +275,113 @@ button.secondary:hover {
 .font-size-control span {
   color: var(--ink);
   font-weight: 650;
+}
+
+.module-settings-list {
+  display: grid;
+  gap: 10px;
+}
+
+.module-setting-card {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: #fbfcfc;
+}
+
+.module-setting-card.dragging {
+  opacity: 0.58;
+  outline: 2px solid rgba(45, 123, 232, 0.22);
+}
+
+.module-setting-card.is-hidden {
+  background: #f2f4f3;
+  color: var(--muted);
+}
+
+.drag-handle {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--muted);
+  cursor: grab;
+  font-weight: 800;
+}
+
+.module-setting-card h3,
+.module-setting-card p,
+.module-setting-card small,
+.delivery-grid h3,
+.delivery-grid p {
+  margin: 0;
+}
+
+.module-setting-card h3 {
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.module-setting-card p,
+.module-setting-card small,
+.delivery-grid p {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.module-setting-card small {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+}
+
+.module-visible-toggle {
+  min-width: 86px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.module-visible-toggle input {
+  width: auto;
+}
+
+.module-settings-actions {
+  margin-top: 12px;
+}
+
+.delivery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.delivery-grid article {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: #fbfcfc;
+}
+
+.delivery-grid h3 {
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.delivery-grid p {
+  margin-top: 7px;
+  overflow-wrap: anywhere;
+  font-size: 13px;
 }
 
 .growth-layout {
@@ -1629,6 +1741,10 @@ textarea:focus {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .delivery-grid {
+    grid-template-columns: 1fr;
+  }
+
   .hermes-command-form {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1734,6 +1850,14 @@ textarea:focus {
 
   .appearance-grid {
     grid-template-columns: 1fr;
+  }
+
+  .module-setting-card {
+    grid-template-columns: 1fr;
+  }
+
+  .module-visible-toggle {
+    justify-content: flex-start;
   }
 
   .hermes-direction-summary {

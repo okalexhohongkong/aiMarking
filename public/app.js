@@ -1,5 +1,7 @@
 import { bindAppearanceSettings } from './appearanceSettings.js';
 
+const workflowSettingsStorageKey = 'wecom-ai-customer-service.workflow-settings';
+
 const workflowViews = [
   {
     id: 'target',
@@ -76,7 +78,8 @@ const state = {
     materials: [],
     rules: [],
     leads: []
-  }
+  },
+  workflowSettings: loadWorkflowSettings(window.localStorage)
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -121,6 +124,9 @@ const elements = {
   fontSizeNumber: $('#fontSizeNumberInput'),
   fontSizeLabel: $('#fontSizeLabel'),
   resetAppearance: $('#resetAppearanceButton'),
+  moduleSettingsSummary: $('#moduleSettingsSummary'),
+  moduleSettingsList: $('#moduleSettingsList'),
+  resetModuleSettings: $('#resetModuleSettingsButton'),
   channelPortSummary: $('#channelPortSummary'),
   readinessHubSummary: $('#readinessHubSummary'),
   readinessHub: $('#readinessHub'),
@@ -228,6 +234,12 @@ await refreshAll();
 
 elements.refresh.addEventListener('click', refreshAll);
 elements.primaryNav.addEventListener('click', handleWorkflowNavClick);
+elements.moduleSettingsList.addEventListener('change', handleWorkflowSettingsChange);
+elements.moduleSettingsList.addEventListener('dragstart', handleWorkflowDragStart);
+elements.moduleSettingsList.addEventListener('dragover', handleWorkflowDragOver);
+elements.moduleSettingsList.addEventListener('drop', handleWorkflowDrop);
+elements.moduleSettingsList.addEventListener('dragend', handleWorkflowDragEnd);
+elements.resetModuleSettings.addEventListener('click', resetWorkflowSettings);
 window.addEventListener('hashchange', () => showWorkflowView(currentWorkflowFromHash(), { updateHash: false }));
 elements.resetForm.addEventListener('click', resetKnowledgeForm);
 elements.form.addEventListener('submit', saveKnowledge);
@@ -305,6 +317,7 @@ async function refreshAll() {
     leads: await api('/api/growth/leads')
   };
   renderWorkflowMenu();
+  renderModuleSettings();
   renderStatus(status);
   renderProgressBadges();
   renderWorkflowOverview();
@@ -341,14 +354,15 @@ function handleWorkflowNavClick(event) {
 
 function currentWorkflowFromHash() {
   const hash = decodeURIComponent(window.location.hash || '').replace(/^#/, '');
-  if (workflowViews.some((view) => view.id === hash)) {
+  if (visibleWorkflowViews().some((view) => view.id === hash)) {
     return hash;
   }
-  return workflowViews[0].id;
+  return visibleWorkflowViews()[0]?.id || workflowViews[0].id;
 }
 
 function showWorkflowView(viewId, { updateHash = true } = {}) {
-  const view = workflowViews.find((item) => item.id === viewId) || workflowViews[0];
+  const views = visibleWorkflowViews();
+  const view = views.find((item) => item.id === viewId) || views[0] || workflowViews[0];
   document.querySelectorAll('[data-workflow-view]').forEach((panel) => {
     const visible = panel.dataset.workflowView === view.id;
     panel.classList.toggle('workflow-hidden', !visible);
@@ -374,7 +388,7 @@ function showWorkflowView(viewId, { updateHash = true } = {}) {
 }
 
 function renderWorkflowMenu() {
-  elements.primaryNav.innerHTML = workflowViews.map((view) => {
+  elements.primaryNav.innerHTML = visibleWorkflowViews().map((view) => {
     const summary = workflowMenuSummary(view);
     return `
       <button type="button" data-workflow-tab="${escapeHtml(view.id)}" data-menu-tone="${escapeHtml(summary.tone)}" title="${escapeHtml(summary.title)}">
@@ -384,6 +398,44 @@ function renderWorkflowMenu() {
           <span class="menu-meta">${escapeHtml(summary.meta)}</span>
         </span>
       </button>
+    `;
+  }).join('');
+}
+
+function orderedWorkflowViews() {
+  const order = state.workflowSettings.order || workflowViews.map((view) => view.id);
+  const byId = new Map(workflowViews.map((view) => [view.id, view]));
+  const ordered = order.map((id) => byId.get(id)).filter(Boolean);
+  const missing = workflowViews.filter((view) => !order.includes(view.id));
+  return [...ordered, ...missing];
+}
+
+function visibleWorkflowViews() {
+  const hidden = new Set(state.workflowSettings.hidden || []);
+  return orderedWorkflowViews().filter((view) => !hidden.has(view.id));
+}
+
+function renderModuleSettings() {
+  const hidden = new Set(state.workflowSettings.hidden || []);
+  const ordered = orderedWorkflowViews();
+  const visibleCount = ordered.filter((view) => !hidden.has(view.id)).length;
+  elements.moduleSettingsSummary.textContent = `${visibleCount}/${ordered.length} 显示 · 可拖拽排序`;
+  elements.moduleSettingsList.innerHTML = ordered.map((view, index) => {
+    const summary = workflowMenuSummary(view);
+    const isHidden = hidden.has(view.id);
+    return `
+      <article class="module-setting-card ${isHidden ? 'is-hidden' : ''}" draggable="true" data-workflow-module-id="${escapeHtml(view.id)}">
+        <span class="drag-handle" title="拖拽排序">↕</span>
+        <div>
+          <h3>${escapeHtml(index + 1)}. ${escapeHtml(view.title)}</h3>
+          <p>${escapeHtml(view.description)}</p>
+          <small>${escapeHtml(summary.meta)} · 下一步：${escapeHtml(summary.title.split('下一步：')[1] || '-')}</small>
+        </div>
+        <label class="module-visible-toggle">
+          <input type="checkbox" data-workflow-visible="${escapeHtml(view.id)}" ${isHidden ? '' : 'checked'} />
+          显示
+        </label>
+      </article>
     `;
   }).join('');
 }
@@ -440,7 +492,7 @@ function renderWorkflowOverview() {
     ? `${summary.percentText} · 剩余 ${Number(summary.remainingHours || 0).toFixed(1)} 小时 · ${summary.reportCountdownText}`
     : `${modules.length} 个模块`;
 
-  elements.workflowOverviewCards.innerHTML = workflowViews.map((view) => {
+  elements.workflowOverviewCards.innerHTML = visibleWorkflowViews().map((view) => {
     const viewModules = workflowModules(view);
     const average = viewModules.length
       ? viewModules.reduce((sum, module) => sum + module.percent, 0) / viewModules.length
@@ -472,6 +524,114 @@ function renderWorkflowOverview() {
   elements.workflowOverviewCards.querySelectorAll('[data-workflow-jump]').forEach((button) => {
     button.addEventListener('click', () => showWorkflowView(button.dataset.workflowJump));
   });
+}
+
+function loadWorkflowSettings(storage) {
+  const defaults = defaultWorkflowSettings();
+  if (!storage) {
+    return defaults;
+  }
+  try {
+    return normalizeWorkflowSettings(JSON.parse(storage.getItem(workflowSettingsStorageKey) || '{}'));
+  } catch {
+    return defaults;
+  }
+}
+
+function saveWorkflowSettings() {
+  state.workflowSettings = normalizeWorkflowSettings(state.workflowSettings);
+  window.localStorage?.setItem(workflowSettingsStorageKey, JSON.stringify(state.workflowSettings));
+  renderWorkflowMenu();
+  renderWorkflowOverview();
+  renderModuleSettings();
+  if (!visibleWorkflowViews().some((view) => view.id === currentWorkflowFromHash())) {
+    showWorkflowView(visibleWorkflowViews()[0]?.id || workflowViews[0].id);
+  }
+}
+
+function defaultWorkflowSettings() {
+  return {
+    order: workflowViews.map((view) => view.id),
+    hidden: []
+  };
+}
+
+function normalizeWorkflowSettings(input = {}) {
+  const validIds = workflowViews.map((view) => view.id);
+  const order = Array.isArray(input.order)
+    ? input.order.filter((id, index, array) => validIds.includes(id) && array.indexOf(id) === index)
+    : [];
+  const hidden = Array.isArray(input.hidden)
+    ? input.hidden.filter((id, index, array) => validIds.includes(id) && array.indexOf(id) === index)
+    : [];
+  const mergedOrder = [...order, ...validIds.filter((id) => !order.includes(id))];
+  const visibleIds = validIds.filter((id) => !hidden.includes(id));
+  return {
+    order: mergedOrder,
+    hidden: visibleIds.length ? hidden : []
+  };
+}
+
+function handleWorkflowSettingsChange(event) {
+  const input = event.target.closest('[data-workflow-visible]');
+  if (!input) {
+    return;
+  }
+  const id = input.dataset.workflowVisible;
+  const hidden = new Set(state.workflowSettings.hidden || []);
+  if (input.checked) {
+    hidden.delete(id);
+  } else {
+    hidden.add(id);
+  }
+  state.workflowSettings.hidden = [...hidden];
+  saveWorkflowSettings();
+}
+
+function handleWorkflowDragStart(event) {
+  const card = event.target.closest('[data-workflow-module-id]');
+  if (!card) {
+    return;
+  }
+  card.classList.add('dragging');
+  event.dataTransfer.effectAllowed = 'move';
+  event.dataTransfer.setData('text/plain', card.dataset.workflowModuleId);
+}
+
+function handleWorkflowDragOver(event) {
+  if (event.target.closest('[data-workflow-module-id]')) {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }
+}
+
+function handleWorkflowDrop(event) {
+  const target = event.target.closest('[data-workflow-module-id]');
+  const sourceId = event.dataTransfer.getData('text/plain');
+  if (!target || !sourceId || sourceId === target.dataset.workflowModuleId) {
+    return;
+  }
+  event.preventDefault();
+  const order = orderedWorkflowViews().map((view) => view.id);
+  const fromIndex = order.indexOf(sourceId);
+  const toIndex = order.indexOf(target.dataset.workflowModuleId);
+  if (fromIndex < 0 || toIndex < 0) {
+    return;
+  }
+  order.splice(fromIndex, 1);
+  order.splice(toIndex, 0, sourceId);
+  state.workflowSettings.order = order;
+  saveWorkflowSettings();
+}
+
+function handleWorkflowDragEnd() {
+  elements.moduleSettingsList.querySelectorAll('.dragging').forEach((card) => card.classList.remove('dragging'));
+}
+
+function resetWorkflowSettings() {
+  state.workflowSettings = defaultWorkflowSettings();
+  saveWorkflowSettings();
+  showWorkflowView(workflowViews[0].id);
 }
 
 function renderProgressBadges() {
