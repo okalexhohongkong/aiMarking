@@ -1,6 +1,7 @@
 import { bindAppearanceSettings } from './appearanceSettings.js';
 
 const workflowSettingsStorageKey = 'wecom-ai-customer-service.workflow-settings';
+const targetProfileStorageKey = 'wecom-ai-customer-service.target-profile';
 
 const workflowViews = [
   {
@@ -79,7 +80,8 @@ const state = {
     rules: [],
     leads: []
   },
-  workflowSettings: loadWorkflowSettings(window.localStorage)
+  workflowSettings: loadWorkflowSettings(window.localStorage),
+  targetProfile: loadTargetProfile(window.localStorage)
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -92,6 +94,26 @@ const elements = {
   workflowStep: $('#workflowStep'),
   workflowOverviewSummary: $('#workflowOverviewSummary'),
   workflowOverviewCards: $('#workflowOverviewCards'),
+  targetProfileForm: $('#targetProfileForm'),
+  targetProfileSummary: $('#targetProfileSummary'),
+  targetProfilePreview: $('#targetProfilePreview'),
+  targetBrand: $('#targetBrandInput'),
+  targetProduct: $('#targetProductInput'),
+  targetSellingPoint: $('#targetSellingPointInput'),
+  targetMarket: $('#targetMarketInput'),
+  targetConsumerSegment: $('#targetConsumerSegmentInput'),
+  targetConversionGoal: $('#targetConversionGoalInput'),
+  targetAge: $('#targetAgeInput'),
+  targetGender: $('#targetGenderInput'),
+  targetNeedOwner: $('#targetNeedOwnerInput'),
+  targetRegion: $('#targetRegionInput'),
+  targetCity: $('#targetCityInput'),
+  targetCompetitor: $('#targetCompetitorInput'),
+  targetBehavior: $('#targetBehaviorInput'),
+  targetPain: $('#targetPainInput'),
+  targetMedia: $('#targetMediaInput'),
+  targetContentPreference: $('#targetContentPreferenceInput'),
+  resetTargetProfile: $('#resetTargetProfileButton'),
   statusList: $('#statusList'),
   knowledgeCount: $('#knowledgeCount'),
   knowledgeList: $('#knowledgeList'),
@@ -234,6 +256,9 @@ await refreshAll();
 
 elements.refresh.addEventListener('click', refreshAll);
 elements.primaryNav.addEventListener('click', handleWorkflowNavClick);
+elements.targetProfileForm.addEventListener('submit', saveTargetProfile);
+elements.targetProfileForm.addEventListener('input', previewTargetProfileFromForm);
+elements.resetTargetProfile.addEventListener('click', resetTargetProfile);
 elements.moduleSettingsList.addEventListener('change', handleWorkflowSettingsChange);
 elements.moduleSettingsList.addEventListener('dragstart', handleWorkflowDragStart);
 elements.moduleSettingsList.addEventListener('dragover', handleWorkflowDragOver);
@@ -318,6 +343,7 @@ async function refreshAll() {
   };
   renderWorkflowMenu();
   renderModuleSettings();
+  renderTargetProfile();
   renderStatus(status);
   renderProgressBadges();
   renderWorkflowOverview();
@@ -632,6 +658,177 @@ function resetWorkflowSettings() {
   state.workflowSettings = defaultWorkflowSettings();
   saveWorkflowSettings();
   showWorkflowView(workflowViews[0].id);
+}
+
+function renderTargetProfile() {
+  writeTargetProfileForm(state.targetProfile);
+  renderTargetProfilePreview(state.targetProfile);
+}
+
+function loadTargetProfile(storage) {
+  if (!storage) {
+    return defaultTargetProfile();
+  }
+  try {
+    return normalizeTargetProfile(JSON.parse(storage.getItem(targetProfileStorageKey) || '{}'));
+  } catch {
+    return defaultTargetProfile();
+  }
+}
+
+function saveTargetProfile(event) {
+  event.preventDefault();
+  state.targetProfile = readTargetProfileForm();
+  window.localStorage?.setItem(targetProfileStorageKey, JSON.stringify(state.targetProfile));
+  renderTargetProfilePreview(state.targetProfile);
+}
+
+function previewTargetProfileFromForm() {
+  renderTargetProfilePreview(readTargetProfileForm());
+}
+
+function resetTargetProfile() {
+  state.targetProfile = defaultTargetProfile();
+  window.localStorage?.removeItem(targetProfileStorageKey);
+  renderTargetProfile();
+}
+
+function defaultTargetProfile() {
+  return {
+    brand: '',
+    product: '',
+    sellingPoint: '',
+    market: '',
+    consumerSegment: '',
+    conversionGoal: '',
+    age: '',
+    gender: '',
+    needOwner: '',
+    region: '',
+    city: '',
+    competitor: '',
+    behavior: '',
+    pain: '',
+    media: '',
+    contentPreference: ''
+  };
+}
+
+function normalizeTargetProfile(input = {}) {
+  const defaults = defaultTargetProfile();
+  return Object.fromEntries(
+    Object.keys(defaults).map((key) => [key, normalizeProfileText(input[key], key)])
+  );
+}
+
+function normalizeProfileText(value, key) {
+  const max = ['behavior', 'pain', 'media', 'contentPreference'].includes(key) ? 1000 : 240;
+  return String(value || '').trim().replace(/\s+/g, ' ').slice(0, max);
+}
+
+function targetProfileFields() {
+  return [
+    ['brand', '品牌/项目'],
+    ['product', '产品/服务'],
+    ['sellingPoint', '核心卖点'],
+    ['market', '市场/行业'],
+    ['consumerSegment', '消费层级'],
+    ['conversionGoal', '成交目标'],
+    ['age', '年龄段'],
+    ['gender', '性别倾向'],
+    ['needOwner', '需求角色'],
+    ['region', '重点区域'],
+    ['city', '重点城市'],
+    ['competitor', '对标对手'],
+    ['behavior', '消费行为'],
+    ['pain', '痛点顾虑'],
+    ['media', '媒体偏好'],
+    ['contentPreference', '内容偏好']
+  ];
+}
+
+function readTargetProfileForm() {
+  return normalizeTargetProfile({
+    brand: elements.targetBrand.value,
+    product: elements.targetProduct.value,
+    sellingPoint: elements.targetSellingPoint.value,
+    market: elements.targetMarket.value,
+    consumerSegment: elements.targetConsumerSegment.value,
+    conversionGoal: elements.targetConversionGoal.value,
+    age: elements.targetAge.value,
+    gender: elements.targetGender.value,
+    needOwner: elements.targetNeedOwner.value,
+    region: elements.targetRegion.value,
+    city: elements.targetCity.value,
+    competitor: elements.targetCompetitor.value,
+    behavior: elements.targetBehavior.value,
+    pain: elements.targetPain.value,
+    media: elements.targetMedia.value,
+    contentPreference: elements.targetContentPreference.value
+  });
+}
+
+function writeTargetProfileForm(profile = {}) {
+  const normalized = normalizeTargetProfile(profile);
+  setInputValue(elements.targetBrand, normalized.brand);
+  setInputValue(elements.targetProduct, normalized.product);
+  setInputValue(elements.targetSellingPoint, normalized.sellingPoint);
+  setInputValue(elements.targetMarket, normalized.market);
+  setInputValue(elements.targetConsumerSegment, normalized.consumerSegment);
+  setInputValue(elements.targetConversionGoal, normalized.conversionGoal);
+  setInputValue(elements.targetAge, normalized.age);
+  setInputValue(elements.targetGender, normalized.gender);
+  setInputValue(elements.targetNeedOwner, normalized.needOwner);
+  setInputValue(elements.targetRegion, normalized.region);
+  setInputValue(elements.targetCity, normalized.city);
+  setInputValue(elements.targetCompetitor, normalized.competitor);
+  setInputValue(elements.targetBehavior, normalized.behavior);
+  setInputValue(elements.targetPain, normalized.pain);
+  setInputValue(elements.targetMedia, normalized.media);
+  setInputValue(elements.targetContentPreference, normalized.contentPreference);
+}
+
+function renderTargetProfilePreview(profile = {}) {
+  const normalized = normalizeTargetProfile(profile);
+  const fields = targetProfileFields();
+  const filled = fields.filter(([key]) => normalized[key]).length;
+  elements.targetProfileSummary.textContent = `${filled}/${fields.length} 已填写 · ${formatProgressPercent((filled / fields.length) * 100)}`;
+  const rows = fields.map(([key, label]) => `
+    <div>
+      <dt>${escapeHtml(label)}</dt>
+      <dd class="${normalized[key] ? '' : 'warn'}">${escapeHtml(normalized[key] || '待填写')}</dd>
+    </div>
+  `).join('');
+  elements.targetProfilePreview.innerHTML = `
+    <dl>${rows}</dl>
+    <div class="target-profile-brief">
+      <strong>AI使用口径</strong>
+      <p>${escapeHtml(buildTargetProfilePrompt(normalized))}</p>
+    </div>
+  `;
+}
+
+function buildTargetProfilePrompt(profile = {}) {
+  const parts = [
+    profile.brand || profile.product ? `围绕${profile.brand || '该品牌'}的${profile.product || '产品/服务'}` : '',
+    profile.market ? `行业市场为${profile.market}` : '',
+    profile.consumerSegment ? `消费层级偏${profile.consumerSegment}` : '',
+    profile.age || profile.gender ? `核心人群是${[profile.age, profile.gender].filter(Boolean).join('、')}` : '',
+    profile.region || profile.city ? `重点区域为${[profile.region, profile.city].filter(Boolean).join('、')}` : '',
+    profile.competitor ? `对标${profile.competitor}` : '',
+    profile.behavior ? `消费行为：${profile.behavior}` : '',
+    profile.pain ? `主要顾虑：${profile.pain}` : '',
+    profile.media ? `优先媒体：${profile.media}` : '',
+    profile.contentPreference ? `内容偏好：${profile.contentPreference}` : '',
+    profile.conversionGoal ? `最终引导到${profile.conversionGoal}` : ''
+  ].filter(Boolean);
+  return parts.length ? parts.join('；') : '先填写目标画像，后续内容、私信、客服和成交话术会按这里的画像调用。';
+}
+
+function setInputValue(element, value) {
+  if (element) {
+    element.value = value || '';
+  }
 }
 
 function renderProgressBadges() {

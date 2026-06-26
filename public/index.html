@@ -42,6 +42,121 @@
         <div id="workflowOverviewCards" class="workflow-overview-grid"></div>
       </section>
 
+      <section class="panel target-profile-panel" data-workflow-view="target">
+        <div class="panel-head">
+          <h2>目标画像采集</h2>
+          <span id="targetProfileSummary" class="count">0/12 已填写</span>
+        </div>
+        <div class="target-profile-layout">
+          <form id="targetProfileForm" class="form target-profile-form">
+            <div class="three-col">
+              <label>
+                品牌/项目名称
+                <input id="targetBrandInput" maxlength="120" placeholder="例如：奥普C在 / 黑卫士AI" />
+              </label>
+              <label>
+                产品/服务
+                <input id="targetProductInput" maxlength="160" placeholder="例如：企业微信智能客服 / 私域获客系统" />
+              </label>
+              <label>
+                核心卖点
+                <input id="targetSellingPointInput" maxlength="240" placeholder="例如：自动承接线索、知识库答疑、提升成交效率" />
+              </label>
+            </div>
+            <div class="three-col">
+              <label>
+                所属市场/行业
+                <input id="targetMarketInput" maxlength="120" placeholder="例如：医疗健康 / 家居建材 / 教育培训" />
+              </label>
+              <label>
+                消费层级
+                <select id="targetConsumerSegmentInput">
+                  <option value="">请选择</option>
+                  <option value="低价敏感">低价敏感</option>
+                  <option value="中端性价比">中端性价比</option>
+                  <option value="高端品质">高端品质</option>
+                  <option value="专业服务">专业服务</option>
+                  <option value="企业采购">企业采购</option>
+                </select>
+              </label>
+              <label>
+                成交目标
+                <input id="targetConversionGoalInput" maxlength="160" placeholder="例如：加企微 / 进群 / 留资 / 预约 / 下定金" />
+              </label>
+            </div>
+            <div class="three-col">
+              <label>
+                年龄段
+                <input id="targetAgeInput" maxlength="120" placeholder="例如：25-45岁 / 宝妈 / 中小企业老板" />
+              </label>
+              <label>
+                性别倾向
+                <select id="targetGenderInput">
+                  <option value="">不限/未知</option>
+                  <option value="女性为主">女性为主</option>
+                  <option value="男性为主">男性为主</option>
+                  <option value="男女均衡">男女均衡</option>
+                  <option value="家庭共同决策">家庭共同决策</option>
+                </select>
+              </label>
+              <label>
+                需求角色
+                <select id="targetNeedOwnerInput">
+                  <option value="">请选择</option>
+                  <option value="本人需要">本人需要</option>
+                  <option value="家人需要">家人需要</option>
+                  <option value="孩子需要">孩子需要</option>
+                  <option value="朋友/同事需要">朋友/同事需要</option>
+                  <option value="企业/团队需要">企业/团队需要</option>
+                </select>
+              </label>
+            </div>
+            <div class="three-col">
+              <label>
+                重点省份/区域
+                <input id="targetRegionInput" maxlength="180" placeholder="例如：广东、浙江、江苏 / 华南一线城市" />
+              </label>
+              <label>
+                重点城市
+                <input id="targetCityInput" maxlength="180" placeholder="例如：深圳、广州、杭州、上海" />
+              </label>
+              <label>
+                对标对手
+                <input id="targetCompetitorInput" maxlength="240" placeholder="例如：竞品账号、同行品牌、标杆门店" />
+              </label>
+            </div>
+            <div class="two-col">
+              <label>
+                消费行为特征
+                <textarea id="targetBehaviorInput" rows="4" maxlength="1000" placeholder="例如：先看案例再咨询，喜欢领资料，价格敏感，会反复比较口碑。"></textarea>
+              </label>
+              <label>
+                痛点/顾虑
+                <textarea id="targetPainInput" rows="4" maxlength="1000" placeholder="例如：怕被骗、怕没效果、怕售后差、怕价格高、怕隐私泄露。"></textarea>
+              </label>
+            </div>
+            <div class="two-col">
+              <label>
+                喜欢的媒体/平台
+                <textarea id="targetMediaInput" rows="3" maxlength="800" placeholder="例如：抖音、小红书、视频号、知乎、百度、B站、微信群。"></textarea>
+              </label>
+              <label>
+                内容偏好
+                <textarea id="targetContentPreferenceInput" rows="3" maxlength="800" placeholder="例如：真实案例、避坑清单、对比评测、专家讲解、优惠活动。"></textarea>
+              </label>
+            </div>
+            <div class="actions">
+              <button type="submit">保存目标画像</button>
+              <button id="resetTargetProfileButton" class="secondary" type="button">清空画像</button>
+            </div>
+          </form>
+          <aside class="target-profile-preview">
+            <h3>画像摘要</h3>
+            <div id="targetProfilePreview" class="target-profile-preview-box"></div>
+          </aside>
+        </div>
+      </section>
+
       <section class="panel appearance-panel" data-workflow-view="system">
         <div class="panel-head">
           <h2>界面设置</h2>

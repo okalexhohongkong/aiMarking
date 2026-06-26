@@ -552,6 +552,84 @@ button.secondary:hover {
   margin: 0 0 16px;
 }
 
+.target-profile-panel {
+  margin-bottom: 16px;
+}
+
+.target-profile-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.target-profile-form textarea {
+  min-height: 96px;
+}
+
+.target-profile-preview {
+  position: sticky;
+  top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: #fbfcfc;
+}
+
+.target-profile-preview h3 {
+  margin: 0 0 12px;
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.target-profile-preview-box dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.target-profile-preview-box div {
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+
+.target-profile-preview-box div:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.target-profile-preview-box dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.target-profile-preview-box dd {
+  margin: 3px 0 0;
+  color: var(--ink);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.target-profile-brief {
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--panel);
+}
+
+.target-profile-brief strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.target-profile-brief p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
 .workflow-overview-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -1764,6 +1842,14 @@ textarea:focus {
 
   .workflow-overview-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .target-profile-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .target-profile-preview {
+    position: static;
   }
 
   .readiness-hub-grid {

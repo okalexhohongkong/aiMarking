@@ -69,3 +69,22 @@ test('adds AI HR style module management and delivery entry points', async () =>
   assert.match(app, /function handleWorkflowDrop/);
   assert.match(app, /draggable="true"/);
 });
+
+test('turns target anchoring into a structured audience profile collector', async () => {
+  const html = await readFile('public/index.html', 'utf8');
+  const css = await readFile('public/styles.css', 'utf8');
+  const app = await readFile('public/app.js', 'utf8');
+
+  assert.match(html, /目标画像采集/);
+  assert.match(html, /id="targetProfileForm"/);
+  assert.match(html, /品牌\/项目名称/);
+  assert.match(html, /所属市场\/行业/);
+  assert.match(html, /年龄段/);
+  assert.match(html, /重点省份\/区域/);
+  assert.match(html, /对标对手/);
+  assert.match(html, /喜欢的媒体\/平台/);
+  assert.match(css, /\.target-profile-layout\s*{/);
+  assert.match(app, /targetProfileStorageKey/);
+  assert.match(app, /function buildTargetProfilePrompt/);
+  assert.match(app, /function renderTargetProfilePreview/);
+});
