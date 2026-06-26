@@ -76,6 +76,7 @@ test('turns target anchoring into a structured audience profile collector', asyn
   const app = await readFile('public/app.js', 'utf8');
 
   assert.match(html, /目标画像采集/);
+  assert.match(html, /0\/16 已填写/);
   assert.match(html, /id="targetProfileForm"/);
   assert.match(html, /品牌\/项目名称/);
   assert.match(html, /所属市场\/行业/);
