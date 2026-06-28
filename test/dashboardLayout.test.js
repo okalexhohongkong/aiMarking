@@ -45,15 +45,22 @@ test('lets the primary sidebar switch between fixed and hover auto-hide modes', 
   const app = await readFile('public/app.js', 'utf8');
 
   assert.match(html, /id="sidebarPeekZone"/);
-  assert.match(html, /鼠标移入展开，点击固定显示/);
-  assert.match(app, /mode:\s*'fixed'/);
+  assert.match(html, /靠近展开菜单，双击固定显示/);
+  assert.match(app, /mode:\s*'auto-hide'/);
   assert.match(app, /mode === 'auto-hide'/);
   assert.match(app, /function toggleSidebarMode/);
+  assert.match(app, /function handleSidebarDoubleClick/);
+  assert.match(app, /addEventListener\('dblclick', handleSidebarDoubleClick\)/);
+  assert.match(app, /function openSidebarPeek/);
+  assert.match(app, /function scheduleSidebarAutoHide/);
+  assert.match(app, /setTimeout\([^)]*1000/s);
+  assert.match(app, /sidebar-peeking/);
   assert.match(app, /sidebar-auto-hide/);
   assert.match(css, /\.sidebar-peek-zone/);
   assert.match(css, /\.sidebar-auto-hide\s*{\s*--sidebar-width:\s*0px/s);
   assert.match(css, /\.sidebar-auto-hide \.app-sidebar\s*{[^}]*position:\s*fixed/s);
   assert.match(css, /\.sidebar-auto-hide \.sidebar-peek-zone:hover \+ \.app-shell \.app-sidebar/s);
+  assert.match(css, /\.sidebar-auto-hide\.sidebar-peeking \.app-sidebar/s);
   assert.match(css, /\.sidebar-auto-hide \.app-sidebar:hover/s);
 });
 

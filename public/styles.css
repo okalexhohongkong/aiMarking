@@ -154,7 +154,7 @@ button.secondary:hover {
 }
 
 .sidebar-auto-hide .sidebar-peek-zone:hover + .app-shell .app-sidebar,
-.sidebar-auto-hide .sidebar-peek-zone:focus + .app-shell .app-sidebar,
+.sidebar-auto-hide.sidebar-peeking .app-sidebar,
 .sidebar-auto-hide .app-sidebar:hover,
 .sidebar-auto-hide .app-sidebar:focus-within {
   transform: translateX(0);

@@ -5,6 +5,7 @@ const targetProfileStorageKey = 'wecom-ai-customer-service.target-profile';
 const sidebarLayoutStorageKey = 'wecom-ai-customer-service.sidebar-layout';
 const inputAssistStorageKey = 'wecom-ai-customer-service.input-assist-custom-options';
 const menuExpansionStorageKey = 'wecom-ai-customer-service.menu-expansion';
+let sidebarAutoHideTimer = null;
 
 const workflowViews = [
   {
@@ -365,6 +366,7 @@ const elements = {
   statusLine: $('#statusLine'),
   primaryNav: $('#primaryNav'),
   menuSearch: $('#menuSearchInput'),
+  appSidebar: $('.app-sidebar'),
   sidebarPeekZone: $('#sidebarPeekZone'),
   sidebarSettings: $('#sidebarSettingsButton'),
   sidebarLock: $('#sidebarLockButton'),
@@ -568,7 +570,15 @@ elements.menuSearch.addEventListener('input', handleMenuSearchInput);
 elements.sidebarSettings.addEventListener('click', () => showWorkflowView('settings'));
 elements.sidebarLock.addEventListener('click', toggleSidebarLock);
 elements.sidebarCollapse.addEventListener('click', toggleSidebarMode);
-elements.sidebarPeekZone.addEventListener('click', () => setSidebarMode('fixed'));
+elements.appSidebar.addEventListener('pointerenter', openSidebarPeek);
+elements.appSidebar.addEventListener('pointerleave', scheduleSidebarAutoHide);
+elements.appSidebar.addEventListener('dblclick', handleSidebarDoubleClick);
+elements.sidebarPeekZone.addEventListener('pointerenter', openSidebarPeek);
+elements.sidebarPeekZone.addEventListener('pointerleave', scheduleSidebarAutoHide);
+elements.sidebarPeekZone.addEventListener('focus', openSidebarPeek);
+elements.sidebarPeekZone.addEventListener('blur', scheduleSidebarAutoHide);
+elements.sidebarPeekZone.addEventListener('click', openSidebarPeek);
+elements.sidebarPeekZone.addEventListener('dblclick', handleSidebarDoubleClick);
 elements.sidebarResizeHandle.addEventListener('pointerdown', startSidebarResize);
 elements.targetProfileForm.addEventListener('submit', saveTargetProfile);
 elements.targetProfileForm.addEventListener('input', previewTargetProfileFromForm);
@@ -1592,14 +1602,14 @@ function loadSidebarLayout(storage) {
 function defaultSidebarLayout() {
   return {
     locked: true,
-    collapsed: false,
-    mode: 'fixed',
+    collapsed: true,
+    mode: 'auto-hide',
     width: 208
   };
 }
 
 function normalizeSidebarLayout(input = {}) {
-  const mode = input.mode === 'auto-hide' || Boolean(input.collapsed) ? 'auto-hide' : 'fixed';
+  const mode = input.mode === 'fixed' ? 'fixed' : 'auto-hide';
   return {
     locked: input.locked !== false,
     collapsed: mode === 'auto-hide',
@@ -1621,16 +1631,21 @@ function applySidebarLayout() {
   document.documentElement.style.setProperty('--sidebar-panel-width', `${layout.width}px`);
   document.documentElement.style.setProperty('--sidebar-width', isAutoHide ? '0px' : `${layout.width}px`);
   document.body.classList.toggle('sidebar-auto-hide', isAutoHide);
+  document.body.classList.toggle('sidebar-pinned', !isAutoHide);
   document.body.classList.toggle('sidebar-unlocked', !layout.locked && !isAutoHide);
   document.body.classList.toggle('menu-layout-editing', !layout.locked && !isAutoHide);
   document.body.classList.remove('sidebar-collapsed');
+  if (!isAutoHide) {
+    clearSidebarAutoHideTimer();
+    document.body.classList.remove('sidebar-peeking');
+  }
   elements.sidebarLock.setAttribute('aria-pressed', String(layout.locked));
   elements.sidebarLock.textContent = layout.locked ? '🔒' : '🔓';
   elements.sidebarLock.title = layout.locked ? '解锁菜单布局' : '锁定菜单布局';
   elements.sidebarLock.setAttribute('aria-label', elements.sidebarLock.title);
   elements.sidebarCollapse.setAttribute('aria-pressed', String(isAutoHide));
   elements.sidebarCollapse.textContent = isAutoHide ? '📌' : '⇤';
-  elements.sidebarCollapse.title = isAutoHide ? '固定显示菜单' : '自动隐藏菜单';
+  elements.sidebarCollapse.title = isAutoHide ? '固定显示菜单' : '解除固定，自动隐藏菜单';
   elements.sidebarCollapse.setAttribute('aria-label', elements.sidebarCollapse.title);
   elements.sidebarPeekZone.setAttribute('aria-hidden', String(!isAutoHide));
   elements.sidebarPeekZone.tabIndex = isAutoHide ? 0 : -1;
@@ -1656,10 +1671,49 @@ function setSidebarMode(mode) {
   state.sidebarLayout.collapsed = nextMode === 'auto-hide';
   saveSidebarLayout();
   if (nextMode === 'auto-hide') {
+    closeSidebarPeek();
     elements.sidebarCollapse.blur();
     elements.sidebarLock.blur();
     elements.sidebarSettings.blur();
   }
+}
+
+function handleSidebarDoubleClick(event) {
+  if (event.target.closest('input, textarea, select, label, .sidebar-resize-handle')) {
+    return;
+  }
+  event.preventDefault();
+  toggleSidebarMode();
+}
+
+function clearSidebarAutoHideTimer() {
+  if (sidebarAutoHideTimer) {
+    window.clearTimeout(sidebarAutoHideTimer);
+    sidebarAutoHideTimer = null;
+  }
+}
+
+function openSidebarPeek() {
+  const layout = normalizeSidebarLayout(state.sidebarLayout);
+  if (layout.mode !== 'auto-hide') {
+    return;
+  }
+  clearSidebarAutoHideTimer();
+  document.body.classList.add('sidebar-peeking');
+}
+
+function closeSidebarPeek() {
+  clearSidebarAutoHideTimer();
+  document.body.classList.remove('sidebar-peeking');
+}
+
+function scheduleSidebarAutoHide() {
+  const layout = normalizeSidebarLayout(state.sidebarLayout);
+  if (layout.mode !== 'auto-hide') {
+    return;
+  }
+  clearSidebarAutoHideTimer();
+  sidebarAutoHideTimer = window.setTimeout(closeSidebarPeek, 1000);
 }
 
 function startSidebarResize(event) {
