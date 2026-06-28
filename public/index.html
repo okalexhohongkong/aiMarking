@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
+    <button id="sidebarPeekZone" class="sidebar-peek-zone" type="button" aria-label="鼠标移入展开，点击固定显示" title="鼠标移入展开，点击固定显示"></button>
     <main class="app-shell">
       <aside class="app-sidebar">
         <div class="sidebar-brand">
@@ -33,7 +34,7 @@
           <div class="sidebar-actions">
             <button id="sidebarSettingsButton" class="sidebar-tool-button" type="button" title="系统设置" aria-label="系统设置">⚙</button>
             <button id="sidebarLockButton" class="sidebar-tool-button" type="button" title="解锁菜单布局" aria-label="解锁菜单布局" aria-pressed="true">🔒</button>
-            <button id="sidebarCollapseButton" class="sidebar-tool-button" type="button" title="收缩菜单" aria-label="收缩菜单" aria-pressed="false">⇤</button>
+            <button id="sidebarCollapseButton" class="sidebar-tool-button" type="button" title="自动隐藏菜单" aria-label="自动隐藏菜单" aria-pressed="false">⇤</button>
           </div>
         </div>
         <nav id="primaryNav" class="primary-nav" aria-label="一级业务菜单"></nav>
@@ -46,6 +47,7 @@
             <h1>黑卫士七维AI营销系统</h1>
             <p id="statusLine">正在读取系统状态...</p>
           </div>
+          <span id="voiceGlobalStatus" class="voice-global-status">语音输入：点击文本框旁按钮</span>
           <button id="refreshButton" class="icon-button" title="刷新">↻</button>
         </header>
 
@@ -54,10 +56,10 @@
           <h2 id="workflowTitle">锚定目标</h2>
           <p id="workflowDescription">先看系统目标、七维闭环和当前运行状态。</p>
         </div>
-        <span id="workflowStep" class="count">1 / 12</span>
+        <span id="workflowStep" class="count">1 / 11</span>
       </section>
 
-      <section class="panel workflow-overview-panel" data-workflow-view="target">
+      <section class="panel workflow-overview-panel" data-workflow-view="target" data-menu-section="workflow-overview">
         <div class="panel-head">
           <h2>七维流程总控台</h2>
           <span id="workflowOverviewSummary" class="count">加载中</span>
@@ -65,7 +67,7 @@
         <div id="workflowOverviewCards" class="workflow-overview-grid"></div>
       </section>
 
-      <section class="panel target-profile-panel" data-workflow-view="target">
+      <section class="panel target-profile-panel" data-workflow-view="target" data-menu-section="target-profile">
         <div class="panel-head">
           <h2>目标画像采集</h2>
           <span id="targetProfileSummary" class="count">0/16 已填写</span>
@@ -180,7 +182,7 @@
         </div>
       </section>
 
-      <section class="panel appearance-panel" data-workflow-view="settings">
+      <section class="panel appearance-panel" data-workflow-view="settings" data-menu-section="appearance-settings">
         <div class="panel-head">
           <h2>界面设置</h2>
           <span class="count">颜色 / 字体 / 字号</span>
@@ -193,6 +195,10 @@
           <label>
             母菜单
             <input id="sidebarColorInput" type="color" value="#0c4a6e" />
+          </label>
+          <label>
+            肤色
+            <input id="skinColorInput" type="color" value="#dbeafe" />
           </label>
           <label>
             背景
@@ -233,10 +239,10 @@
         </form>
       </section>
 
-      <section class="panel module-settings-panel" data-workflow-view="settings">
+      <section class="panel module-settings-panel" data-workflow-view="settings" data-menu-section="module-settings">
         <div class="panel-head">
           <h2>模块管理</h2>
-          <span id="moduleSettingsSummary" class="count">加载中</span>
+          <span id="moduleSettingsSummary" class="count">一级菜单 / 二级页面板块</span>
         </div>
         <div id="moduleSettingsList" class="module-settings-list"></div>
         <div class="module-settings-actions">
@@ -244,7 +250,7 @@
         </div>
       </section>
 
-      <section class="panel delivery-panel" data-workflow-view="settings">
+      <section class="panel delivery-panel" data-workflow-view="settings" data-menu-section="delivery-center">
         <div class="panel-head">
           <h2>交付入口</h2>
           <span class="count">演示 / 安装包 / 仓库</span>
@@ -265,10 +271,21 @@
         </div>
       </section>
 
-      <section class="panel input-center-panel" data-workflow-view="input-center">
+      <section class="panel resilience-backup-panel" data-workflow-view="settings" data-menu-section="resilience-backup-center">
+        <div class="panel-head">
+          <h2>容灾备份中心</h2>
+          <span id="resilienceBackupSummary" class="count">最高权限 / 三人审批</span>
+        </div>
+        <div class="platform-config-notice">
+          容灾热备份属于最高权限。时间胶囊、完整数据库、组织架构、节点协议端口、完完全全克隆机备份和恢复，至少需要三名最高审批人同时同意。1.0 默认只做策略、预览和演练，不执行真实克隆或真实恢复。
+        </div>
+        <div id="resilienceBackupBlueprint" class="resilience-backup-list"></div>
+      </section>
+
+      <section class="panel input-center-panel" data-workflow-view="input-center" data-menu-section="input-center-methods">
         <div class="panel-head">
           <h2>统一输入中心</h2>
-          <span class="count">手动 / 表格 / 数据库 / API / 语音</span>
+          <span class="count">手动 / 表格 / 数据库 / API / 语音按钮</span>
         </div>
         <div class="input-method-grid">
           <article>
@@ -289,16 +306,16 @@
           </article>
           <article>
             <strong>AI 语音输入</strong>
-            <p>用语音描述目标、内容、评论、私信和客服要求，转成结构化文字后进入对应模块。</p>
+            <p>不再单独占一个大模块；所有文字输入框旁都有语音按钮，点击即可把语音转成文字。</p>
           </article>
         </div>
         <div id="inputModeMatrix" class="input-mode-matrix"></div>
       </section>
 
-      <section class="panel data-import-panel" data-workflow-view="data-import">
+      <section class="panel data-import-panel" data-workflow-view="data-import" data-menu-section="data-import-center">
         <div class="panel-head">
-          <h2>数据导入中心</h2>
-          <span class="count">模板 / 表格 / 数据库</span>
+          <h2>数据导入/导出中心</h2>
+          <span class="count">导入 / 导出 / 模板 / 数据库</span>
         </div>
         <div class="import-route-grid">
           <article>
@@ -317,10 +334,62 @@
             <h3>数据库接入</h3>
             <p>预留 CRM、企微客户池、商城订单、表单系统、医院/门店业务系统的数据入口。</p>
           </article>
+          <article data-menu-section="data-export">
+            <h3>数据导出</h3>
+            <p>导出知识库、导入模板和复核材料，方便备份、迁移和人工校对。</p>
+            <div class="inline-action-row">
+              <button type="button" class="secondary" id="dataExportKnowledgeButton">导出知识库</button>
+              <button type="button" class="secondary" id="dataExportTemplateButton">下载模板</button>
+            </div>
+          </article>
         </div>
       </section>
 
-      <section class="panel device-port-panel" data-workflow-view="device-ports">
+      <section class="panel data-import-panel" data-workflow-view="data-import" data-menu-section="yunke-call-import">
+        <div class="panel-head">
+          <h2>人工呼叫导入云客</h2>
+          <span id="yunkeCallImportSummary" class="count">通话记录 / 意向分级 / 跟进人</span>
+        </div>
+        <div id="yunkeCallImportBlueprint" class="call-blueprint-list"></div>
+        <div class="call-module-grid">
+          <article>
+            <h3>导入字段</h3>
+            <p>客户称呼、手机号、来源平台、通话时间、通话结果、意向等级、跟进人、下次跟进时间和备注。</p>
+          </article>
+          <article>
+            <h3>导入前校验</h3>
+            <p>默认先去重、校验手机号格式、检查客户授权来源，并对敏感字段做脱敏预览。</p>
+          </article>
+          <article>
+            <h3>云客承接规则</h3>
+            <p>高意向进入优先跟进池，中意向进入培育池，负面或投诉类进入人工复核队列。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel data-import-panel" data-workflow-view="data-import" data-menu-section="crm-import">
+        <div class="panel-head">
+          <h2>导入到CRM系统</h2>
+          <span id="crmImportSummary" class="count">字段映射 / 去重 / 同步策略</span>
+        </div>
+        <div id="crmImportBlueprint" class="call-blueprint-list"></div>
+        <div class="call-module-grid">
+          <article>
+            <h3>CRM字段映射</h3>
+            <p>线索编号、客户名称、手机号、平台来源、客户阶段、标签、跟进人、最近互动和成交状态。</p>
+          </article>
+          <article>
+            <h3>同步策略</h3>
+            <p>支持新增、更新、合并重复客户、失败重试和同步审计；真实写入前必须配置 CRM API 凭证。</p>
+          </article>
+          <article>
+            <h3>数据边界</h3>
+            <p>不在前端显示密钥明文；含手机号、微信号和病患信息等敏感数据必须先确认授权来源。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel device-port-panel" data-workflow-view="device-ports" data-menu-section="device-port-center">
         <div class="panel-head">
           <h2>外设接口</h2>
           <span class="count">手机 / 语音 / 平台终端</span>
@@ -345,7 +414,7 @@
         </div>
       </section>
 
-      <section class="panel api-center-panel" data-workflow-view="api-center">
+      <section class="panel api-center-panel" data-workflow-view="api-center" data-menu-section="api-overview">
         <div class="panel-head">
           <h2>API接口中心</h2>
           <span class="count">凭证 / Webhook / 回调</span>
@@ -366,54 +435,25 @@
         </div>
       </section>
 
-      <section class="panel voice-input-panel" data-workflow-view="voice-input">
+      <section class="panel agent-access-panel" data-workflow-view="api-center" data-menu-section="agent-access-center">
         <div class="panel-head">
-          <h2>AI语音输入</h2>
-          <span id="voiceInputSummary" class="count">浏览器语音</span>
+          <h2>Agent接入中心</h2>
+          <span id="agentAccessSummary" class="count">Open cloud agent / Hermes agent / 自定义Agent</span>
         </div>
-        <div class="voice-input-layout">
-          <form id="voiceInputForm" class="form">
-            <div class="two-col">
-              <label>
-                输入目标
-                <select id="voiceTargetInput">
-                  <option value="target-pain">锚定目标：痛点/顾虑</option>
-                  <option value="target-behavior">锚定目标：消费行为</option>
-                  <option value="knowledge-content">知识库：内容</option>
-                  <option value="private-comment">私信生成：留言内容</option>
-                  <option value="qa-question">AI客服：问答测试</option>
-                  <option value="growth-message">引流成交：客户消息</option>
-                  <option value="hermes-command">Hermes：指令内容</option>
-                </select>
-              </label>
-              <label>
-                识别语言
-                <select id="voiceLanguageInput">
-                  <option value="zh-CN">普通话</option>
-                  <option value="zh-HK">粤语/繁体中文</option>
-                  <option value="en-US">英语</option>
-                </select>
-              </label>
-            </div>
-            <label>
-              语音转文字结果
-              <textarea id="voiceTranscriptInput" rows="7" maxlength="3000" placeholder="点击开始语音，或把语音转写文字粘贴到这里。"></textarea>
-            </label>
-            <div class="actions">
-              <button id="startVoiceInputButton" type="button">开始语音</button>
-              <button id="stopVoiceInputButton" class="secondary" type="button">停止</button>
-              <button id="applyVoiceInputButton" class="secondary" type="button">写入目标模块</button>
-            </div>
-          </form>
-          <aside class="voice-policy-box">
-            <h3>使用边界</h3>
-            <p>语音输入只把你主动说出的内容转成文字；录音、会议、通话和平台语音消息必须在授权后接入。</p>
-          </aside>
+        <div class="platform-config-notice">
+          Agent 默认进入沙盒预览，不自动执行外部发送、拨号、删除、恢复、克隆或真实写入。Open cloud agent 和 Hermes agent 优先推荐，自定义Agent必须配置能力白名单和审计规则。
+        </div>
+        <div id="agentAccessBlueprint" class="agent-access-list">
+          <div class="agent-access-grid">
+            <article class="agent-access-card"><h3>Open cloud agent</h3><p>优先推荐，等待接口读取。</p></article>
+            <article class="agent-access-card"><h3>Hermes agent</h3><p>优先推荐，等待接口读取。</p></article>
+            <article class="agent-access-card"><h3>自定义Agent</h3><p>自定义能力白名单，等待接口读取。</p></article>
+          </div>
         </div>
       </section>
 
       <section class="layout">
-        <aside class="panel status-panel" data-workflow-view="target">
+        <aside class="panel status-panel" data-workflow-view="target" data-menu-section="runtime-status">
           <h2>运行状态</h2>
           <dl id="statusList"></dl>
           <div class="local-tools">
@@ -431,7 +471,7 @@
           </div>
         </aside>
 
-        <section class="panel knowledge-panel" data-workflow-view="content">
+        <section class="panel knowledge-panel" data-workflow-view="content" data-menu-section="knowledge-base">
           <div class="panel-head">
             <h2>知识库</h2>
             <span id="knowledgeCount" class="count">0 条</span>
@@ -476,7 +516,7 @@
           <div id="knowledgeList" class="knowledge-list"></div>
         </section>
 
-        <section class="panel qa-panel" data-workflow-view="ai-service">
+        <section class="panel qa-panel" data-workflow-view="ai-service" data-menu-section="qa-test">
           <h2>问答测试</h2>
           <form id="askForm" class="ask-form">
             <textarea id="questionInput" rows="5" maxlength="1000" placeholder="@智能客服 合同怎么签？" required></textarea>
@@ -498,7 +538,7 @@
         </section>
       </section>
 
-      <section class="panel channel-panel" data-workflow-view="api-center">
+      <section class="panel channel-panel" data-workflow-view="api-center" data-menu-section="api-platform-config">
         <div class="panel-head">
           <h2>平台凭证配置中心</h2>
           <span id="platformConfigSummary" class="count">加载中</span>
@@ -510,7 +550,7 @@
         <pre id="platformConfigBox" class="tool-output">等待配置...</pre>
       </section>
 
-      <section class="panel channel-panel" data-workflow-view="ai-service">
+      <section class="panel channel-panel" data-workflow-view="ai-service" data-menu-section="channel-ports">
         <div class="panel-head">
           <h2>多平台客服端口</h2>
           <span id="channelPortSummary" class="count">加载中</span>
@@ -519,7 +559,33 @@
         <div id="channelPortList" class="channel-port-grid"></div>
       </section>
 
-      <section class="panel readiness-hub-panel" data-workflow-view="ai-service">
+      <section class="panel channel-panel" data-workflow-view="ai-service" data-menu-section="ai-call-center">
+        <div class="panel-head">
+          <h2>AI呼叫模块</h2>
+          <span id="aiCallSummary" class="count">外呼 / 呼入 / 摘要 / 人工接管</span>
+        </div>
+        <div id="aiCallBlueprint" class="call-blueprint-list"></div>
+        <div class="call-module-grid">
+          <article>
+            <h3>AI外呼任务</h3>
+            <p>按客户阶段、来源平台、意向等级和跟进时间生成外呼任务；真实拨号前必须接入呼叫平台并确认合规授权。</p>
+          </article>
+          <article>
+            <h3>呼入接待</h3>
+            <p>预留来电识别、客户画像拉取、知识库答疑、关键问题标记和转人工按钮。</p>
+          </article>
+          <article>
+            <h3>通话摘要</h3>
+            <p>把通话转成摘要、需求点、异议点、意向等级、下一步动作，并可进入云客或 CRM。</p>
+          </article>
+          <article>
+            <h3>人工接管</h3>
+            <p>投诉、敏感信息、医疗/金融/法律高风险咨询和明确拒绝继续沟通时，立即转人工处理。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel readiness-hub-panel" data-workflow-view="ai-service" data-menu-section="readiness-hub">
         <div class="panel-head">
           <h2>接入检查台</h2>
           <span id="readinessHubSummary" class="count">加载中</span>
@@ -527,7 +593,7 @@
         <div id="readinessHub" class="readiness-hub"></div>
       </section>
 
-      <section class="panel simulate-panel" data-workflow-view="ai-service">
+      <section class="panel simulate-panel" data-workflow-view="ai-service" data-menu-section="channel-simulator">
         <div class="panel-head">
           <h2>端口模拟器</h2>
           <span class="count">先封装，再接真平台</span>
@@ -577,7 +643,7 @@
         <div id="channelSimulateBox" class="answer-box"></div>
       </section>
 
-      <section class="panel marketing-system-panel" data-workflow-view="target">
+      <section class="panel marketing-system-panel" data-workflow-view="target" data-menu-section="marketing-system">
         <div class="panel-head">
           <h2>黑卫士七维AI营销系统</h2>
           <span id="marketingSummary" class="count">加载中</span>
@@ -595,7 +661,7 @@
         </div>
       </section>
 
-      <section class="panel private-message-panel" data-workflow-view="private-message">
+      <section class="panel private-message-panel" data-workflow-view="private-message" data-menu-section="private-message-generator">
         <div class="panel-head">
           <h2>自动私信生成器</h2>
           <span class="count">来源透明 / 价值钩子 / 人工确认</span>
@@ -705,6 +771,30 @@
               <input id="privateContactInput" maxlength="500" placeholder="https://..." />
             </label>
           </div>
+          <div class="four-col">
+            <label>
+              名片类型
+              <select id="privateContactCardTypeInput">
+                <option value="抖音名片">抖音名片</option>
+                <option value="微信名片">微信名片</option>
+                <option value="企业微信名片">企业微信名片</option>
+                <option value="小红书名片">小红书名片</option>
+                <option value="专有私域名片">专有私域名片</option>
+              </select>
+            </label>
+            <label>
+              名片标题
+              <input id="privateContactCardTitleInput" maxlength="160" placeholder="例如：专属顾问 / 官方客服" />
+            </label>
+            <label>
+              名片说明
+              <input id="privateContactCardDescriptionInput" maxlength="300" placeholder="例如：点击进入企业微信领取资料" />
+            </label>
+            <label>
+              名片跳转链接
+              <input id="privateContactCardUrlInput" maxlength="500" placeholder="https://..." />
+            </label>
+          </div>
           <label>
             正规机构说明
             <input id="privateVerificationInput" maxlength="500" placeholder="例如：企业主体、资质、官网和公开联系方式都可核验。" />
@@ -712,7 +802,7 @@
           <button type="submit">生成一次性私信</button>
         </form>
         <div id="privateMessageBox" class="private-message-result"></div>
-        <div class="panel-head logs-head">
+        <div class="panel-head logs-head" data-menu-section="private-message-approval">
           <h3>私信审批队列</h3>
           <span id="privateApprovalSummary" class="count">0 条待审</span>
         </div>
@@ -720,7 +810,7 @@
       </section>
 
       <section class="insight-layout">
-        <section class="panel lifecycle-panel" data-workflow-view="conversion">
+        <section class="panel lifecycle-panel" data-workflow-view="conversion" data-menu-section="customer-lifecycle">
           <div class="panel-head">
             <h2>客户生命周期</h2>
             <span id="lifecycleSummary" class="count">加载中</span>
@@ -728,7 +818,7 @@
           <div id="lifecycleStageList" class="lifecycle-stage-list"></div>
         </section>
 
-        <section class="panel playbook-panel" data-workflow-view="engagement">
+        <section class="panel playbook-panel" data-workflow-view="engagement" data-menu-section="engagement-playbooks">
           <div class="panel-head">
             <h2>私信/评论转化剧本</h2>
             <span id="playbookSummary" class="count">加载中</span>
@@ -737,7 +827,7 @@
         </section>
       </section>
 
-      <section class="panel hermes-panel" data-workflow-view="settings">
+      <section class="panel hermes-panel" data-workflow-view="settings" data-menu-section="hermes-inbox">
         <div class="panel-head">
           <h2>Hermes 指令收件箱 / 双向中心</h2>
           <span id="hermesSummary" class="count">加载中</span>
@@ -793,7 +883,7 @@
         <div id="hermesCommandList" class="hermes-command-list"></div>
       </section>
 
-      <section class="panel orchestration-panel" data-workflow-view="settings">
+      <section class="panel orchestration-panel" data-workflow-view="settings" data-menu-section="orchestration-plan">
         <div class="panel-head">
           <h2>并行任务调度</h2>
           <span id="orchestrationSummary" class="count">加载中</span>
@@ -815,7 +905,7 @@
       </section>
 
       <section class="growth-layout">
-        <section class="panel growth-panel" data-workflow-view="conversion">
+        <section class="panel growth-panel" data-workflow-view="conversion" data-menu-section="growth-reply">
           <div class="panel-head">
             <h2>私域引流 1.0</h2>
             <span id="growthSummary" class="count">加载中</span>
@@ -854,7 +944,7 @@
           <div id="growthReplyBox" class="answer-box"></div>
         </section>
 
-        <aside class="panel growth-side" data-workflow-view="conversion">
+        <aside class="panel growth-side" data-workflow-view="conversion" data-menu-section="high-intent-leads">
           <div class="panel-head">
             <h2>高意向线索</h2>
             <span id="leadCount" class="count">0 条</span>

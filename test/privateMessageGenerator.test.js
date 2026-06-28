@@ -3,6 +3,7 @@ import test from 'node:test';
 import { generatePrivateMessageContext } from '../src/privateMessageGenerator.js';
 
 const requiredOutputFields = [
+  'sceneOpening',
   'identityIntro',
   'reasonForContact',
   'sourceTrace',
@@ -14,8 +15,14 @@ const requiredOutputFields = [
   'needHypothesis',
   'trustProof',
   'verificationChecklist',
+  'questionAnswer',
+  'solutionLine',
+  'guaranteeLine',
   'valueHook',
+  'benefitLine',
   'offerLine',
+  'contactCard',
+  'cardCta',
   'invitationTarget',
   'invitationDecision',
   'primaryCta',
@@ -45,6 +52,10 @@ test('generates a complete one-time private message context from comment signals
     officialSiteUrl: 'https://example.com/verify',
     groupInviteUrl: 'https://example.com/group',
     contactUrl: 'https://example.com/contact',
+    contactCardType: '企业微信名片',
+    contactCardTitle: '林女士专属护理顾问',
+    contactCardDescription: '点击后进入企业微信私域领取护理清单',
+    contactCardUrl: 'https://example.com/wecom-card',
     companyVerification: '企业名称和资质可在官网与企业信息公示系统核验',
     knowledgeMatches: [
       {
@@ -78,6 +89,13 @@ test('generates a complete one-time private message context from comment signals
   assert.match(result.signalAssessment, /家人/);
   assert.match(result.signalAssessment, /女/);
   assert.match(result.sourceTrace, /公开作品|公开互动|来源/);
+  assert.match(result.sceneOpening, /我是谁|在哪里看到|为什么找您|不是随机群发|公开互动/);
+  assert.match(result.questionAnswer, /针对您的留言|我先回答|反复过敏/);
+  assert.match(result.solutionLine, /解决方案|儿童过敏体质长期护理咨询/);
+  assert.match(result.guaranteeLine, /正规|核验|官网|企查查|企业信用/);
+  assert.match(result.benefitLine, /优惠|权益|免费领取护理清单/);
+  assert.match(result.contactCard, /企业微信名片|林女士专属护理顾问|https:\/\/example\.com\/wecom-card/);
+  assert.match(result.cardCta, /点.*名片|点击.*名片|企业微信私域/);
   assert.match(result.sendReadiness, /可发送|一次性私信/);
   assert.match(result.knowledgeRouting, /已命中|儿童过敏护理知识库/);
   assert.match(result.knowledgeFocus, /儿童过敏护理知识库/);
@@ -86,6 +104,7 @@ test('generates a complete one-time private message context from comment signals
   assert.match(result.invitationDecision, /企业微信群|平台群/);
   assert.match(combined, /https:\/\/example\.com\/verify/);
   assert.match(combined, /https:\/\/example\.com\/group|https:\/\/example\.com\/contact/);
+  assert.match(combined, /https:\/\/example\.com\/wecom-card/);
   assert.doesNotMatch(combined, /诈骗|欺骗|压制|sk-should-not-leak|apiKey/i);
   assert.doesNotMatch(result.identityIntro, /咨询咨询/);
 });
@@ -111,6 +130,10 @@ test('handles negative comments with comfort and clarification before any next s
     officialSiteUrl: 'https://example.com/air',
     groupInviteUrl: 'https://example.com/air-group',
     contactUrl: 'https://example.com/air-contact',
+    contactCardType: '抖音名片',
+    contactCardTitle: '空气复核顾问',
+    contactCardDescription: '先发报告，不直接推销',
+    contactCardUrl: 'https://example.com/air-card',
     companyVerification: '营业执照、检测流程和服务资质可公开查询'
   });
 
@@ -122,6 +145,8 @@ test('handles negative comments with comfort and clarification before any next s
   assert.match(result.invitationDecision, /不建议直接邀约进群|先.*澄清/);
   assert.match(result.primaryCta, /看一下|确认|澄清|复核|报告/);
   assert.match(result.riskNotes, /负面|安抚|澄清|不硬推/);
+  assert.match(result.contactCard, /抖音名片|空气复核顾问|https:\/\/example\.com\/air-card/);
+  assert.match(result.cardCta, /先把具体情况|报告|当前私信/);
   assert.doesNotMatch(result.message, /下单|成交|付款|定金|马上买/);
   assert.match(combined, /你们说得太绝对了/);
   assert.match(combined, /浙江杭州/);
@@ -140,6 +165,10 @@ test('uses safe fallbacks when optional links, dates, and owner are missing', ()
     officialSiteUrl: 'javascript:alert(1)',
     contactUrl: 'ftp://example.com/contact',
     groupInviteUrl: '',
+    contactCardType: '微信名片',
+    contactCardTitle: '资料顾问',
+    contactCardDescription: '领取资料',
+    contactCardUrl: 'javascript:alert(1)',
     secret: 'secret=do-not-leak'
   });
 
@@ -154,6 +183,7 @@ test('uses safe fallbacks when optional links, dates, and owner are missing', ()
   assert.match(result.primaryCta, /回复“资料”/);
   assert.match(result.fallbackCta, /稍后联系/);
   assert.match(result.trustProof, /公开渠道核验/);
+  assert.match(result.contactCard, /暂未配置可发送的名片卡片|当前私信窗口/);
   assert.doesNotMatch(combined, /javascript:|ftp:\/\/|do-not-leak|secret=/i);
 });
 

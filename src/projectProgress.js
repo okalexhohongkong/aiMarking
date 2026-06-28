@@ -20,18 +20,50 @@ const moduleDefinitions = [
   {
     id: 'input-center',
     title: '统一输入中心',
-    basePercent: 70,
-    plannedHours: 5,
+    basePercent: 74,
+    plannedHours: 4,
     tone: 'normal',
-    nextStep: '接入表格上传和数据库映射'
+    nextStep: '内联语音按钮已下沉到文字输入口，下一步接入表格上传和数据库映射'
   },
   {
     id: 'data-import',
-    title: '数据导入中心',
-    basePercent: 62,
+    title: '数据导入/导出中心',
+    basePercent: 66,
+    plannedHours: 7,
+    tone: 'normal',
+    nextStep: '导入与导出入口已补，下一步补客户画像、评论私信样本导入模板'
+  },
+  {
+    id: 'yunke-call-import',
+    title: '人工呼叫导入云客',
+    basePercent: 68,
+    plannedHours: 3,
+    tone: 'normal',
+    nextStep: '沙盒导入校验结果已补，下一步补云客凭证并接测试账号'
+  },
+  {
+    id: 'crm-import',
+    title: '导入到CRM系统',
+    basePercent: 66,
+    plannedHours: 4,
+    tone: 'normal',
+    nextStep: '沙盒同步校验结果已补，下一步补 CRM 凭证并接测试账号'
+  },
+  {
+    id: 'resilience-backup',
+    title: '容灾备份中心',
+    basePercent: 58,
     plannedHours: 8,
     tone: 'normal',
-    nextStep: '补客户画像、评论私信样本导入模板'
+    nextStep: '补时间胶囊、完整数据库、组织架构、节点协议端口和克隆机备份的三人审批演练'
+  },
+  {
+    id: 'agent-access',
+    title: 'Agent接入中心',
+    basePercent: 54,
+    plannedHours: 8,
+    tone: 'normal',
+    nextStep: '优先补 Open cloud agent 与 Hermes agent 凭证，再开放自定义Agent沙盒联调'
   },
   {
     id: 'device-ports',
@@ -50,12 +82,12 @@ const moduleDefinitions = [
     nextStep: '把平台凭证和 Webhook 回调统一成接口清单'
   },
   {
-    id: 'voice-input',
-    title: 'AI语音输入',
-    basePercent: 60,
-    plannedHours: 8,
+    id: 'ai-call',
+    title: 'AI呼叫模块',
+    basePercent: 65,
+    plannedHours: 6,
     tone: 'normal',
-    nextStep: '接入语音转写后的结构化分发'
+    nextStep: '沙盒任务队列校验结果已补，下一步补呼叫平台凭证并接测试账号'
   },
   {
     id: 'knowledge',

@@ -3,93 +3,311 @@ import { bindAppearanceSettings } from './appearanceSettings.js';
 const workflowSettingsStorageKey = 'wecom-ai-customer-service.workflow-settings';
 const targetProfileStorageKey = 'wecom-ai-customer-service.target-profile';
 const sidebarLayoutStorageKey = 'wecom-ai-customer-service.sidebar-layout';
+const inputAssistStorageKey = 'wecom-ai-customer-service.input-assist-custom-options';
+const menuExpansionStorageKey = 'wecom-ai-customer-service.menu-expansion';
 
 const workflowViews = [
   {
     id: 'target',
+    icon: 'target',
     title: '锚定目标',
-    step: '1 / 12',
+    step: '1 / 11',
     description: '先看系统目标、七维闭环、运行状态和当前项目定位。',
     moduleIds: ['marketing', 'status']
   },
   {
     id: 'content',
+    icon: 'content',
     title: '生成内容',
-    step: '2 / 12',
+    step: '2 / 11',
     description: '整理知识库、知识图谱和内容资产，为后续问答、私信和成交承接提供素材。',
     moduleIds: ['knowledge']
   },
   {
     id: 'engagement',
+    icon: 'chat',
     title: '评论私信管理',
-    step: '3 / 12',
+    step: '3 / 11',
     description: '把评论、私信、资料领取、报价、案例和活动咨询沉淀为可复用转化剧本。',
     moduleIds: ['playbooks']
   },
   {
     id: 'private-message',
+    icon: 'message',
     title: '加私信',
-    step: '4 / 12',
+    step: '4 / 11',
     description: '根据来源、地域、作品、留言和权益生成一次性私信，并进入人工审批队列。',
     moduleIds: ['private-message']
   },
   {
     id: 'ai-service',
+    icon: 'service',
     title: 'AI客服',
-    step: '5 / 12',
+    step: '5 / 11',
     description: '在同一工作台查看平台接入、端口、问答测试和知识图谱，验证统一客服引擎。',
-    moduleIds: ['channels', 'qa', 'simulator']
+    moduleIds: ['ai-call', 'channels', 'qa', 'simulator']
   },
   {
     id: 'conversion',
+    icon: 'deal',
     title: '引流成交',
-    step: '6 / 12',
+    step: '6 / 11',
     description: '按客户生命周期、高意向线索和私域话术推动预约、定金、下单和复购。',
     moduleIds: ['lifecycle', 'growth', 'leads']
   },
   {
     id: 'input-center',
+    icon: 'input',
     title: '输入中心',
-    step: '7 / 12',
-    description: '统一管理手动输入、表格导入、数据库导入、API 导入和 AI 语音输入。',
+    step: '7 / 11',
+    description: '统一管理手动输入、表格导入、数据库导入和 API 导入；所有文字输入口都带语音按钮。',
     moduleIds: ['input-center']
   },
   {
     id: 'data-import',
-    title: '数据导入',
-    step: '8 / 12',
-    description: '把知识库、评论私信样本、目标画像和外部业务数据统一导入系统。',
-    moduleIds: ['data-import']
+    icon: 'data',
+    title: '数据导入/导出',
+    step: '8 / 11',
+    description: '把知识库、评论私信样本、目标画像和外部业务数据统一导入系统，也支持模板和知识库导出。',
+    moduleIds: ['data-import', 'yunke-call-import', 'crm-import']
   },
   {
     id: 'device-ports',
+    icon: 'device',
     title: '外设接口',
-    step: '9 / 12',
+    step: '9 / 11',
     description: '预留手机、企业微信、个人微信、平台客服终端、语音录音和会议输入。',
     moduleIds: ['device-ports']
   },
   {
     id: 'api-center',
+    icon: 'api',
     title: 'API接口',
-    step: '10 / 12',
+    step: '10 / 11',
     description: '集中管理平台开放 API、业务系统 API、Webhook 回调和凭证配置。',
-    moduleIds: ['api-center', 'channels']
-  },
-  {
-    id: 'voice-input',
-    title: '语音输入',
-    step: '11 / 12',
-    description: '用语音描述目标、内容、评论、私信、客服和成交要求，再写入对应模块。',
-    moduleIds: ['voice-input']
+    moduleIds: ['api-center', 'agent-access', 'channels']
   },
   {
     id: 'settings',
+    icon: 'settings',
     title: '系统设置',
-    step: '12 / 12',
-    description: '集中管理界面皮肤、母菜单、模块排序、交付入口、Hermes 指令和并行任务调度。',
-    moduleIds: ['appearance', 'hermes']
+    step: '11 / 11',
+    description: '集中管理界面皮肤、母菜单、容灾备份、交付入口、Hermes 指令和并行任务调度。',
+    moduleIds: ['appearance', 'resilience-backup', 'hermes']
   }
 ];
+
+const menuBlueprint = {
+  menuSections: [
+    {
+      id: 'workflow-overview',
+      viewId: 'target',
+      title: '七维流程总控台',
+      description: '总览 11 个一级入口和整体完成度。',
+      children: [
+        { id: 'marketing-system', viewId: 'target', title: '七维闭环', description: '查看业务流程、合规边界和系统定位。' },
+        { id: 'runtime-status', viewId: 'target', title: '运行状态', description: '查看后台、知识库和本机工具状态。' }
+      ]
+    },
+    {
+      id: 'target-profile',
+      viewId: 'target',
+      title: '目标画像采集',
+      description: '采集品牌、产品、人群、竞品、区域和媒体偏好。',
+      children: [
+        { id: 'target-profile-form', viewId: 'target', parentId: 'target-profile', title: '画像表单', description: '手动填写目标画像字段。' },
+        { id: 'target-profile-preview', viewId: 'target', parentId: 'target-profile', title: '画像摘要', description: '生成 AI 使用口径。' }
+      ]
+    },
+    {
+      id: 'knowledge-base',
+      viewId: 'content',
+      title: '知识库',
+      description: '维护行业知识、FAQ、处理步骤和知识图谱。',
+      children: [
+        { id: 'knowledge-form', viewId: 'content', parentId: 'knowledge-base', title: '知识录入', description: '新增或编辑知识条目。' },
+        { id: 'knowledge-list', viewId: 'content', parentId: 'knowledge-base', title: '知识列表', description: '查看已保存知识。' }
+      ]
+    },
+    {
+      id: 'engagement-playbooks',
+      viewId: 'engagement',
+      title: '评论私信剧本',
+      description: '沉淀评论区、私信和资料领取转化 SOP。',
+      children: [
+        { id: 'comment-negative', viewId: 'engagement', parentId: 'engagement-playbooks', title: '负面评论处理', description: '先安抚澄清，再转人工。' },
+        { id: 'comment-positive', viewId: 'engagement', parentId: 'engagement-playbooks', title: '正向留言承接', description: '识别意向，进入私信或客服承接。' }
+      ]
+    },
+    {
+      id: 'private-message-generator',
+      viewId: 'private-message',
+      title: '自动私信生成器',
+      description: '按来源、留言、需求和权益生成一次性私信。',
+      children: [
+        { id: 'private-message-scene', viewId: 'private-message', parentId: 'private-message-generator', title: '场景交代', description: '说明我是谁、在哪里看到、为什么联系。' },
+        { id: 'private-message-card', viewId: 'private-message', parentId: 'private-message-generator', title: '名片卡片', description: '配置抖音、微信、企微或专有私域跳转卡片。' }
+      ]
+    },
+    {
+      id: 'private-message-approval',
+      viewId: 'private-message',
+      title: '私信审批队列',
+      description: '发送前人工确认，避免误发和平台违规。',
+      children: [
+        { id: 'approval-pending', viewId: 'private-message', parentId: 'private-message-approval', title: '待审', description: '待人工确认的话术。' },
+        { id: 'approval-sent', viewId: 'private-message', parentId: 'private-message-approval', title: '已发送', description: '记录已发送和归档结果。' }
+      ]
+    },
+    {
+      id: 'qa-test',
+      viewId: 'ai-service',
+      title: '问答测试',
+      description: '用真实问题验证知识库和客服回答。',
+      children: [
+        { id: 'graph-box', viewId: 'ai-service', parentId: 'qa-test', title: '知识图谱', description: '查看知识节点和关系。' },
+        { id: 'conversation-list', viewId: 'ai-service', parentId: 'qa-test', title: '最近消息', description: '查看模拟和真实会话记录。' }
+      ]
+    },
+    {
+      id: 'channel-ports',
+      viewId: 'ai-service',
+      title: '多平台客服端口',
+      description: '企业微信、抖音、个人微信、小红书、快手、电商等端口规划。',
+      children: [
+        { id: 'readiness-hub', viewId: 'ai-service', title: '接入检查台', description: '检查真实平台联调前置条件。' },
+        { id: 'channel-simulator', viewId: 'ai-service', title: '端口模拟器', description: '先用模拟消息验证统一客服引擎。' }
+      ]
+    },
+    {
+      id: 'ai-call-center',
+      viewId: 'ai-service',
+      title: 'AI呼叫模块',
+      description: '预留 AI 外呼、呼入接待、通话摘要和人工接管流程。',
+      children: [
+        { id: 'ai-call-outbound', viewId: 'ai-service', parentId: 'ai-call-center', title: 'AI外呼', description: '按线索阶段生成合规外呼任务。' },
+        { id: 'ai-call-summary', viewId: 'ai-service', parentId: 'ai-call-center', title: '通话摘要', description: '沉淀通话纪要、意向等级和下一步任务。' },
+        { id: 'ai-call-human-handoff', viewId: 'ai-service', parentId: 'ai-call-center', title: '人工接管', description: '复杂或敏感通话转人工处理。' }
+      ]
+    },
+    {
+      id: 'customer-lifecycle',
+      viewId: 'conversion',
+      title: '客户生命周期',
+      description: '从陌生、咨询、成交到复购的跟进路径。',
+      children: [
+        { id: 'growth-reply', viewId: 'conversion', title: '私域引流 1.0', description: '生成合规引流和成交话术。' },
+        { id: 'high-intent-leads', viewId: 'conversion', title: '高意向线索', description: '查看线索等级和素材规则。' }
+      ]
+    },
+    {
+      id: 'input-center-methods',
+      viewId: 'input-center',
+      title: '统一输入中心',
+      description: '手动、表格、数据库、API 统一入口；文字框旁边直接语音输入。',
+      children: [
+        { id: 'manual-input', viewId: 'input-center', parentId: 'input-center-methods', title: '手动输入', description: '快速录入目标、内容、私信和客服问题。' },
+        { id: 'api-input', viewId: 'input-center', parentId: 'input-center-methods', title: 'API 输入', description: '由外部系统写入结构化数据。' }
+      ]
+    },
+    {
+      id: 'data-import-center',
+      viewId: 'data-import',
+      title: '数据导入/导出中心',
+      description: '导入知识库、评论私信样本、目标画像和业务数据，也导出知识库和导入模板。',
+      children: [
+        { id: 'knowledge-import', viewId: 'data-import', parentId: 'data-import-center', title: '知识库导入', description: '批量导入 FAQ、案例和流程。' },
+        { id: 'profile-import', viewId: 'data-import', parentId: 'data-import-center', title: '画像导入', description: '批量导入目标人群和竞品。' },
+        { id: 'data-export', viewId: 'data-import', parentId: 'data-import-center', title: '数据导出', description: '导出知识库和导入模板，供人工复核或跨系统迁移。' }
+      ]
+    },
+    {
+      id: 'yunke-call-import',
+      viewId: 'data-import',
+      title: '人工呼叫导入云客',
+      description: '把人工呼叫记录、客户意向和跟进结果导入云客模块。',
+      children: [
+        { id: 'yunke-call-template', viewId: 'data-import', parentId: 'yunke-call-import', title: '导入模板', description: '手机号、来源、通话结果、意向等级和跟进人字段。' },
+        { id: 'yunke-call-review', viewId: 'data-import', parentId: 'yunke-call-import', title: '导入前校验', description: '去重、脱敏、授权和异常数据检查。' }
+      ]
+    },
+    {
+      id: 'crm-import',
+      viewId: 'data-import',
+      title: '导入到CRM系统',
+      description: '把线索、客户阶段、标签和成交状态同步到 CRM。',
+      children: [
+        { id: 'crm-field-mapping', viewId: 'data-import', parentId: 'crm-import', title: '字段映射', description: '客户、手机号、来源、阶段、标签、跟进人和备注。' },
+        { id: 'crm-sync-policy', viewId: 'data-import', parentId: 'crm-import', title: '同步策略', description: '新增、更新、去重、失败重试和审计记录。' }
+      ]
+    },
+    {
+      id: 'device-port-center',
+      viewId: 'device-ports',
+      title: '外设接口',
+      description: '手机、平台客服终端、录音和会议输入。',
+      children: [
+        { id: 'wechat-device', viewId: 'device-ports', parentId: 'device-port-center', title: '微信终端', description: '个人微信、企业微信和群机器人。' },
+        { id: 'voice-device', viewId: 'device-ports', parentId: 'device-port-center', title: '语音终端', description: '麦克风、通话和会议转写。' }
+      ]
+    },
+    {
+      id: 'api-overview',
+      viewId: 'api-center',
+      title: 'API接口中心',
+      description: '平台开放 API、业务 API 和 Webhook。',
+      children: [
+        { id: 'api-platform-config', viewId: 'api-center', title: '平台凭证配置', description: '配置企业微信、抖音、电商等凭证。' },
+        { id: 'webhook-callback', viewId: 'api-center', parentId: 'api-overview', title: 'Webhook 回调', description: '接收平台消息和业务事件。' }
+      ]
+    },
+    {
+      id: 'agent-access-center',
+      viewId: 'api-center',
+      title: 'Agent接入中心',
+      description: '接入 Open cloud agent、Hermes agent 和自定义Agent。',
+      children: [
+        { id: 'open-cloud-agent', viewId: 'api-center', parentId: 'agent-access-center', title: 'Open cloud agent', description: '优先推荐，沙盒任务预览。' },
+        { id: 'hermes-agent', viewId: 'api-center', parentId: 'agent-access-center', title: 'Hermes agent', description: '优先推荐，双向指令与进度回传。' },
+        { id: 'custom-agent', viewId: 'api-center', parentId: 'agent-access-center', title: '自定义Agent', description: '自定义能力白名单和审计。' }
+      ]
+    },
+    {
+      id: 'appearance-settings',
+      viewId: 'settings',
+      title: '界面设置',
+      description: '调色盘、字体、字号和母菜单颜色。',
+      children: [
+        { id: 'module-settings', viewId: 'settings', title: '模块管理', description: '管理一级菜单、二级板块、尺寸和锁定。' },
+        { id: 'delivery-center', viewId: 'settings', title: '交付入口', description: '查看演示地址、安装包和 GitHub 仓库。' }
+      ]
+    },
+    {
+      id: 'resilience-backup-center',
+      viewId: 'settings',
+      title: '容灾备份中心',
+      description: '时间胶囊、完整数据库、组织架构、节点协议端口和完完全全克隆机备份。',
+      children: [
+        { id: 'time-capsule-backup', viewId: 'settings', parentId: 'resilience-backup-center', title: '时间胶囊备份', description: '按时间点保留系统快照。' },
+        { id: 'full-database-backup', viewId: 'settings', parentId: 'resilience-backup-center', title: '完整数据库备份', description: '完整保存核心业务数据。' },
+        { id: 'organization-backup', viewId: 'settings', parentId: 'resilience-backup-center', title: '组织架构备份', description: '保存部门、角色、权限和审批人。' },
+        { id: 'node-port-backup', viewId: 'settings', parentId: 'resilience-backup-center', title: '节点协议端口备份', description: '保存端口、协议、Webhook 和 Agent 接入口。' },
+        { id: 'clone-machine-backup', viewId: 'settings', parentId: 'resilience-backup-center', title: '完完全全克隆机备份', description: '生成克隆机清单和演练计划。' }
+      ]
+    },
+    {
+      id: 'hermes-inbox',
+      viewId: 'settings',
+      title: 'Hermes 双向中心',
+      description: '收指令、回传阻塞和进度。',
+      children: [
+        { id: 'orchestration-plan', viewId: 'settings', title: '并行任务调度', description: '拆分任务、合并关口和回传策略。' }
+      ]
+    }
+  ]
+};
+
+const menuSections = menuBlueprint.menuSections;
 
 const state = {
   knowledge: [],
@@ -98,6 +316,8 @@ const state = {
   channelPorts: [],
   marketingSystem: null,
   projectProgress: null,
+  callCrmBlueprint: null,
+  callCrmBlueprintError: '',
   integrationRoadmap: null,
   wecomReadiness: null,
   douyinReadiness: null,
@@ -110,6 +330,12 @@ const state = {
   lastPrivateMessageResult: null,
   orchestrationPlan: null,
   orchestrationPlanError: '',
+  resilienceBackupBlueprint: null,
+  resilienceBackupBlueprintError: '',
+  agentAccessBlueprint: null,
+  agentAccessBlueprintError: '',
+  inputAssistCustoms: loadInputAssistCustoms(window.localStorage),
+  activeSuggestionMenu: null,
   growth: {
     scripts: [],
     materials: [],
@@ -120,6 +346,7 @@ const state = {
   workflowSettings: loadWorkflowSettings(window.localStorage),
   targetProfile: loadTargetProfile(window.localStorage),
   sidebarLayout: loadSidebarLayout(window.localStorage),
+  menuExpansion: loadMenuExpansion(window.localStorage),
   menuSearch: ''
 };
 
@@ -138,6 +365,7 @@ const elements = {
   statusLine: $('#statusLine'),
   primaryNav: $('#primaryNav'),
   menuSearch: $('#menuSearchInput'),
+  sidebarPeekZone: $('#sidebarPeekZone'),
   sidebarSettings: $('#sidebarSettingsButton'),
   sidebarLock: $('#sidebarLockButton'),
   sidebarCollapse: $('#sidebarCollapseButton'),
@@ -191,6 +419,7 @@ const elements = {
   appearanceForm: $('#appearanceForm'),
   accentColor: $('#accentColorInput'),
   sidebarColor: $('#sidebarColorInput'),
+  skinColor: $('#skinColorInput'),
   backgroundColor: $('#backgroundColorInput'),
   panelColor: $('#panelColorInput'),
   textColor: $('#textColorInput'),
@@ -204,13 +433,9 @@ const elements = {
   moduleSettingsList: $('#moduleSettingsList'),
   resetModuleSettings: $('#resetModuleSettingsButton'),
   inputModeMatrix: $('#inputModeMatrix'),
-  voiceInputSummary: $('#voiceInputSummary'),
-  voiceTarget: $('#voiceTargetInput'),
-  voiceLanguage: $('#voiceLanguageInput'),
-  voiceTranscript: $('#voiceTranscriptInput'),
-  startVoiceInput: $('#startVoiceInputButton'),
-  stopVoiceInput: $('#stopVoiceInputButton'),
-  applyVoiceInput: $('#applyVoiceInputButton'),
+  voiceGlobalStatus: $('#voiceGlobalStatus'),
+  dataExportKnowledge: $('#dataExportKnowledgeButton'),
+  dataExportTemplate: $('#dataExportTemplateButton'),
   channelPortSummary: $('#channelPortSummary'),
   readinessHubSummary: $('#readinessHubSummary'),
   readinessHub: $('#readinessHub'),
@@ -219,6 +444,12 @@ const elements = {
   platformConfigBox: $('#platformConfigBox'),
   integrationRoadmap: $('#integrationRoadmap'),
   channelPortList: $('#channelPortList'),
+  aiCallSummary: $('#aiCallSummary'),
+  aiCallBlueprint: $('#aiCallBlueprint'),
+  yunkeCallImportSummary: $('#yunkeCallImportSummary'),
+  yunkeCallImportBlueprint: $('#yunkeCallImportBlueprint'),
+  crmImportSummary: $('#crmImportSummary'),
+  crmImportBlueprint: $('#crmImportBlueprint'),
   channelSimulateForm: $('#channelSimulateForm'),
   channelSimulateChannel: $('#channelSimulateChannelInput'),
   channelSimulateSender: $('#channelSimulateSenderInput'),
@@ -249,6 +480,10 @@ const elements = {
   privateOfficialSite: $('#privateOfficialSiteInput'),
   privateGroupInvite: $('#privateGroupInviteInput'),
   privateContact: $('#privateContactInput'),
+  privateContactCardType: $('#privateContactCardTypeInput'),
+  privateContactCardTitle: $('#privateContactCardTitleInput'),
+  privateContactCardDescription: $('#privateContactCardDescriptionInput'),
+  privateContactCardUrl: $('#privateContactCardUrlInput'),
   privateVerification: $('#privateVerificationInput'),
   privateMessageBox: $('#privateMessageBox'),
   privateApprovalSummary: $('#privateApprovalSummary'),
@@ -276,6 +511,10 @@ const elements = {
   orchestrationHermesPolicy: $('#orchestrationHermesPolicy'),
   blockerReportButton: $('#blockerReportButton'),
   blockerReportBox: $('#blockerReportBox'),
+  resilienceBackupSummary: $('#resilienceBackupSummary'),
+  resilienceBackupBlueprint: $('#resilienceBackupBlueprint'),
+  agentAccessSummary: $('#agentAccessSummary'),
+  agentAccessBlueprint: $('#agentAccessBlueprint'),
   growthSummary: $('#growthSummary'),
   growthForm: $('#growthForm'),
   growthPlatform: $('#growthPlatformInput'),
@@ -300,6 +539,7 @@ bindAppearanceSettings({
     form: elements.appearanceForm,
     accentColor: elements.accentColor,
     sidebarColor: elements.sidebarColor,
+    skinColor: elements.skinColor,
     backgroundColor: elements.backgroundColor,
     panelColor: elements.panelColor,
     textColor: elements.textColor,
@@ -320,10 +560,15 @@ await refreshAll();
 
 elements.refresh.addEventListener('click', refreshAll);
 elements.primaryNav.addEventListener('click', handleWorkflowNavClick);
+elements.primaryNav.addEventListener('dragstart', handleMenuTreeDragStart);
+elements.primaryNav.addEventListener('dragover', handleMenuTreeDragOver);
+elements.primaryNav.addEventListener('drop', handleMenuTreeDrop);
+elements.primaryNav.addEventListener('dragend', handleMenuTreeDragEnd);
 elements.menuSearch.addEventListener('input', handleMenuSearchInput);
 elements.sidebarSettings.addEventListener('click', () => showWorkflowView('settings'));
 elements.sidebarLock.addEventListener('click', toggleSidebarLock);
-elements.sidebarCollapse.addEventListener('click', toggleSidebarCollapse);
+elements.sidebarCollapse.addEventListener('click', toggleSidebarMode);
+elements.sidebarPeekZone.addEventListener('click', () => setSidebarMode('fixed'));
 elements.sidebarResizeHandle.addEventListener('pointerdown', startSidebarResize);
 elements.targetProfileForm.addEventListener('submit', saveTargetProfile);
 elements.targetProfileForm.addEventListener('input', previewTargetProfileFromForm);
@@ -334,9 +579,8 @@ elements.moduleSettingsList.addEventListener('dragover', handleWorkflowDragOver)
 elements.moduleSettingsList.addEventListener('drop', handleWorkflowDrop);
 elements.moduleSettingsList.addEventListener('dragend', handleWorkflowDragEnd);
 elements.resetModuleSettings.addEventListener('click', resetWorkflowSettings);
-elements.startVoiceInput.addEventListener('click', startVoiceInput);
-elements.stopVoiceInput.addEventListener('click', stopVoiceInput);
-elements.applyVoiceInput.addEventListener('click', applyVoiceInput);
+elements.dataExportKnowledge.addEventListener('click', exportLocalKnowledge);
+elements.dataExportTemplate.addEventListener('click', exportKnowledgeTemplate);
 window.addEventListener('hashchange', () => showWorkflowView(currentWorkflowFromHash(), { updateHash: false }));
 elements.resetForm.addEventListener('click', resetKnowledgeForm);
 elements.form.addEventListener('submit', saveKnowledge);
@@ -352,6 +596,8 @@ elements.localBackupButton.addEventListener('click', createLocalBackup);
 elements.localExportButton.addEventListener('click', exportLocalKnowledge);
 elements.localTemplateButton.addEventListener('click', exportKnowledgeTemplate);
 elements.blockerReportButton.addEventListener('click', reportHermesBlocker);
+document.addEventListener('click', handleMenuJumpClick);
+document.addEventListener('click', handleInlineVoiceClick);
 
 async function refreshAll() {
   const [
@@ -362,6 +608,7 @@ async function refreshAll() {
     platformConfig,
     marketingSystem,
     projectProgress,
+    callCrmBlueprintResult,
     integrationRoadmap,
     wecomReadiness,
     douyinReadiness,
@@ -370,7 +617,9 @@ async function refreshAll() {
     engagementPlaybooks,
     hermesCommands,
     privateMessageApprovals,
-    orchestrationPlanResult
+    orchestrationPlanResult,
+    resilienceBackupResult,
+    agentAccessResult
   ] = await Promise.all([
     api('/api/status'),
     api('/api/knowledge'),
@@ -379,6 +628,7 @@ async function refreshAll() {
     api('/api/platform-config'),
     api('/api/marketing-system'),
     api('/api/project-progress'),
+    optionalApi('/api/call-crm-blueprint'),
     api('/api/integration-roadmap'),
     api('/api/wecom/readiness'),
     api('/api/douyin/readiness'),
@@ -387,7 +637,9 @@ async function refreshAll() {
     api('/api/engagement-playbooks'),
     api('/api/hermes/commands'),
     api('/api/private-message/approvals'),
-    optionalApi('/api/orchestration-plan')
+    optionalApi('/api/orchestration-plan'),
+    optionalApi('/api/resilience-backup-blueprint'),
+    optionalApi('/api/agent-access-blueprint')
   ]);
 
   state.knowledge = knowledge;
@@ -396,6 +648,8 @@ async function refreshAll() {
   state.platformConfig = platformConfig;
   state.marketingSystem = marketingSystem;
   state.projectProgress = projectProgress;
+  state.callCrmBlueprint = callCrmBlueprintResult.data;
+  state.callCrmBlueprintError = callCrmBlueprintResult.error;
   state.integrationRoadmap = integrationRoadmap;
   state.wecomReadiness = wecomReadiness;
   state.douyinReadiness = douyinReadiness;
@@ -406,6 +660,10 @@ async function refreshAll() {
   state.privateMessageApprovals = privateMessageApprovals;
   state.orchestrationPlan = orchestrationPlanResult.data;
   state.orchestrationPlanError = orchestrationPlanResult.error;
+  state.resilienceBackupBlueprint = resilienceBackupResult.data;
+  state.resilienceBackupBlueprintError = resilienceBackupResult.error;
+  state.agentAccessBlueprint = agentAccessResult.data;
+  state.agentAccessBlueprintError = agentAccessResult.error;
   state.graph = await api('/api/knowledge-graph');
   state.growth = {
     scripts: await api('/api/growth/scripts'),
@@ -415,16 +673,19 @@ async function refreshAll() {
   };
   renderWorkflowMenu();
   renderModuleSettings();
+  applyPanelLayoutSettings();
   renderInputModeMatrix();
   renderTargetProfile();
   renderStatus(status);
   renderProgressBadges();
+  applyPanelLayoutSettings();
   renderWorkflowOverview();
   renderKnowledge();
   renderGraph();
   renderIntegrationRoadmap();
   renderReadinessHub();
   renderPlatformConfig();
+  renderCallCrmBlueprint();
   renderChannelPorts(status.channelPorts);
   renderChannelSelect();
   renderMarketingSystem();
@@ -433,8 +694,11 @@ async function refreshAll() {
   renderHermesCommands();
   renderPrivateApprovals();
   renderOrchestrationPlan();
+  renderResilienceBackupBlueprint();
+  renderAgentAccessBlueprint();
   renderConversations();
   renderGrowth();
+  enhanceVoiceInputControls();
   showWorkflowView(currentWorkflowFromHash(), { updateHash: false });
 }
 
@@ -444,6 +708,26 @@ function initializeWorkflowMenu() {
 }
 
 function handleWorkflowNavClick(event) {
+  const viewToggle = event.target.closest('[data-menu-toggle-view]');
+  if (viewToggle) {
+    event.preventDefault();
+    toggleMenuView(viewToggle.dataset.menuToggleView);
+    return;
+  }
+
+  const sectionToggle = event.target.closest('[data-menu-toggle-section]');
+  if (sectionToggle) {
+    event.preventDefault();
+    toggleMenuSection(sectionToggle.dataset.menuToggleSection);
+    return;
+  }
+
+  const sectionButton = event.target.closest('[data-menu-section-target]');
+  if (sectionButton) {
+    handleMenuSectionClick(sectionButton);
+    return;
+  }
+
   const button = event.target.closest('[data-workflow-tab]');
   if (!button) {
     return;
@@ -491,20 +775,118 @@ function showWorkflowView(viewId, { updateHash = true } = {}) {
   }
 }
 
+function handleMenuSectionClick(button) {
+  const sectionId = button.dataset.menuSectionTarget;
+  const section = findMenuSection(sectionId);
+  const viewId = button.dataset.workflowTab || effectiveSectionViewId(section) || section?.viewId;
+  showWorkflowView(viewId);
+  scrollToMenuSection(sectionId);
+}
+
+function handleMenuJumpClick(event) {
+  const button = event.target.closest('[data-menu-jump]');
+  if (!button) {
+    return;
+  }
+  event.preventDefault();
+  jumpToMenuSection(button.dataset.menuJump, button.dataset.workflowTarget);
+}
+
+function jumpToMenuSection(sectionId, preferredViewId) {
+  const section = findMenuSection(sectionId);
+  const viewId = preferredViewId || effectiveSectionViewId(section) || section?.viewId;
+  if (viewId) {
+    showWorkflowView(viewId);
+  }
+  scrollToMenuSection(sectionId);
+}
+
+function scrollToMenuSection(sectionId) {
+  const section = findMenuSection(sectionId);
+  const targetId = document.querySelector(`[data-menu-section="${cssEscape(sectionId)}"]`)
+    ? sectionId
+    : section?.parentId || section?.id;
+  const target = targetId ? document.querySelector(`[data-menu-section="${cssEscape(targetId)}"]`) : null;
+  if (!target) {
+    return;
+  }
+  target.classList.add('menu-section-highlight');
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  window.setTimeout(() => target.classList.remove('menu-section-highlight'), 1200);
+}
+
 function renderWorkflowMenu() {
   const views = filteredWorkflowViews();
   elements.primaryNav.innerHTML = views.length ? views.map((view) => {
     const summary = workflowMenuSummary(view);
+    const sections = orderedMenuSections().filter((section) => effectiveSectionViewId(section) === view.id);
+    const expanded = isMenuExpanded(`view:${view.id}`);
     return `
-      <button type="button" data-workflow-tab="${escapeHtml(view.id)}" data-menu-tone="${escapeHtml(summary.tone)}" title="${escapeHtml(summary.title)}">
-        <span class="menu-step">${escapeHtml(workflowStepNumber(view.step))}</span>
-        <span class="menu-copy">
-          <span class="menu-title">${escapeHtml(view.title)}</span>
-          <span class="menu-meta">${escapeHtml(summary.meta)}</span>
-        </span>
-      </button>
+      <section class="workflow-menu-group" data-menu-group="${escapeHtml(view.id)}" data-menu-drag-id="view:${escapeHtml(view.id)}" draggable="true">
+        <div class="workflow-menu-primary-row">
+        <button type="button" class="workflow-menu-primary" data-workflow-tab="${escapeHtml(view.id)}" data-menu-tone="${escapeHtml(summary.tone)}" title="${escapeHtml(summary.title)}" aria-expanded="${expanded}">
+          ${renderWorkflowLogo(view)}
+          <span class="menu-copy">
+            <span class="menu-title">${escapeHtml(view.title)}</span>
+            <span class="menu-meta">${escapeHtml(summary.meta)}</span>
+          </span>
+        </button>
+          <button type="button" class="menu-expand-button" data-menu-toggle-view="${escapeHtml(view.id)}" aria-expanded="${expanded}" title="${expanded ? '收起菜单' : '展开菜单'}">
+            <span class="menu-expand-indicator">${expanded ? '⌃' : '⌄'}</span>
+          </button>
+        </div>
+        ${sections.length && expanded ? `
+          <div class="workflow-submenu">
+            ${sections.map((section) => renderWorkflowSubmenu(section, view.id)).join('')}
+          </div>
+        ` : ''}
+      </section>
     `;
   }).join('') : '<div class="menu-empty">没有匹配菜单</div>';
+}
+
+function renderWorkflowSubmenu(section, viewId) {
+  const children = orderedSectionChildren(section).filter((child) => workflowSectionMatchesSearch(child));
+  const expanded = isMenuExpanded(`section:${section.id}`);
+  return `
+    <div class="workflow-submenu-item" data-menu-drag-id="section:${escapeHtml(section.id)}" draggable="${state.workflowSettings.sectionLocks?.[section.id] ? 'false' : 'true'}">
+      <div class="workflow-submenu-row">
+      <button type="button" class="workflow-submenu-button" data-menu-section-target="${escapeHtml(section.id)}" data-workflow-tab="${escapeHtml(viewId)}" title="${escapeHtml(section.description || section.title)}" aria-expanded="${expanded}">
+        <span>${escapeHtml(section.title)}</span>
+      </button>
+        <button type="button" class="menu-expand-button small" data-menu-toggle-section="${escapeHtml(section.id)}" aria-expanded="${expanded}" title="${expanded ? '收起二级菜单' : '展开二级菜单'}">
+          <span class="menu-expand-indicator">${expanded ? '⌃' : '⌄'}</span>
+        </button>
+      </div>
+      ${children.length && expanded ? `
+        <div class="workflow-tertiary-menu">
+          ${children.map((child) => `
+            <button type="button" data-child-module-id="${escapeHtml(child.id)}" data-menu-drag-id="child:${escapeHtml(section.id)}:${escapeHtml(child.id)}" draggable="${state.workflowSettings.childLocks?.[child.id] ? 'false' : 'true'}" data-menu-section-target="${escapeHtml(child.id)}" data-workflow-tab="${escapeHtml(effectiveSectionViewId(section))}" title="${escapeHtml(child.description || child.title)}">
+              ${escapeHtml(child.title)}
+            </button>
+          `).join('')}
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function renderWorkflowLogo(view) {
+  const icons = {
+    target: '<circle cx="12" cy="12" r="7"></circle><circle cx="12" cy="12" r="2"></circle><path d="M12 3v3M12 18v3M3 12h3M18 12h3"></path>',
+    content: '<path d="M6 4h9l3 3v13H6z"></path><path d="M14 4v4h4"></path><path d="M8.5 11h7M8.5 15h5"></path>',
+    chat: '<path d="M5 6.5h14v9H9l-4 3z"></path><path d="M8.5 10h7M8.5 13h4"></path>',
+    message: '<path d="M4 6h16v12H4z"></path><path d="m4 7 8 6 8-6"></path>',
+    service: '<path d="M5 12a7 7 0 0 1 14 0"></path><path d="M5 12v4h3v-4zM16 12v4h3v-4z"></path><path d="M16 18h-3"></path>',
+    deal: '<path d="M7 13l3 3 7-8"></path><path d="M5 5h14v14H5z"></path>',
+    input: '<path d="M5 6h14v12H5z"></path><path d="M8 10h8M8 14h5"></path><path d="M17 9l2 2-2 2"></path>',
+    data: '<ellipse cx="12" cy="6" rx="6" ry="3"></ellipse><path d="M6 6v6c0 1.7 2.7 3 6 3s6-1.3 6-3V6"></path><path d="M6 12v4c0 1.7 2.7 3 6 3s6-1.3 6-3v-4"></path>',
+    device: '<rect x="7" y="3" width="10" height="18" rx="2"></rect><path d="M11 18h2"></path><path d="M9 6h6"></path>',
+    api: '<path d="M8 8 4 12l4 4"></path><path d="m16 8 4 4-4 4"></path><path d="m14 5-4 14"></path>',
+    settings: '<circle cx="12" cy="12" r="3"></circle><path d="M12 3v3M12 18v3M4.2 7.5l2.6 1.5M17.2 15l2.6 1.5M19.8 7.5 17.2 9M6.8 15l-2.6 1.5"></path>'
+  };
+  const icon = icons[view.icon] || icons.target;
+  return `<span class="menu-logo" data-menu-icon="${escapeHtml(view.icon || 'target')}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">${icon}</svg></span>`;
 }
 
 function orderedWorkflowViews() {
@@ -525,23 +907,48 @@ function filteredWorkflowViews() {
   if (!query) {
     return visibleWorkflowViews();
   }
-  return visibleWorkflowViews().filter((view) => workflowSearchText(view).includes(query));
+  return visibleWorkflowViews().filter((view) => {
+    const sections = orderedMenuSections().filter((section) => effectiveSectionViewId(section) === view.id);
+    return workflowSearchText(view).includes(query) || sections.some((section) => workflowSectionMatchesSearch(section));
+  });
 }
 
 function workflowSearchText(view) {
   return normalizeSearchText([view.title, view.description, view.id, ...(view.moduleIds || [])].join(' '));
 }
 
+function workflowSectionMatchesSearch(section) {
+  const query = state.menuSearch;
+  if (!query) {
+    return true;
+  }
+  return normalizeSearchText([
+    section.id,
+    section.title,
+    section.description,
+    ...(section.children || []).flatMap((child) => [child.id, child.title, child.description])
+  ].join(' ')).includes(query);
+}
+
 function normalizeSearchText(value) {
   return String(value || '').trim().toLowerCase();
+}
+
+function cssEscape(value) {
+  if (window.CSS?.escape) {
+    return window.CSS.escape(String(value));
+  }
+  return String(value).replace(/["\\]/g, '\\$&');
 }
 
 function renderModuleSettings() {
   const hidden = new Set(state.workflowSettings.hidden || []);
   const ordered = orderedWorkflowViews();
   const visibleCount = ordered.filter((view) => !hidden.has(view.id)).length;
-  elements.moduleSettingsSummary.textContent = `${visibleCount}/${ordered.length} 显示 · 可拖拽排序`;
-  elements.moduleSettingsList.innerHTML = ordered.map((view, index) => {
+  const sections = orderedMenuSections();
+  const lockedCount = Object.values(state.workflowSettings.sectionLocks || {}).filter(Boolean).length;
+  elements.moduleSettingsSummary.textContent = `${visibleCount}/${ordered.length} 一级显示 · ${sections.length} 个二级页面板块 · ${lockedCount} 个已锁定`;
+  const primaryCards = ordered.map((view, index) => {
     const summary = workflowMenuSummary(view);
     const isHidden = hidden.has(view.id);
     return `
@@ -559,6 +966,68 @@ function renderModuleSettings() {
       </article>
     `;
   }).join('');
+
+  const sectionCards = sections.map((section, index) => renderSectionSettingCard(section, index)).join('');
+  elements.moduleSettingsList.innerHTML = `
+    <div class="module-settings-group">
+      <h3>一级菜单</h3>
+      <div class="module-settings-stack">${primaryCards}</div>
+    </div>
+    <div class="module-settings-group">
+      <h3>二级页面板块</h3>
+      <div class="module-settings-stack">${sectionCards}</div>
+    </div>
+  `;
+}
+
+function renderSectionSettingCard(section, index) {
+  const parentId = effectiveSectionViewId(section);
+  const size = state.workflowSettings.sectionSizes?.[section.id] || 'normal';
+  const locked = Boolean(state.workflowSettings.sectionLocks?.[section.id]);
+  const children = orderedSectionChildren(section);
+  return `
+    <article class="module-setting-card section-setting-card ${locked ? 'is-locked' : ''}" draggable="${locked ? 'false' : 'true'}" data-section-module-id="${escapeHtml(section.id)}">
+      <span class="drag-handle" title="拖拽排序">↕</span>
+      <div>
+        <h3>${escapeHtml(index + 1)}. ${escapeHtml(section.title)}</h3>
+        <p>${escapeHtml(section.description || '页面板块')}</p>
+        <small>三级菜单：${escapeHtml(children.map((child) => child.title).join(' / ') || '无')}</small>
+        ${children.length ? `
+          <div class="child-setting-list">
+            ${children.map((child) => `
+              <label class="child-setting-row" data-child-module-id="${escapeHtml(child.id)}">
+                <span>${escapeHtml(child.title)}</span>
+                <input type="checkbox" data-child-lock="${escapeHtml(child.id)}" ${state.workflowSettings.childLocks?.[child.id] ? 'checked' : ''} />
+                锁定
+              </label>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>
+      <div class="section-setting-controls">
+        <label>
+          所属一级
+          <select data-section-parent="${escapeHtml(section.id)}" ${locked ? 'disabled' : ''}>
+            ${workflowViews.map((view) => `<option value="${escapeHtml(view.id)}" ${parentId === view.id ? 'selected' : ''}>${escapeHtml(view.title)}</option>`).join('')}
+          </select>
+        </label>
+        <label>
+          尺寸
+          <select data-section-size="${escapeHtml(section.id)}" ${locked ? 'disabled' : ''}>
+            <option value="normal" ${size === 'normal' ? 'selected' : ''}>默认</option>
+            <option value="wide" ${size === 'wide' ? 'selected' : ''}>变宽</option>
+            <option value="tall" ${size === 'tall' ? 'selected' : ''}>变长</option>
+            <option value="large" ${size === 'large' ? 'selected' : ''}>等比例放大</option>
+            <option value="compact" ${size === 'compact' ? 'selected' : ''}>缩小</option>
+          </select>
+        </label>
+        <label class="module-visible-toggle">
+          <input type="checkbox" data-section-lock="${escapeHtml(section.id)}" ${locked ? 'checked' : ''} />
+          锁定
+        </label>
+      </div>
+    </article>
+  `;
 }
 
 function workflowMenuSummary(view) {
@@ -665,6 +1134,7 @@ function saveWorkflowSettings() {
   renderWorkflowMenu();
   renderWorkflowOverview();
   renderModuleSettings();
+  applyPanelLayoutSettings();
   if (!visibleWorkflowViews().some((view) => view.id === currentWorkflowFromHash())) {
     showWorkflowView(visibleWorkflowViews()[0]?.id || workflowViews[0].id);
   }
@@ -673,27 +1143,96 @@ function saveWorkflowSettings() {
 function defaultWorkflowSettings() {
   return {
     order: workflowViews.map((view) => view.id),
-    hidden: []
+    hidden: [],
+    sectionOrder: menuSections.map((section) => section.id),
+    sectionParents: {},
+    sectionSizes: {},
+    sectionLocks: {},
+    childOrder: {},
+    childLocks: {}
   };
 }
 
 function normalizeWorkflowSettings(input = {}) {
   const validIds = workflowViews.map((view) => view.id);
+  const validSectionIds = menuSections.map((section) => section.id);
   const order = Array.isArray(input.order)
     ? input.order.filter((id, index, array) => validIds.includes(id) && array.indexOf(id) === index)
     : [];
   const hidden = Array.isArray(input.hidden)
     ? input.hidden.filter((id, index, array) => validIds.includes(id) && array.indexOf(id) === index)
     : [];
+  const sectionOrder = Array.isArray(input.sectionOrder)
+    ? input.sectionOrder.filter((id, index, array) => validSectionIds.includes(id) && array.indexOf(id) === index)
+    : [];
+  const sectionParents = normalizeSectionRecord(input.sectionParents, (value) => validIds.includes(value));
+  const sectionSizes = normalizeSectionRecord(input.sectionSizes, (value) => ['normal', 'wide', 'tall', 'large', 'compact'].includes(value));
+  const sectionLocks = normalizeSectionRecord(input.sectionLocks, (value) => value === true);
+  const childOrder = normalizeChildOrderRecord(input.childOrder);
+  const childLocks = normalizeChildLockRecord(input.childLocks);
   const mergedOrder = [...order, ...validIds.filter((id) => !order.includes(id))];
+  const mergedSectionOrder = [...sectionOrder, ...validSectionIds.filter((id) => !sectionOrder.includes(id))];
   const visibleIds = validIds.filter((id) => !hidden.includes(id));
   return {
     order: mergedOrder,
-    hidden: visibleIds.length ? hidden : []
+    hidden: visibleIds.length ? hidden : [],
+    sectionOrder: mergedSectionOrder,
+    sectionParents,
+    sectionSizes,
+    sectionLocks,
+    childOrder,
+    childLocks
   };
 }
 
+function normalizeSectionRecord(input, isValidValue) {
+  if (!input || typeof input !== 'object') {
+    return {};
+  }
+
+  return Object.fromEntries(
+    Object.entries(input)
+      .filter(([id, value]) => menuSections.some((section) => section.id === id) && isValidValue(value))
+  );
+}
+
+function flattenMenuSections(sections = menuSections) {
+  return sections.flatMap((section) => [section, ...flattenMenuSections(section.children || [])]);
+}
+
+function orderedMenuSections() {
+  const order = state.workflowSettings.sectionOrder || menuSections.map((section) => section.id);
+  const byId = new Map(menuSections.map((section) => [section.id, section]));
+  const ordered = order.map((id) => byId.get(id)).filter(Boolean);
+  const missing = menuSections.filter((section) => !order.includes(section.id));
+  return [...ordered, ...missing];
+}
+
+function orderedSectionChildren(section = {}) {
+  const children = Array.isArray(section.children) ? section.children : [];
+  const order = state.workflowSettings.childOrder?.[section.id] || children.map((child) => child.id);
+  const byId = new Map(children.map((child) => [child.id, child]));
+  const ordered = order.map((id) => byId.get(id)).filter(Boolean);
+  const missing = children.filter((child) => !order.includes(child.id));
+  return [...ordered, ...missing];
+}
+
+function findMenuSection(sectionId) {
+  return flattenMenuSections().find((section) => section.id === sectionId);
+}
+
+function effectiveSectionViewId(section) {
+  if (!section) {
+    return '';
+  }
+  return state.workflowSettings.sectionParents?.[section.id] || section.viewId;
+}
+
 function handleWorkflowSettingsChange(event) {
+  if (handleSectionSettingsChange(event)) {
+    return;
+  }
+
   const input = event.target.closest('[data-workflow-visible]');
   if (!input) {
     return;
@@ -709,33 +1248,105 @@ function handleWorkflowSettingsChange(event) {
   saveWorkflowSettings();
 }
 
+function handleSectionSettingsChange(event) {
+  const parentInput = event.target.closest('[data-section-parent]');
+  if (parentInput) {
+    const id = parentInput.dataset.sectionParent;
+    const section = findMenuSection(id);
+    if (section) {
+      state.workflowSettings.sectionParents = {
+        ...(state.workflowSettings.sectionParents || {}),
+        [id]: parentInput.value
+      };
+      saveWorkflowSettings();
+    }
+    return true;
+  }
+
+  const sizeInput = event.target.closest('[data-section-size]');
+  if (sizeInput) {
+    const id = sizeInput.dataset.sectionSize;
+    state.workflowSettings.sectionSizes = {
+      ...(state.workflowSettings.sectionSizes || {}),
+      [id]: sizeInput.value
+    };
+    saveWorkflowSettings();
+    return true;
+  }
+
+  const lockInput = event.target.closest('[data-section-lock]');
+  if (lockInput) {
+    const id = lockInput.dataset.sectionLock;
+    state.workflowSettings.sectionLocks = {
+      ...(state.workflowSettings.sectionLocks || {}),
+      [id]: lockInput.checked
+    };
+    saveWorkflowSettings();
+    return true;
+  }
+
+  const childLockInput = event.target.closest('[data-child-lock]');
+  if (childLockInput) {
+    const id = childLockInput.dataset.childLock;
+    state.workflowSettings.childLocks = {
+      ...(state.workflowSettings.childLocks || {}),
+      [id]: childLockInput.checked
+    };
+    saveWorkflowSettings();
+    return true;
+  }
+
+  return false;
+}
+
 function handleWorkflowDragStart(event) {
   const card = event.target.closest('[data-workflow-module-id]');
-  if (!card) {
+  const sectionCard = event.target.closest('[data-section-module-id]');
+  if (!card && !sectionCard) {
     return;
   }
-  card.classList.add('dragging');
+  if (sectionCard && state.workflowSettings.sectionLocks?.[sectionCard.dataset.sectionModuleId]) {
+    event.preventDefault();
+    return;
+  }
+  const source = card || sectionCard;
+  source.classList.add('dragging');
   event.dataTransfer.effectAllowed = 'move';
-  event.dataTransfer.setData('text/plain', card.dataset.workflowModuleId);
+  event.dataTransfer.setData('text/plain', card ? `view:${card.dataset.workflowModuleId}` : `section:${sectionCard.dataset.sectionModuleId}`);
 }
 
 function handleWorkflowDragOver(event) {
-  if (event.target.closest('[data-workflow-module-id]')) {
+  if (event.target.closest('[data-workflow-module-id], [data-section-module-id]')) {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
   }
 }
 
 function handleWorkflowDrop(event) {
-  const target = event.target.closest('[data-workflow-module-id]');
-  const sourceId = event.dataTransfer.getData('text/plain');
-  if (!target || !sourceId || sourceId === target.dataset.workflowModuleId) {
+  const targetView = event.target.closest('[data-workflow-module-id]');
+  const targetSection = event.target.closest('[data-section-module-id]');
+  const source = event.dataTransfer.getData('text/plain');
+  if (!source || (!targetView && !targetSection)) {
     return;
   }
   event.preventDefault();
+
+  if (source.startsWith('section:') && targetSection) {
+    reorderSection(source.replace('section:', ''), targetSection.dataset.sectionModuleId);
+    return;
+  }
+
+  if (!source.startsWith('view:') || !targetView) {
+    return;
+  }
+
+  const sourceId = source.replace('view:', '');
+  if (sourceId === targetView.dataset.workflowModuleId) {
+    return;
+  }
   const order = orderedWorkflowViews().map((view) => view.id);
   const fromIndex = order.indexOf(sourceId);
-  const toIndex = order.indexOf(target.dataset.workflowModuleId);
+  const toIndex = order.indexOf(targetView.dataset.workflowModuleId);
   if (fromIndex < 0 || toIndex < 0) {
     return;
   }
@@ -745,14 +1356,225 @@ function handleWorkflowDrop(event) {
   saveWorkflowSettings();
 }
 
+function reorderSection(sourceId, targetId) {
+  if (!sourceId || !targetId || sourceId === targetId || state.workflowSettings.sectionLocks?.[sourceId]) {
+    return;
+  }
+
+  const order = orderedMenuSections().map((section) => section.id);
+  const fromIndex = order.indexOf(sourceId);
+  const toIndex = order.indexOf(targetId);
+  if (fromIndex < 0 || toIndex < 0) {
+    return;
+  }
+  order.splice(fromIndex, 1);
+  order.splice(toIndex, 0, sourceId);
+  state.workflowSettings.sectionOrder = order;
+  saveWorkflowSettings();
+}
+
+function reorderChildSection(parentId, sourceId, targetId) {
+  if (!parentId || !sourceId || !targetId || sourceId === targetId || state.workflowSettings.childLocks?.[sourceId]) {
+    return;
+  }
+  const parent = menuSections.find((section) => section.id === parentId);
+  if (!parent) {
+    return;
+  }
+  const order = orderedSectionChildren(parent).map((child) => child.id);
+  const fromIndex = order.indexOf(sourceId);
+  const toIndex = order.indexOf(targetId);
+  if (fromIndex < 0 || toIndex < 0) {
+    return;
+  }
+  order.splice(fromIndex, 1);
+  order.splice(toIndex, 0, sourceId);
+  state.workflowSettings.childOrder = {
+    ...(state.workflowSettings.childOrder || {}),
+    [parentId]: order
+  };
+  saveWorkflowSettings();
+}
+
 function handleWorkflowDragEnd() {
   elements.moduleSettingsList.querySelectorAll('.dragging').forEach((card) => card.classList.remove('dragging'));
+}
+
+function handleMenuTreeDragStart(event) {
+  const item = event.target.closest('[data-menu-drag-id]');
+  if (!item) {
+    return;
+  }
+  const dragId = item.dataset.menuDragId;
+  if (dragId.startsWith('section:') && state.workflowSettings.sectionLocks?.[dragId.replace('section:', '')]) {
+    event.preventDefault();
+    return;
+  }
+  if (dragId.startsWith('child:')) {
+    const childId = dragId.split(':')[2];
+    if (state.workflowSettings.childLocks?.[childId]) {
+      event.preventDefault();
+      return;
+    }
+  }
+  item.classList.add('dragging');
+  event.dataTransfer.effectAllowed = 'move';
+  event.dataTransfer.setData('text/plain', dragId);
+}
+
+function handleMenuTreeDragOver(event) {
+  if (event.target.closest('[data-menu-drag-id]')) {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }
+}
+
+function handleMenuTreeDrop(event) {
+  const target = event.target.closest('[data-menu-drag-id]');
+  const source = event.dataTransfer.getData('text/plain');
+  if (!target || !source) {
+    return;
+  }
+  event.preventDefault();
+  const targetId = target.dataset.menuDragId;
+  if (source.startsWith('view:') && targetId.startsWith('view:')) {
+    reorderWorkflowView(source.replace('view:', ''), targetId.replace('view:', ''));
+    return;
+  }
+  if (source.startsWith('section:') && targetId.startsWith('section:')) {
+    reorderSection(source.replace('section:', ''), targetId.replace('section:', ''));
+    return;
+  }
+  if (source.startsWith('child:') && targetId.startsWith('child:')) {
+    const [, sourceParent, sourceChild] = source.split(':');
+    const [, targetParent, targetChild] = targetId.split(':');
+    if (sourceParent === targetParent) {
+      reorderChildSection(sourceParent, sourceChild, targetChild);
+    }
+  }
+}
+
+function handleMenuTreeDragEnd() {
+  elements.primaryNav.querySelectorAll('.dragging').forEach((item) => item.classList.remove('dragging'));
+}
+
+function reorderWorkflowView(sourceId, targetId) {
+  if (!sourceId || !targetId || sourceId === targetId) {
+    return;
+  }
+  const order = orderedWorkflowViews().map((view) => view.id);
+  const fromIndex = order.indexOf(sourceId);
+  const toIndex = order.indexOf(targetId);
+  if (fromIndex < 0 || toIndex < 0) {
+    return;
+  }
+  order.splice(fromIndex, 1);
+  order.splice(toIndex, 0, sourceId);
+  state.workflowSettings.order = order;
+  saveWorkflowSettings();
 }
 
 function resetWorkflowSettings() {
   state.workflowSettings = defaultWorkflowSettings();
   saveWorkflowSettings();
   showWorkflowView(workflowViews[0].id);
+}
+
+function loadMenuExpansion(storage) {
+  const defaults = defaultMenuExpansion();
+  if (!storage) {
+    return defaults;
+  }
+  try {
+    return normalizeMenuExpansion(JSON.parse(storage.getItem(menuExpansionStorageKey) || '{}'));
+  } catch {
+    return defaults;
+  }
+}
+
+function defaultMenuExpansion() {
+  return {
+    expanded: [
+      ...workflowViews.map((view) => `view:${view.id}`),
+      ...menuSections.map((section) => `section:${section.id}`)
+    ]
+  };
+}
+
+function normalizeMenuExpansion(input = {}) {
+  const allowed = new Set(defaultMenuExpansion().expanded);
+  const expanded = Array.isArray(input.expanded)
+    ? input.expanded.filter((id, index, array) => allowed.has(id) && array.indexOf(id) === index)
+    : defaultMenuExpansion().expanded;
+  return { expanded };
+}
+
+function isMenuExpanded(id) {
+  return new Set(state.menuExpansion.expanded || []).has(id);
+}
+
+function saveMenuExpansion() {
+  state.menuExpansion = normalizeMenuExpansion(state.menuExpansion);
+  window.localStorage?.setItem(menuExpansionStorageKey, JSON.stringify(state.menuExpansion));
+  renderWorkflowMenu();
+}
+
+function toggleMenuView(viewId) {
+  toggleMenuExpansion(`view:${viewId}`);
+}
+
+function toggleMenuSection(sectionId) {
+  toggleMenuExpansion(`section:${sectionId}`);
+}
+
+function toggleMenuExpansion(id) {
+  const expanded = new Set(state.menuExpansion.expanded || []);
+  if (expanded.has(id)) {
+    expanded.delete(id);
+  } else {
+    expanded.add(id);
+  }
+  state.menuExpansion.expanded = [...expanded];
+  saveMenuExpansion();
+}
+
+function normalizeChildOrderRecord(input) {
+  if (!input || typeof input !== 'object') {
+    return {};
+  }
+  const entries = Object.entries(input).flatMap(([parentId, childIds]) => {
+    const parent = menuSections.find((section) => section.id === parentId);
+    if (!parent || !Array.isArray(childIds)) {
+      return [];
+    }
+    const validIds = (parent.children || []).map((child) => child.id);
+    const order = childIds.filter((id, index, array) => validIds.includes(id) && array.indexOf(id) === index);
+    return order.length ? [[parentId, [...order, ...validIds.filter((id) => !order.includes(id))]]] : [];
+  });
+  return Object.fromEntries(entries);
+}
+
+function normalizeChildLockRecord(input) {
+  if (!input || typeof input !== 'object') {
+    return {};
+  }
+  const validChildIds = new Set(menuSections.flatMap((section) => (section.children || []).map((child) => child.id)));
+  return Object.fromEntries(
+    Object.entries(input).filter(([id, value]) => validChildIds.has(id) && value === true)
+  );
+}
+
+function applyPanelLayoutSettings() {
+  const settings = normalizeWorkflowSettings(state.workflowSettings);
+  state.workflowSettings = settings;
+  document.querySelectorAll('[data-menu-section]').forEach((panel) => {
+    const sectionId = panel.dataset.menuSection;
+    const size = settings.sectionSizes[sectionId] || 'normal';
+    const locked = Boolean(settings.sectionLocks[sectionId]);
+    panel.classList.remove('panel-size-normal', 'panel-size-wide', 'panel-size-tall', 'panel-size-large', 'panel-size-compact', 'panel-locked');
+    panel.classList.add(`panel-size-${size}`);
+    panel.classList.toggle('panel-locked', locked);
+  });
 }
 
 function loadSidebarLayout(storage) {
@@ -771,14 +1593,17 @@ function defaultSidebarLayout() {
   return {
     locked: true,
     collapsed: false,
+    mode: 'fixed',
     width: 208
   };
 }
 
 function normalizeSidebarLayout(input = {}) {
+  const mode = input.mode === 'auto-hide' || Boolean(input.collapsed) ? 'auto-hide' : 'fixed';
   return {
     locked: input.locked !== false,
-    collapsed: Boolean(input.collapsed),
+    collapsed: mode === 'auto-hide',
+    mode,
     width: clampSidebarWidth(input.width)
   };
 }
@@ -791,18 +1616,24 @@ function saveSidebarLayout() {
 
 function applySidebarLayout() {
   const layout = normalizeSidebarLayout(state.sidebarLayout);
+  const isAutoHide = layout.mode === 'auto-hide';
   state.sidebarLayout = layout;
-  document.documentElement.style.setProperty('--sidebar-width', `${layout.width}px`);
-  document.body.classList.toggle('sidebar-unlocked', !layout.locked && !layout.collapsed);
-  document.body.classList.toggle('sidebar-collapsed', layout.collapsed);
+  document.documentElement.style.setProperty('--sidebar-panel-width', `${layout.width}px`);
+  document.documentElement.style.setProperty('--sidebar-width', isAutoHide ? '0px' : `${layout.width}px`);
+  document.body.classList.toggle('sidebar-auto-hide', isAutoHide);
+  document.body.classList.toggle('sidebar-unlocked', !layout.locked && !isAutoHide);
+  document.body.classList.toggle('menu-layout-editing', !layout.locked && !isAutoHide);
+  document.body.classList.remove('sidebar-collapsed');
   elements.sidebarLock.setAttribute('aria-pressed', String(layout.locked));
   elements.sidebarLock.textContent = layout.locked ? '🔒' : '🔓';
   elements.sidebarLock.title = layout.locked ? '解锁菜单布局' : '锁定菜单布局';
   elements.sidebarLock.setAttribute('aria-label', elements.sidebarLock.title);
-  elements.sidebarCollapse.setAttribute('aria-pressed', String(layout.collapsed));
-  elements.sidebarCollapse.textContent = layout.collapsed ? '⇥' : '⇤';
-  elements.sidebarCollapse.title = layout.collapsed ? '展开菜单' : '收缩菜单';
+  elements.sidebarCollapse.setAttribute('aria-pressed', String(isAutoHide));
+  elements.sidebarCollapse.textContent = isAutoHide ? '📌' : '⇤';
+  elements.sidebarCollapse.title = isAutoHide ? '固定显示菜单' : '自动隐藏菜单';
   elements.sidebarCollapse.setAttribute('aria-label', elements.sidebarCollapse.title);
+  elements.sidebarPeekZone.setAttribute('aria-hidden', String(!isAutoHide));
+  elements.sidebarPeekZone.tabIndex = isAutoHide ? 0 : -1;
 }
 
 function toggleSidebarLock() {
@@ -811,12 +1642,29 @@ function toggleSidebarLock() {
 }
 
 function toggleSidebarCollapse() {
-  state.sidebarLayout.collapsed = !state.sidebarLayout.collapsed;
+  toggleSidebarMode();
+}
+
+function toggleSidebarMode() {
+  const layout = normalizeSidebarLayout(state.sidebarLayout);
+  setSidebarMode(layout.mode === 'auto-hide' ? 'fixed' : 'auto-hide');
+}
+
+function setSidebarMode(mode) {
+  const nextMode = mode === 'auto-hide' ? 'auto-hide' : 'fixed';
+  state.sidebarLayout.mode = nextMode;
+  state.sidebarLayout.collapsed = nextMode === 'auto-hide';
   saveSidebarLayout();
+  if (nextMode === 'auto-hide') {
+    elements.sidebarCollapse.blur();
+    elements.sidebarLock.blur();
+    elements.sidebarSettings.blur();
+  }
 }
 
 function startSidebarResize(event) {
-  if (state.sidebarLayout.locked || state.sidebarLayout.collapsed) {
+  const layout = normalizeSidebarLayout(state.sidebarLayout);
+  if (layout.locked || layout.mode === 'auto-hide') {
     return;
   }
   event.preventDefault();
@@ -868,7 +1716,250 @@ function renderInputModeMatrix() {
   `).join('');
 }
 
-function startVoiceInput() {
+function enhanceVoiceInputControls(root = document) {
+  root.querySelectorAll('input, textarea').forEach((field) => {
+    if (!isVoiceEligibleField(field) || field.dataset.voiceEnhanced === 'true') {
+      return;
+    }
+    if (!field.id) {
+      field.id = `voice-field-${Math.random().toString(36).slice(2, 10)}`;
+    }
+    const wrapper = document.createElement('span');
+    wrapper.className = 'input-assist-wrap';
+    field.parentNode.insertBefore(wrapper, field);
+    wrapper.appendChild(field);
+
+    const tools = document.createElement('span');
+    tools.className = 'input-assist-tools';
+
+    const voiceButton = document.createElement('button');
+    voiceButton.type = 'button';
+    voiceButton.className = 'field-voice-button input-assist-button';
+    voiceButton.dataset.voiceTargetId = field.id;
+    voiceButton.title = '语音输入';
+    voiceButton.setAttribute('aria-label', '语音输入');
+    voiceButton.innerHTML = microphoneIconSvg();
+
+    const suggestionButton = document.createElement('button');
+    suggestionButton.type = 'button';
+    suggestionButton.className = 'field-suggestion-button input-assist-button';
+    suggestionButton.dataset.suggestionTargetId = field.id;
+    suggestionButton.title = '推荐选项';
+    suggestionButton.setAttribute('aria-label', '推荐选项');
+    suggestionButton.textContent = '⌄';
+
+    tools.append(voiceButton, suggestionButton);
+    wrapper.appendChild(tools);
+    field.dataset.voiceEnhanced = 'true';
+  });
+}
+
+function microphoneIconSvg() {
+  return `
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"></path>
+      <path d="M5 11v1a7 7 0 0 0 14 0v-1"></path>
+      <path d="M12 19v3"></path>
+      <path d="M8 22h8"></path>
+    </svg>
+  `;
+}
+
+function isVoiceEligibleField(field) {
+  if (!field || field.disabled || field.readOnly) {
+    return false;
+  }
+  if (field.tagName === 'TEXTAREA') {
+    return true;
+  }
+  if (field.tagName !== 'INPUT') {
+    return false;
+  }
+  const type = String(field.getAttribute('type') || 'text').toLowerCase();
+  return ['text', 'search', 'email', 'url', 'tel'].includes(type);
+}
+
+function handleInlineVoiceClick(event) {
+  const voiceButton = event.target.closest('[data-voice-target-id]');
+  if (voiceButton) {
+    const field = document.getElementById(voiceButton.dataset.voiceTargetId);
+    if (!field || !isVoiceEligibleField(field)) {
+      setVoiceSummary('这个输入框暂不支持语音输入');
+      return;
+    }
+    closeSuggestionMenu();
+    startInlineVoiceInput(field, voiceButton);
+    return;
+  }
+
+  const suggestionButton = event.target.closest('[data-suggestion-target-id]');
+  if (suggestionButton) {
+    const field = document.getElementById(suggestionButton.dataset.suggestionTargetId);
+    if (field) {
+      renderSuggestionMenu(field, suggestionButton);
+    }
+    return;
+  }
+
+  const suggestionOption = event.target.closest('[data-suggestion-value]');
+  if (suggestionOption) {
+    const field = document.getElementById(suggestionOption.dataset.suggestionFieldId);
+    if (field) {
+      applySuggestionToField(field, suggestionOption.dataset.suggestionValue);
+    }
+    closeSuggestionMenu();
+    return;
+  }
+
+  const addButton = event.target.closest('[data-add-custom-suggestion]');
+  if (addButton) {
+    const field = document.getElementById(addButton.dataset.addCustomSuggestion);
+    const input = state.activeSuggestionMenu?.querySelector('[data-custom-suggestion-input]');
+    if (field && input) {
+      addCustomSuggestion(field, input.value);
+    }
+    return;
+  }
+
+  if (!event.target.closest('.input-suggestion-menu')) {
+    closeSuggestionMenu();
+  }
+}
+
+function renderSuggestionMenu(field, button) {
+  if (state.activeSuggestionMenu?.dataset.fieldId === field.id) {
+    closeSuggestionMenu();
+    return;
+  }
+  closeSuggestionMenu();
+
+  const wrapper = button.closest('.input-assist-wrap');
+  const menu = document.createElement('div');
+  menu.className = 'input-suggestion-menu';
+  menu.dataset.fieldId = field.id;
+
+  const title = document.createElement('strong');
+  title.textContent = '推荐选项';
+  menu.appendChild(title);
+
+  const list = document.createElement('div');
+  list.className = 'input-suggestion-list';
+  const suggestions = getInputSuggestions(field);
+  suggestions.forEach((value) => {
+    const option = document.createElement('button');
+    option.type = 'button';
+    option.dataset.suggestionFieldId = field.id;
+    option.dataset.suggestionValue = value;
+    option.textContent = value;
+    list.appendChild(option);
+  });
+  if (!suggestions.length) {
+    const empty = document.createElement('span');
+    empty.className = 'input-suggestion-empty';
+    empty.textContent = '暂无推荐，可以添加自定义常用项。';
+    list.appendChild(empty);
+  }
+  menu.appendChild(list);
+
+  const customRow = document.createElement('div');
+  customRow.className = 'input-suggestion-custom';
+  const customInput = document.createElement('input');
+  customInput.type = 'text';
+  customInput.maxLength = 120;
+  customInput.placeholder = '自定义常用项';
+  customInput.dataset.customSuggestionInput = 'true';
+  const customButton = document.createElement('button');
+  customButton.type = 'button';
+  customButton.dataset.addCustomSuggestion = field.id;
+  customButton.textContent = '加入常用';
+  customRow.append(customInput, customButton);
+  menu.appendChild(customRow);
+
+  wrapper.appendChild(menu);
+  state.activeSuggestionMenu = menu;
+  customInput.focus();
+}
+
+function getInputSuggestions(field) {
+  const key = suggestionKeyForField(field);
+  const defaults = defaultSuggestionsForField(field);
+  const customs = state.inputAssistCustoms[key] || [];
+  return [...new Set([...customs, ...defaults])].slice(0, 12);
+}
+
+function suggestionKeyForField(field) {
+  return field.id || field.name || 'common';
+}
+
+function defaultSuggestionsForField(field) {
+  const id = String(field.id || '').toLowerCase();
+  const placeholder = String(field.getAttribute('placeholder') || '').toLowerCase();
+  if (id.includes('platform')) {
+    return ['企业微信', '抖音', '小红书', '快手', '视频号', '淘宝', '拼多多', '京东'];
+  }
+  if (id.includes('customer') || id.includes('sender')) {
+    return ['张先生', '王女士', '李总', '客户A', '待确认客户'];
+  }
+  if (id.includes('goal') || id.includes('target')) {
+    return ['加企微', '进群', '留资', '预约咨询', '下定金', '领取资料'];
+  }
+  if (id.includes('comment') || id.includes('message') || id.includes('text') || placeholder.includes('客户')) {
+    return ['想了解价格', '有没有案例', '怎么预约', '能发资料吗', '我想对比一下', '售后怎么保障'];
+  }
+  if (id.includes('region') || id.includes('city') || id.includes('province')) {
+    return ['广东', '深圳', '广州', '杭州', '上海', '北京'];
+  }
+  if (id.includes('tag') || id.includes('category')) {
+    return ['售前', '售后', '高意向', '价格敏感', '案例咨询', '复购跟进'];
+  }
+  if (id.includes('url') || id.includes('site') || placeholder.includes('https')) {
+    return ['官网链接待补', '企业微信名片链接待补', '群邀请链接待补'];
+  }
+  return ['需要案例', '需要报价', '需要资料', '先了解一下', '稍后跟进', '转人工确认'];
+}
+
+function addCustomSuggestion(field, value) {
+  const normalized = normalizeCustomSuggestion(value);
+  if (!normalized) {
+    setVoiceSummary('请先输入自定义常用项');
+    return;
+  }
+  const key = suggestionKeyForField(field);
+  const current = state.inputAssistCustoms[key] || [];
+  state.inputAssistCustoms[key] = [normalized, ...current.filter((item) => item !== normalized)].slice(0, 20);
+  saveInputAssistCustoms(window.localStorage, state.inputAssistCustoms);
+  applySuggestionToField(field, normalized);
+  closeSuggestionMenu();
+  setVoiceSummary('已加入常用并写入当前输入框');
+}
+
+function normalizeCustomSuggestion(value) {
+  return String(value || '').trim().replace(/\s+/g, ' ').slice(0, 120);
+}
+
+function applySuggestionToField(field, value) {
+  const text = normalizeCustomSuggestion(value);
+  if (!text) {
+    return;
+  }
+  if (field.tagName === 'TEXTAREA') {
+    field.value = field.value ? `${field.value}\n${text}` : text;
+  } else {
+    field.value = text;
+  }
+  field.dispatchEvent(new Event('input', { bubbles: true }));
+  field.dispatchEvent(new Event('change', { bubbles: true }));
+  setVoiceSummary('已选定推荐项');
+}
+
+function closeSuggestionMenu() {
+  if (state.activeSuggestionMenu) {
+    state.activeSuggestionMenu.remove();
+    state.activeSuggestionMenu = null;
+  }
+}
+
+function startInlineVoiceInput(field, button) {
   const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!Recognition) {
     setVoiceSummary('当前浏览器不支持语音识别，可先手动粘贴转写文字。');
@@ -877,14 +1968,21 @@ function startVoiceInput() {
 
   stopVoiceInput();
   const recognition = new Recognition();
-  recognition.lang = elements.voiceLanguage.value || 'zh-CN';
-  recognition.continuous = true;
+  recognition.lang = 'zh-CN';
+  recognition.continuous = false;
   recognition.interimResults = true;
-  recognition.onstart = () => setVoiceSummary('正在听写...');
+  state.voiceTargetField = field;
+  state.voiceActiveButton = button;
+  recognition.onstart = () => {
+    button.classList.add('listening');
+    setVoiceSummary('正在听写，完成后会写入当前输入框');
+  };
   recognition.onerror = () => setVoiceSummary('语音识别中断，请检查浏览器麦克风权限。');
   recognition.onend = () => {
     if (state.voiceRecognition === recognition) {
       state.voiceRecognition = null;
+      state.voiceTargetField = null;
+      button.classList.remove('listening');
       setVoiceSummary('语音输入已停止');
     }
   };
@@ -894,7 +1992,7 @@ function startVoiceInput() {
       .join('')
       .trim();
     if (text) {
-      elements.voiceTranscript.value = text;
+      writeVoiceTextToField(field, text);
     }
   };
   state.voiceRecognition = recognition;
@@ -906,39 +2004,52 @@ function stopVoiceInput() {
     state.voiceRecognition.stop();
     state.voiceRecognition = null;
   }
+  if (state.voiceActiveButton) {
+    state.voiceActiveButton.classList.remove('listening');
+  }
+  state.voiceTargetField = null;
+  state.voiceActiveButton = null;
   setVoiceSummary('语音输入已停止');
 }
 
-function applyVoiceInput() {
-  const text = elements.voiceTranscript.value.trim();
-  if (!text) {
-    setVoiceSummary('请先输入或识别一段文字');
-    return;
-  }
-
-  const targetMap = {
-    'target-pain': elements.targetPain,
-    'target-behavior': elements.targetBehavior,
-    'knowledge-content': elements.content,
-    'private-comment': elements.privateCommentText,
-    'qa-question': elements.question,
-    'growth-message': elements.growthMessage,
-    'hermes-command': elements.hermesText
-  };
-  const target = targetMap[elements.voiceTarget.value];
-  if (!target) {
-    setVoiceSummary('目标输入框不存在');
-    return;
-  }
-  target.value = target.value ? `${target.value}\n${text}` : text;
-  target.dispatchEvent(new Event('input', { bubbles: true }));
-  setVoiceSummary('已写入目标模块');
+function writeVoiceTextToField(field, text) {
+  const separator = field.tagName === 'TEXTAREA' && field.value.trim() ? '\n' : '';
+  field.value = field.value ? `${field.value}${separator}${text}` : text;
+  field.dispatchEvent(new Event('input', { bubbles: true }));
+  setVoiceSummary('语音已写入当前输入框');
 }
 
 function setVoiceSummary(message) {
-  if (elements.voiceInputSummary) {
-    elements.voiceInputSummary.textContent = message;
+  if (elements.voiceGlobalStatus) {
+    elements.voiceGlobalStatus.textContent = `语音输入：${message}`;
   }
+}
+
+function loadInputAssistCustoms(storage) {
+  if (!storage) {
+    return {};
+  }
+  try {
+    const parsed = JSON.parse(storage.getItem(inputAssistStorageKey) || '{}');
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return {};
+    }
+    return Object.fromEntries(
+      Object.entries(parsed).map(([key, values]) => [
+        key,
+        Array.isArray(values) ? values.map(normalizeCustomSuggestion).filter(Boolean).slice(0, 20) : []
+      ])
+    );
+  } catch {
+    return {};
+  }
+}
+
+function saveInputAssistCustoms(storage, customs) {
+  if (!storage) {
+    return;
+  }
+  storage.setItem(inputAssistStorageKey, JSON.stringify(customs || {}));
 }
 
 function renderTargetProfile() {
@@ -1417,6 +2528,7 @@ function renderPlatformConfigSection(section) {
         <span>${section.implemented ? '1.0主线' : '预留接入'}</span>
       </div>
       <div class="meta-line">下一步：${escapeHtml(section.nextStep)}</div>
+      ${renderMissingMaterials(section.missingMaterials)}
       <form class="platform-config-form" data-platform-config-form data-section-id="${escapeHtml(section.id)}">
         ${renderPlatformFieldGroup('必填', requiredFields)}
         ${optionalFields.length ? renderPlatformFieldGroup('选填', optionalFields) : ''}
@@ -1442,8 +2554,509 @@ function renderPlatformFieldGroup(label, fields) {
               placeholder="${escapeHtml(field.placeholder)}"
               aria-label="${escapeHtml(field.label)}"
             />
-            <small>${escapeHtml(field.help)} · ${escapeHtml(field.key)}</small>
+            <small>${escapeHtml(field.help)}${field.sensitive ? ' · 保存后不显示明文' : ''}</small>
           </label>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderCallCrmBlueprint() {
+  const blueprint = state.callCrmBlueprint;
+  const modules = new Map((blueprint?.modules || []).map((module) => [module.id, module]));
+  const targets = [
+    {
+      id: 'ai-call',
+      summary: elements.aiCallSummary,
+      container: elements.aiCallBlueprint,
+      fallback: '外呼 / 呼入 / 摘要 / 人工接管'
+    },
+    {
+      id: 'yunke-call-import',
+      summary: elements.yunkeCallImportSummary,
+      container: elements.yunkeCallImportBlueprint,
+      fallback: '通话记录 / 意向分级 / 跟进人'
+    },
+    {
+      id: 'crm-import',
+      summary: elements.crmImportSummary,
+      container: elements.crmImportBlueprint,
+      fallback: '字段映射 / 去重 / 同步策略'
+    }
+  ];
+
+  targets.forEach((target) => {
+    if (!target.summary || !target.container) {
+      return;
+    }
+    const module = modules.get(target.id);
+    if (!module) {
+      target.summary.textContent = state.callCrmBlueprintError ? '蓝图接口待恢复' : target.fallback;
+      target.container.innerHTML = '<div class="empty">正在读取呼叫与CRM承接蓝图。</div>';
+      return;
+    }
+
+    target.summary.textContent = `${callCrmStatusLabel(module.status)} · ${module.percentText} · ${module.remainingHours.toFixed(1)} 小时`;
+    target.container.innerHTML = renderCallCrmModule(module, blueprint);
+  });
+}
+
+function renderResilienceBackupBlueprint() {
+  const blueprint = state.resilienceBackupBlueprint;
+  if (!elements.resilienceBackupSummary || !elements.resilienceBackupBlueprint) {
+    return;
+  }
+  if (!blueprint) {
+    elements.resilienceBackupSummary.textContent = state.resilienceBackupBlueprintError ? '容灾接口待恢复' : '加载中';
+    elements.resilienceBackupBlueprint.innerHTML = '<div class="empty">正在读取容灾备份策略。</div>';
+    return;
+  }
+
+  elements.resilienceBackupSummary.textContent =
+    `${blueprint.summary?.permissionLevel || '最高权限'} · 三人审批 · ${blueprint.summary?.latestBackupName || '暂无备份'}`;
+  elements.resilienceBackupBlueprint.innerHTML = `
+    <div class="resilience-backup-grid">
+      <article class="resilience-backup-card authority">
+        <div class="channel-port-head">
+          <div>
+            <h3>${escapeHtml(blueprint.approvalPolicy?.level || '最高权限')}</h3>
+            <p>${escapeHtml(blueprint.approvalPolicy?.rule || '高风险容灾动作必须人工审批。')}</p>
+          </div>
+          <span class="tag status blocked">三人同意</span>
+        </div>
+        <div class="roadmap-facts">
+          <span>至少 ${Number(blueprint.approvalPolicy?.requiredApprovals || 3)} 名最高审批人</span>
+          <span>${blueprint.approvalPolicy?.unanimousRequired ? '必须同时同意' : '按策略审批'}</span>
+          <span>不自动恢复</span>
+        </div>
+        <div class="approval-person-list">
+          ${(blueprint.approvalPolicy?.approvers || []).map((approver) => `
+            <span><b>${escapeHtml(approver.role)}</b><em>${escapeHtml(approver.level)}权限</em></span>
+          `).join('')}
+        </div>
+      </article>
+      ${(blueprint.backupTypes || []).map((type) => `
+        <article class="resilience-backup-card">
+          <div class="channel-port-head">
+            <h3>${escapeHtml(type.name)}</h3>
+            <span class="tag status blocked">${escapeHtml(type.permissionLevel)}</span>
+          </div>
+          <p>${escapeHtml(type.scope)}</p>
+          <div class="meta-line">风险：${escapeHtml(type.risk)} · 恢复：${escapeHtml(type.restoreMode)}</div>
+        </article>
+      `).join('')}
+    </div>
+    <div class="resilience-action-grid">
+      ${(blueprint.actions || []).map((action) => `
+        <article class="resilience-action-card ${action.sideEffectsEnabled ? 'manual' : 'dry'}">
+          <div class="channel-port-head">
+            <h3>${escapeHtml(action.name)}</h3>
+            <span class="tag status ${action.sideEffectsEnabled ? 'needs-credentials' : 'blocked'}">${action.sideEffectsEnabled ? '需审批执行' : '只读预览'}</span>
+          </div>
+          <p>${escapeHtml(action.description)}</p>
+          <div class="roadmap-facts">
+            <span>${escapeHtml(action.permissionLevel)}</span>
+            <span>${Number(action.requiredApprovals || 3)} 人审批</span>
+            <span>${escapeHtml(action.mode)}</span>
+          </div>
+        </article>
+      `).join('')}
+    </div>
+    ${renderResilienceBlockers(blueprint.blockers)}
+    ${moduleList('恢复检查清单', blueprint.restoreChecklist || [])}
+    ${moduleList('审计规则', blueprint.auditRules || [])}
+  `;
+}
+
+function renderResilienceBlockers(blockers = []) {
+  if (!blockers.length) {
+    return '<div class="credential-checklist ready">容灾链路当前无阻塞，真实恢复和克隆仍需三名最高审批人同意。</div>';
+  }
+  return `
+    <div class="credential-checklist">
+      <strong>当前阻塞</strong>
+      ${blockers.map((blocker) => `
+        <span>
+          <b>${escapeHtml(blocker.title)}</b>
+          <em>${escapeHtml(blocker.nextStep)}</em>
+        </span>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderAgentAccessBlueprint() {
+  const blueprint = state.agentAccessBlueprint;
+  if (!elements.agentAccessSummary || !elements.agentAccessBlueprint) {
+    return;
+  }
+  if (!blueprint) {
+    elements.agentAccessSummary.textContent = state.agentAccessBlueprintError ? 'Agent接口待恢复' : '加载中';
+    elements.agentAccessBlueprint.innerHTML = '<div class="empty">正在读取 Agent 接入策略。</div>';
+    return;
+  }
+
+  elements.agentAccessSummary.textContent =
+    `${blueprint.summary?.readyAgents || 0}/${blueprint.summary?.totalAgents || 0} 可沙盒联调 · 不自动执行`;
+  elements.agentAccessBlueprint.innerHTML = `
+    <div class="agent-access-grid">
+      ${(blueprint.agents || []).map(renderAgentAccessCard).join('')}
+    </div>
+    <div class="agent-safety-panel">
+      ${moduleList('Agent安全规则', blueprint.safetyRules || [])}
+      ${moduleList('审计字段', blueprint.auditFields || [])}
+    </div>
+  `;
+}
+
+function renderAgentAccessCard(agent) {
+  const missing = agent.missingMaterials || [];
+  return `
+    <article class="agent-access-card ${agent.status === 'ready_for_sandbox' ? 'ready' : 'blocked'}">
+      <div class="channel-port-head">
+        <div>
+          <h3>${escapeHtml(agent.name)}</h3>
+          <p>${escapeHtml(agent.priority)} · ${escapeHtml(agent.mode || 'dry_run_preview')}</p>
+        </div>
+        <span class="tag status ${agent.status === 'ready_for_sandbox' ? 'connected' : 'needs-credentials'}">${escapeHtml(agent.statusLabel || '等待资料')}</span>
+      </div>
+      <p>${escapeHtml(agent.role)}</p>
+      <div class="roadmap-meter" aria-label="${escapeHtml(agent.name)}接入完成度${escapeHtml(agent.percentText)}">
+        <span style="width: ${Math.max(0, Math.min(100, Number(agent.percent || 0)))}%"></span>
+      </div>
+      <div class="roadmap-facts">
+        <span>完成度 ${escapeHtml(agent.percentText || '0.0%')}</span>
+        <span>凭证 ${Number(agent.configuredRequired || 0)}/${Number(agent.requiredCount || 0)}</span>
+        <span>不自动执行</span>
+      </div>
+      <div class="meta-line">下一步：${escapeHtml(agent.nextStep)}</div>
+      ${renderMissingMaterials(missing)}
+      <div class="tags">${(agent.capabilities || []).map((capability) => `<span class="tag">${escapeHtml(capability)}</span>`).join('')}</div>
+      ${renderSandboxValidation(agent.sandboxValidation)}
+      <div class="call-blueprint-actions">
+        <button type="button" class="secondary" data-menu-jump="api-platform-config" data-workflow-target="api-center">去配置Agent凭证</button>
+      </div>
+    </article>
+  `;
+}
+
+function renderCallCrmModule(module, blueprint = {}) {
+  const missing = module.missingCredentials || [];
+  return `
+    <article class="call-blueprint-card ${callCrmStatusClass(module.status)}">
+      <div class="call-blueprint-head">
+        <div>
+          <h3>${escapeHtml(module.statusTitle || module.title)}</h3>
+          <p>${escapeHtml(blueprint.sideEffectPolicy || '当前为安全演示模式。')}</p>
+        </div>
+        <span class="tag status ${callCrmStatusClass(module.status)}">${escapeHtml(callCrmStatusLabel(module.status))}</span>
+      </div>
+      <div class="roadmap-meter" aria-label="${escapeHtml(module.title)}完成度${escapeHtml(module.percentText)}">
+        <span style="width: ${Math.max(0, Math.min(100, Number(module.percent || 0)))}%"></span>
+      </div>
+      <div class="roadmap-facts">
+        <span>完成度 ${escapeHtml(module.percentText)}</span>
+        <span>倒计时 ${escapeHtml(module.remainingHours.toFixed(1))} 小时</span>
+        <span>凭证 ${module.configuredCredentialCount}/${module.requiredCredentialCount}</span>
+        <span>${module.actionMode === 'read_only_blueprint' ? '只读蓝图' : '沙盒人工确认'}</span>
+      </div>
+      <div class="meta-line">下一步：${escapeHtml(module.nextStep)}</div>
+      <div class="meta-line">当前阻塞：${missing.length ? `缺 ${escapeHtml(missing.join('、'))}` : '暂无，进入沙盒联调前仍需人工确认'}</div>
+      ${renderCredentialBlockers(module.credentialBlockers)}
+      <div class="module-columns">
+        ${moduleList('流程', module.workflows)}
+        ${moduleList('输入字段', module.inputFields)}
+        ${moduleList('输出字段', module.outputFields)}
+        ${moduleList('安全规则', module.safetyRules)}
+      </div>
+      ${renderImportTemplate(module.importTemplate)}
+      ${renderFieldMappingPreview(module.fieldMappings)}
+      ${renderOperationPreview(module.preview)}
+      <div class="call-blueprint-actions">
+        <button type="button" class="secondary" data-menu-jump="api-platform-config" data-workflow-target="api-center">
+          去配置凭证
+        </button>
+      </div>
+    </article>
+  `;
+}
+
+function renderMissingMaterials(materials = []) {
+  if (!materials.length) {
+    return '<div class="credential-checklist ready">资料已齐，可以进入下一步联调。</div>';
+  }
+
+  return `
+    <div class="credential-checklist">
+      <strong>还需要提供</strong>
+      ${materials.map((item) => `
+        <span>
+          <b>${escapeHtml(item.label)}</b>
+          <em>${escapeHtml(item.help)}${item.sensitive ? '；页面不会回显明文' : ''}</em>
+        </span>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderCredentialBlockers(blockers = []) {
+  if (!blockers.length) {
+    return '<div class="credential-checklist ready">凭证项已配置，真实动作仍需人工确认。</div>';
+  }
+
+  return `
+    <div class="credential-checklist">
+      <strong>凭证缺口</strong>
+      ${blockers.map((item) => `
+        <span>
+          <b>${escapeHtml(item.label)}</b>
+          <em>${escapeHtml(item.help)}${item.sensitive ? '；保存后不显示明文' : ''}</em>
+        </span>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderImportTemplate(template = {}) {
+  const fields = Array.isArray(template.fields) ? template.fields : [];
+  if (!template.name || !fields.length) {
+    return '';
+  }
+
+  return `
+    <div class="import-template-preview">
+      <div class="import-template-head">
+        <div>
+          <h4>${escapeHtml(template.name)}</h4>
+          <p>${escapeHtml(template.format || 'CSV / Excel / API JSON')}</p>
+        </div>
+        <span>${fields.filter((field) => field.required).length}/${fields.length} 必填</span>
+      </div>
+      <div class="import-template-grid">
+        ${fields.map((field) => `
+          <span>
+            <b>${escapeHtml(field.name)}</b>
+            <em>${field.required ? '必填' : '选填'} · 示例：${escapeHtml(field.example || '-')}</em>
+            <small>${escapeHtml(field.note || '')}</small>
+          </span>
+        `).join('')}
+      </div>
+      ${(template.safetyNotes || []).length ? `<div class="import-template-notes">${template.safetyNotes.map((note) => `<span>${escapeHtml(note)}</span>`).join('')}</div>` : ''}
+    </div>
+  `;
+}
+
+function renderOperationPreview(preview = {}) {
+  const rows = Array.isArray(preview.rows) ? preview.rows : [];
+  if (!preview.title || !rows.length) {
+    return '';
+  }
+
+  return `
+    <div class="operation-preview">
+      <div class="operation-preview-head">
+        <div>
+          <h4>${escapeHtml(preview.title)}</h4>
+          <p>${escapeHtml(preview.description || '当前只做安全预览。')}</p>
+        </div>
+        <span class="tag status blocked">${preview.sideEffectsEnabled ? '沙盒待确认' : '只读预览'}</span>
+      </div>
+      <div class="operation-preview-facts">
+        ${(preview.summary || []).map((item) => `<span>${escapeHtml(item)}</span>`).join('')}
+      </div>
+      ${renderPreviewControls(preview)}
+      ${renderSandboxValidation(preview.sandboxValidation)}
+      <div class="operation-preview-list" aria-label="预览明细">
+        ${rows.map((row) => `
+          <article class="operation-preview-row">
+            <div class="operation-preview-row-head">
+              <strong>${escapeHtml(row.customerName || row.recordId || '预览记录')}</strong>
+              <span>${escapeHtml(row.status || '待确认')}</span>
+            </div>
+            <div class="operation-preview-details">
+              ${operationPreviewDetail('脱敏号码', row.maskedPhone)}
+              ${operationPreviewDetail('来源平台', row.sourcePlatform)}
+              ${operationPreviewDetail('意向/阶段', row.intentLevel || row.stage)}
+              ${operationPreviewDetail('负责人', row.owner)}
+              ${operationPreviewDetail('结果/标签', row.callResult || row.tags)}
+              ${operationPreviewDetail('动作', row.action)}
+              ${operationPreviewDetail('下一步', row.nextStep)}
+            </div>
+          </article>
+        `).join('')}
+      </div>
+      <div class="operation-preview-review">
+        <strong>人工复核：</strong>
+        ${(preview.reviewChecklist || []).map((item) => `<span>${escapeHtml(item)}</span>`).join('')}
+      </div>
+      ${renderReviewQueue(preview.reviewQueue)}
+    </div>
+  `;
+}
+
+function renderSandboxValidation(validation = {}) {
+  const checks = Array.isArray(validation.checks) ? validation.checks : [];
+  if (!validation.title || !checks.length) {
+    return '';
+  }
+
+  return `
+    <div class="sandbox-validation-panel">
+      <div class="sandbox-validation-head">
+        <div>
+          <h5>沙盒校验结果</h5>
+          <p>${escapeHtml(validation.title)} · ${escapeHtml(validation.auditId || 'dry-run')}</p>
+        </div>
+        <span class="tag status blocked">${validation.sideEffectsEnabled ? '沙盒待确认' : '只读校验'}</span>
+      </div>
+      <div class="meta-line">${escapeHtml(validation.summary || '仅生成校验结果，不执行外部动作。')}</div>
+      <div class="sandbox-validation-grid">
+        ${checks.map((check) => `
+          <article class="sandbox-validation-check ${escapeHtml(check.status || 'warning')}">
+            <strong>${escapeHtml(check.name)}</strong>
+            <span>${escapeHtml(validationStatusLabel(check.status))}</span>
+            <p>${escapeHtml(check.result)}</p>
+          </article>
+        `).join('')}
+      </div>
+      ${renderSandboxBlockers(validation.blockers)}
+    </div>
+  `;
+}
+
+function renderSandboxBlockers(blockers = []) {
+  if (!blockers.length) {
+    return '';
+  }
+  return `
+    <div class="sandbox-blocker-list">
+      <strong>阻断原因</strong>
+      ${blockers.map((blocker) => `
+        <span>
+          <b>${escapeHtml(blocker.reason)}</b>
+          <em>${escapeHtml(blocker.nextStep)}</em>
+        </span>
+      `).join('')}
+    </div>
+  `;
+}
+
+function validationStatusLabel(status) {
+  const labels = {
+    passed: '通过',
+    warning: '待确认',
+    blocked: '阻断'
+  };
+  return labels[status] || status || '待确认';
+}
+
+function renderPreviewControls(preview = {}) {
+  const groups = [
+    {
+      title: '授权校验',
+      items: preview.authorizationChecks || [],
+      value: (item) => `${item.status || '待检查'} · ${item.rule || ''}`
+    },
+    {
+      title: '频控规则',
+      items: preview.frequencyRules || [],
+      value: (item) => `${item.limit || ''} · ${item.enforcement === 'preview_block' ? '预览阻断' : '人工确认'}`
+    },
+    {
+      title: '异常筛选',
+      items: preview.exceptionFilters || [],
+      value: (item) => `${Number(item.count || 0)} 条 · ${item.action || '人工复核'}`
+    }
+  ].filter((group) => group.items.length);
+
+  if (!groups.length) {
+    return '';
+  }
+
+  return `
+    <div class="preview-control-grid">
+      ${groups.map((group) => `
+        <section class="preview-control-card">
+          <h5>${escapeHtml(group.title)}</h5>
+          <div class="preview-control-list">
+            ${group.items.map((item) => `
+              <span>
+                <b>${escapeHtml(item.label || item.title || item.id)}</b>
+                <em>${escapeHtml(group.value(item))}</em>
+              </span>
+            `).join('')}
+          </div>
+        </section>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderReviewQueue(queue = []) {
+  if (!queue.length) {
+    return '';
+  }
+
+  return `
+    <div class="review-queue-list">
+      <div class="review-queue-head">
+        <h5>人工复核清单</h5>
+        <span>${queue.length} 条</span>
+      </div>
+      ${queue.map((item) => `
+        <article class="review-queue-item ${escapeHtml(item.severity || 'medium')}">
+          <div>
+            <strong>${escapeHtml(item.title)}</strong>
+            <p>${escapeHtml(item.reason)}</p>
+          </div>
+          <div class="review-queue-meta">
+            <span>${escapeHtml(item.action)}</span>
+            <span>${escapeHtml(item.owner || '待分配')}</span>
+            <span>${escapeHtml(item.status || '待复核')}</span>
+          </div>
+        </article>
+      `).join('')}
+    </div>
+  `;
+}
+
+function operationPreviewDetail(label, value) {
+  if (!value) {
+    return '';
+  }
+  return `
+    <span class="operation-preview-detail">
+      <em>${escapeHtml(label)}</em>
+      <b>${escapeHtml(value)}</b>
+    </span>
+  `;
+}
+
+function renderFieldMappingPreview(mappings = []) {
+  if (!mappings.length) {
+    return '';
+  }
+  return `
+    <div class="field-mapping-preview">
+      <div class="field-mapping-head">
+        <h4>字段映射预览</h4>
+        <span>${mappings.filter((item) => item.required).length}/${mappings.length} 必填</span>
+      </div>
+      <div class="field-mapping-table" role="table" aria-label="字段映射预览">
+        <div class="field-mapping-row head" role="row">
+          <span role="columnheader">来源字段</span>
+          <span role="columnheader">目标字段</span>
+          <span role="columnheader">规则</span>
+          <span role="columnheader">要求</span>
+        </div>
+        ${mappings.map((item) => `
+          <div class="field-mapping-row" role="row">
+            <span role="cell">${escapeHtml(item.source)}</span>
+            <span role="cell"><code>${escapeHtml(item.target)}</code></span>
+            <span role="cell">${escapeHtml(item.rule)}</span>
+            <span role="cell"><em class="${item.required ? 'warn' : 'ok'}">${item.required ? '必填' : '选填'}</em></span>
+          </div>
         `).join('')}
       </div>
     </div>
@@ -1991,6 +3604,10 @@ async function generatePrivateMessage(event) {
         officialSiteUrl: elements.privateOfficialSite.value,
         groupInviteUrl: elements.privateGroupInvite.value,
         contactUrl: elements.privateContact.value,
+        contactCardType: elements.privateContactCardType.value,
+        contactCardTitle: elements.privateContactCardTitle.value,
+        contactCardDescription: elements.privateContactCardDescription.value,
+        contactCardUrl: elements.privateContactCardUrl.value,
         companyVerification: elements.privateVerification.value
       }
     });
@@ -2338,6 +3955,21 @@ function platformConfigStatusLabel(status) {
   return labels[status] || status || '待配置';
 }
 
+function callCrmStatusLabel(status) {
+  const labels = {
+    demo_only: '安全演示',
+    ready_for_sandbox: '沙盒就绪'
+  };
+  return labels[status] || status || '待配置';
+}
+
+function callCrmStatusClass(status) {
+  if (status === 'ready_for_sandbox') {
+    return 'ready';
+  }
+  return 'blocked';
+}
+
 function readinessStatusClass(status) {
   if (status === 'ready') return 'ready';
   if (status === 'missing') return 'blocked';
@@ -2394,6 +4026,7 @@ function libraryItem(type, title, content) {
 
 function renderPrivateMessageResult(result) {
   const fields = [
+    ['场景开场', result.sceneOpening],
     ['身份说明', result.identityIntro],
     ['联系原因', result.reasonForContact],
     ['来源追踪', result.sourceTrace],
@@ -2405,8 +4038,14 @@ function renderPrivateMessageResult(result) {
     ['需求判断', result.needHypothesis],
     ['正规核验', result.trustProof],
     ['核验清单', result.verificationChecklist],
+    ['针对留言回答', result.questionAnswer],
+    ['解决方案', result.solutionLine],
+    ['保障说明', result.guaranteeLine],
     ['价值钩子', result.valueHook],
+    ['利益点', result.benefitLine],
     ['资料/权益', result.offerLine],
+    ['名片卡片', result.contactCard],
+    ['名片引导', result.cardCta],
     ['邀约目标', result.invitationTarget],
     ['邀约决策', result.invitationDecision],
     ['主要下一步', result.primaryCta],

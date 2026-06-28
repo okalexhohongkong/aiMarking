@@ -4,7 +4,9 @@ import { createServer } from 'node:http';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
+import { buildAgentAccessBlueprint } from './agentAccessBlueprint.js';
 import { getMarketingSystemBlueprint } from './aiMarketingSystem.js';
+import { buildCallCrmBlueprint } from './callCrmBlueprint.js';
 import { getChannelAdapter } from './channelAdapters.js';
 import { ChannelMessageService } from './channelMessageService.js';
 import { listChannelPorts } from './channelPorts.js';
@@ -20,6 +22,7 @@ import { buildOrchestrationPlan } from './orchestrationPlan.js';
 import { buildPlatformConfigStatus, getPlatformConfigEnvPath, readPlatformConfigEnv, savePlatformConfig } from './platformConfig.js';
 import { generatePrivateMessageContext } from './privateMessageGenerator.js';
 import { buildProjectProgress } from './projectProgress.js';
+import { buildResilienceBackupBlueprint } from './resilienceBackupBlueprint.js';
 import { retrieveKnowledge } from './retriever.js';
 import { buildWechatPersonalReadiness } from './wechatPersonalReadiness.js';
 import { buildWecomReadiness } from './wecomReadiness.js';
@@ -94,6 +97,10 @@ const privateMessageGenerateSchema = z.object({
   officialSiteUrl: z.string().trim().max(500).optional().default(''),
   groupInviteUrl: z.string().trim().max(500).optional().default(''),
   contactUrl: z.string().trim().max(500).optional().default(''),
+  contactCardType: z.string().trim().max(80).optional().default(''),
+  contactCardTitle: z.string().trim().max(160).optional().default(''),
+  contactCardDescription: z.string().trim().max(300).optional().default(''),
+  contactCardUrl: z.string().trim().max(500).optional().default(''),
   companyVerification: z.string().trim().max(500).optional().default('')
 });
 
@@ -284,6 +291,21 @@ async function routeRequest({
 
   if (url.pathname === '/api/project-progress' && request.method === 'GET') {
     sendJson(response, 200, buildProjectProgress({ env: await resolveServerEnv(env, platformConfigEnvPath) }));
+    return;
+  }
+
+  if (url.pathname === '/api/call-crm-blueprint' && request.method === 'GET') {
+    sendJson(response, 200, buildCallCrmBlueprint({ env: await resolveServerEnv(env, platformConfigEnvPath) }));
+    return;
+  }
+
+  if (url.pathname === '/api/resilience-backup-blueprint' && request.method === 'GET') {
+    sendJson(response, 200, buildResilienceBackupBlueprint({ localStatus: await localOperations.getDataStatus() }));
+    return;
+  }
+
+  if (url.pathname === '/api/agent-access-blueprint' && request.method === 'GET') {
+    sendJson(response, 200, buildAgentAccessBlueprint({ env: await resolveServerEnv(env, platformConfigEnvPath) }));
     return;
   }
 

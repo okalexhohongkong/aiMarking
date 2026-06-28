@@ -13,6 +13,72 @@ const coreSection = {
   notes: '用于知识库问答、知识图谱和私信话术生成。'
 };
 
+const businessIntegrationSections = [
+  {
+    id: 'ai-call',
+    name: 'AI呼叫模块',
+    group: '呼叫与成交承接',
+    adapter: '呼叫平台 / 外呼 API / 录音转写',
+    implemented: false,
+    requiredEnv: ['CALL_PROVIDER', 'CALL_API_BASE_URL', 'CALL_API_KEY'],
+    optionalEnv: ['CALL_RECORDING_WEBHOOK', 'CALL_TRANSCRIBE_API_URL'],
+    notes: '用于 AI 外呼、呼入接待、通话摘要和人工接管；没有授权前只做沙盒配置。'
+  },
+  {
+    id: 'yunke-call-import',
+    name: '人工呼叫导入云客',
+    group: '呼叫与成交承接',
+    adapter: '云客 API / 导入模板',
+    implemented: false,
+    requiredEnv: ['YUNKE_API_BASE_URL', 'YUNKE_API_TOKEN'],
+    optionalEnv: ['YUNKE_IMPORT_TEMPLATE_ID'],
+    notes: '用于把人工呼叫记录、意向等级和跟进结果导入云客；真实导入前必须人工确认。'
+  },
+  {
+    id: 'crm-import',
+    name: '导入到CRM系统',
+    group: '呼叫与成交承接',
+    adapter: 'CRM API / 字段映射 / 同步审计',
+    implemented: false,
+    requiredEnv: ['CRM_API_BASE_URL', 'CRM_API_TOKEN'],
+    optionalEnv: ['CRM_FIELD_MAPPING_ID', 'CRM_SYNC_MODE'],
+    notes: '用于把线索、客户阶段、标签和成交状态同步到 CRM；真实写入前必须确认字段映射和授权来源。'
+  }
+];
+
+const agentIntegrationSections = [
+  {
+    id: 'open-cloud-agent',
+    name: 'Open cloud agent',
+    group: 'Agent接入中心',
+    adapter: 'Open cloud agent API / Webhook / 沙盒任务',
+    implemented: false,
+    requiredEnv: ['OPEN_CLOUD_AGENT_BASE_URL', 'OPEN_CLOUD_AGENT_TOKEN'],
+    optionalEnv: ['OPEN_CLOUD_AGENT_PROJECT_ID', 'OPEN_CLOUD_AGENT_WORKSPACE_ID'],
+    notes: '优先推荐接入；默认只做沙盒任务预览，不自动执行外部动作。'
+  },
+  {
+    id: 'hermes-agent',
+    name: 'Hermes agent',
+    group: 'Agent接入中心',
+    adapter: 'Hermes Webhook / 双向指令 / 进度回传',
+    implemented: false,
+    requiredEnv: ['HERMES_AGENT_WEBHOOK_URL', 'HERMES_AGENT_TOKEN'],
+    optionalEnv: ['HERMES_AGENT_CHANNEL'],
+    notes: '优先推荐接入；用于收指令、回传进度、阻塞和审批提醒。'
+  },
+  {
+    id: 'custom-agent',
+    name: '自定义Agent',
+    group: 'Agent接入中心',
+    adapter: '自定义 Agent API / 能力白名单 / 审计',
+    implemented: false,
+    requiredEnv: ['CUSTOM_AGENT_NAME', 'CUSTOM_AGENT_BASE_URL', 'CUSTOM_AGENT_TOKEN'],
+    optionalEnv: ['CUSTOM_AGENT_CAPABILITIES', 'CUSTOM_AGENT_WEBHOOK_URL'],
+    notes: '可扩展接入销售复盘、知识库、质检、投放等自定义 Agent；默认只读预览。'
+  }
+];
+
 const optionalEnvBySection = {
   wecom: ['WECOM_WS_URL'],
   sms: ['SMS_TEMPLATE_ID', 'SMS_SIGN_NAME'],
@@ -78,7 +144,31 @@ const fieldMeta = {
   KNOWLEDGE_BASE_NAME: ['知识库名称', '例如 奥普C在知识库'],
   KNOWLEDGE_SYSTEM_PROMPT: ['知识库答题规则', '限定回答范围、转人工规则和语气要求'],
   BOT_MENTION_NAME: ['机器人被@名称', '群里 @ 这个名字才触发回答'],
-  MAX_REPLY_CHARS: ['最大回复字数', '避免群聊或私信刷屏']
+  MAX_REPLY_CHARS: ['最大回复字数', '避免群聊或私信刷屏'],
+  CALL_PROVIDER: ['呼叫平台名称', '例如 aliyun-call / tencent-call / 自有呼叫中心'],
+  CALL_API_BASE_URL: ['呼叫平台 API 地址', '呼叫平台提供的接口基础地址'],
+  CALL_API_KEY: ['呼叫平台 API Key', '呼叫平台提供的访问密钥'],
+  CALL_RECORDING_WEBHOOK: ['通话录音回调地址', '呼叫平台推送录音和通话状态的回调地址'],
+  CALL_TRANSCRIBE_API_URL: ['通话转写接口', '可选的录音转文字接口地址'],
+  YUNKE_API_BASE_URL: ['云客 API 地址', '云客系统提供的接口基础地址'],
+  YUNKE_API_TOKEN: ['云客 API Token', '云客系统提供的访问令牌'],
+  YUNKE_IMPORT_TEMPLATE_ID: ['云客导入模板 ID', '云客侧配置的导入模板编号'],
+  CRM_API_BASE_URL: ['CRM API 地址', 'CRM 系统提供的接口基础地址'],
+  CRM_API_TOKEN: ['CRM API Token', 'CRM 系统提供的访问令牌'],
+  CRM_FIELD_MAPPING_ID: ['CRM字段映射 ID', 'CRM侧配置的字段映射编号'],
+  CRM_SYNC_MODE: ['CRM同步模式', '例如 create_only / upsert / manual_review'],
+  OPEN_CLOUD_AGENT_BASE_URL: ['Open cloud agent 地址', 'Open cloud agent 服务后台提供的 API 或 Webhook 地址'],
+  OPEN_CLOUD_AGENT_TOKEN: ['Open cloud agent Token', 'Open cloud agent 访问令牌'],
+  OPEN_CLOUD_AGENT_PROJECT_ID: ['Open cloud 项目编号', '用于区分项目或应用'],
+  OPEN_CLOUD_AGENT_WORKSPACE_ID: ['Open cloud 工作区编号', '用于路由到指定工作区'],
+  HERMES_AGENT_WEBHOOK_URL: ['Hermes agent Webhook', 'Hermes 接收指令、进度或阻塞的 Webhook 地址'],
+  HERMES_AGENT_TOKEN: ['Hermes agent Token', 'Hermes 访问令牌'],
+  HERMES_AGENT_CHANNEL: ['Hermes 频道名称', '用于区分项目、群组或飞书频道'],
+  CUSTOM_AGENT_NAME: ['自定义Agent名称', '例如销售复盘Agent、质检Agent、知识库Agent'],
+  CUSTOM_AGENT_BASE_URL: ['自定义Agent地址', '自定义 Agent API 或 Webhook 地址'],
+  CUSTOM_AGENT_TOKEN: ['自定义Agent Token', '自定义 Agent 访问令牌'],
+  CUSTOM_AGENT_CAPABILITIES: ['自定义Agent能力范围', '例如 read_only、draft_only、approval_queue'],
+  CUSTOM_AGENT_WEBHOOK_URL: ['自定义Agent回调地址', '用于接收 Agent 处理结果']
 };
 
 export function getPlatformConfigEnvPath({ projectDir = process.cwd(), env = process.env } = {}) {
@@ -153,7 +243,12 @@ export async function savePlatformConfig({ sectionId, values = {}, env = process
 
 function buildSections(env) {
   const channelSections = listChannelPorts(env).map((port) => buildSectionFromPort(port, env));
-  return [buildSectionFromPort(coreSection, env), ...channelSections];
+  return [
+    buildSectionFromPort(coreSection, env),
+    ...channelSections,
+    ...businessIntegrationSections.map((section) => buildSectionFromPort(section, env)),
+    ...agentIntegrationSections.map((section) => buildSectionFromPort(section, env))
+  ];
 }
 
 function buildSectionFromPort(port, env) {
@@ -161,7 +256,14 @@ function buildSectionFromPort(port, env) {
   const requiredKeys = new Set(port.requiredEnv || []);
   const fields = keys.map((key) => buildField(key, requiredKeys.has(key), env));
   const required = fields.filter((field) => field.required);
-  const missingRequired = required.filter((field) => !field.configured).map((field) => field.key);
+  const missingFields = required.filter((field) => !field.configured);
+  const missingRequired = missingFields.map((field) => field.key);
+  const missingMaterials = missingFields.map((field) => ({
+    label: field.label,
+    help: field.help,
+    sensitive: field.sensitive,
+    required: true
+  }));
   const filledRequired = required.length - missingRequired.length;
   return {
     id: port.id,
@@ -174,10 +276,11 @@ function buildSectionFromPort(port, env) {
     filledRequired,
     optionalCount: fields.length - required.length,
     missingRequired,
+    missingMaterials,
     fields,
     notes: port.notes,
     nextStep: missingRequired.length
-      ? `补齐 ${missingRequired.slice(0, 3).join('、')}${missingRequired.length > 3 ? ' 等配置' : ''}`
+      ? `补齐 ${missingMaterials.slice(0, 3).map((item) => item.label).join('、')}${missingMaterials.length > 3 ? ' 等资料' : ''}`
       : port.implemented
         ? '凭证已齐，可以进入真实联调'
         : '凭证已齐，等待平台适配器真实联调'

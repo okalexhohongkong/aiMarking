@@ -1,4 +1,5 @@
 const outputFields = [
+  'sceneOpening',
   'identityIntro',
   'reasonForContact',
   'sourceTrace',
@@ -10,8 +11,14 @@ const outputFields = [
   'needHypothesis',
   'trustProof',
   'verificationChecklist',
+  'questionAnswer',
+  'solutionLine',
+  'guaranteeLine',
   'valueHook',
+  'benefitLine',
   'offerLine',
+  'contactCard',
+  'cardCta',
   'invitationTarget',
   'invitationDecision',
   'primaryCta',
@@ -41,6 +48,7 @@ export function generatePrivateMessageContext(input = {}) {
   const isCommerce = detectCommercePlatform(context);
 
   const identityIntro = buildIdentityIntro(context);
+  const sceneOpening = buildSceneOpening(context);
   const reasonForContact = buildReasonForContact(context, isNegative);
   const sourceTrace = buildSourceTrace(context);
   const contextSummary = buildContextSummary(context, isNegative);
@@ -51,8 +59,14 @@ export function generatePrivateMessageContext(input = {}) {
   const needHypothesis = buildNeedHypothesis(context, isNegative);
   const trustProof = buildTrustProof(context);
   const verificationChecklist = buildVerificationChecklist(context);
+  const questionAnswer = buildQuestionAnswer(context, isNegative);
+  const solutionLine = buildSolutionLine(context, isNegative);
+  const guaranteeLine = buildGuaranteeLine(context);
   const valueHook = buildValueHook(context, isNegative);
+  const benefitLine = buildBenefitLine(context, isNegative);
   const offerLine = buildOfferLine(context, isNegative);
+  const contactCard = buildContactCard(context);
+  const cardCta = buildCardCta(context, { isNegative, isCommerce });
   const invitationTarget = buildInvitationTarget(context, { isNegative, isCommerce });
   const invitationDecision = buildInvitationDecision(context, { isNegative, isCommerce });
   const primaryCta = buildPrimaryCta(context, { isNegative, isCommerce });
@@ -62,6 +76,7 @@ export function generatePrivateMessageContext(input = {}) {
     context,
     isNegative,
     isCommerce,
+    sceneOpening,
     identityIntro,
     reasonForContact,
     sourceTrace,
@@ -73,8 +88,14 @@ export function generatePrivateMessageContext(input = {}) {
     needHypothesis,
     trustProof,
     verificationChecklist,
+    questionAnswer,
+    solutionLine,
+    guaranteeLine,
     valueHook,
+    benefitLine,
     offerLine,
+    contactCard,
+    cardCta,
     invitationTarget,
     invitationDecision,
     primaryCta,
@@ -82,6 +103,7 @@ export function generatePrivateMessageContext(input = {}) {
   });
 
   return redactOutput({
+    sceneOpening,
     identityIntro,
     reasonForContact,
     sourceTrace,
@@ -93,8 +115,14 @@ export function generatePrivateMessageContext(input = {}) {
     needHypothesis,
     trustProof,
     verificationChecklist,
+    questionAnswer,
+    solutionLine,
+    guaranteeLine,
     valueHook,
+    benefitLine,
     offerLine,
+    contactCard,
+    cardCta,
     invitationTarget,
     invitationDecision,
     primaryCta,
@@ -125,9 +153,20 @@ function normalizeContext(input) {
     officialSiteUrl: cleanUrl(input.officialSiteUrl),
     groupInviteUrl: cleanUrl(input.groupInviteUrl),
     contactUrl: cleanUrl(input.contactUrl),
+    contactCardType: cleanText(input.contactCardType) || '联系人名片',
+    contactCardTitle: cleanText(input.contactCardTitle),
+    contactCardDescription: cleanText(input.contactCardDescription),
+    contactCardUrl: cleanUrl(input.contactCardUrl),
     companyVerification: cleanText(input.companyVerification) || '机构信息和资质可通过公开渠道核验',
     knowledgeMatches: normalizeKnowledgeMatches(input.knowledgeMatches)
   };
+}
+
+function buildSceneOpening(context) {
+  const region = formatRegion(context);
+  const location = context.postLocation ? `，账号/作品位置是${context.postLocation}` : '';
+  const regionLine = region ? `，您这边显示在${region}` : '';
+  return `开场逻辑：先说清楚我是谁、在哪里看到您的公开互动、为什么找您，并说明这不是随机群发。我是在${context.postPlatform}作品《${context.postTitle}》${location}下看到您的留言“${context.commentText}”${regionLine}，所以只围绕这次留言做一次性私信承接。`;
 }
 
 function buildIdentityIntro(context) {
@@ -250,6 +289,27 @@ function buildVerificationChecklist(context) {
   ].join('；');
 }
 
+function buildQuestionAnswer(context, isNegative) {
+  if (isNegative) {
+    return `针对您的留言“${context.commentText}”，我先回答核心问题：不直接判断谁对谁错，先按您遇到的实际情况复核原因、过程和可能遗漏的信息。`;
+  }
+
+  return `针对您的留言“${context.commentText}”，我先回答核心问题：您大概率需要的是和${context.solution}相关的清晰资料、适用条件和下一步咨询入口。`;
+}
+
+function buildSolutionLine(context, isNegative) {
+  if (isNegative) {
+    return `解决方案：先做事实复核和问题拆解，再按${context.solution}给出可验证的解释、补充资料或人工处理方案。`;
+  }
+
+  return `解决方案：我们可以先按${context.solution}给您整理步骤、注意事项、适用范围和人工咨询入口，方便您快速判断是否继续。`;
+}
+
+function buildGuaranteeLine(context) {
+  const official = context.officialSiteUrl ? `官网/官方入口：${context.officialSiteUrl}` : '官网、企查查或企业信用信息公示系统等公开渠道';
+  return `保障说明：${context.companyVerification}；您可以先通过${official}核验主体、资质和公开联系方式，再决定是否继续沟通。`;
+}
+
 function buildValueHook(context, isNegative) {
   if (isNegative) {
     return `我可以先帮您澄清作品里没有讲透的部分，按您的留言把报告、过程或实际原因逐项复核，先解决疑问再决定是否继续沟通。`;
@@ -258,9 +318,47 @@ function buildValueHook(context, isNegative) {
   return `我可以按您在《${context.postTitle}》里的留言，先给一份和${context.solution}相关的资料，方便您快速判断是否适合。`;
 }
 
+function buildBenefitLine(context, isNegative) {
+  if (isNegative) {
+    return `利益点：先不推业务，可以先给您${stripOfferPrefix(context.offer)}，把疑问解释清楚后再看是否需要进一步处理。`;
+  }
+
+  return `利益点：现在正好可以给您${stripOfferPrefix(context.offer)}，如果符合您的情况，可以节省一次反复比较和到处找资料的时间。`;
+}
+
 function buildOfferLine(context, isNegative) {
   const prefix = isNegative ? '先不推方案，' : '';
-  return `${prefix}可以给您${context.offer}。`;
+  return `${prefix}可以给您${stripOfferPrefix(context.offer)}。`;
+}
+
+function stripOfferPrefix(value) {
+  return cleanText(value).replace(/^(可以|可|先|我可以先)+/u, '');
+}
+
+function buildContactCard(context) {
+  if (!context.contactCardUrl) {
+    return `暂未配置可发送的名片卡片；先保留当前私信窗口，或使用已核验的加群/联系入口。`;
+  }
+
+  const title = context.contactCardTitle || `${context.solution}顾问`;
+  const description = context.contactCardDescription || '点击后进入对应私域入口继续沟通。';
+  return `${context.contactCardType}：${title}；说明：${description}；跳转入口：${context.contactCardUrl}`;
+}
+
+function buildCardCta(context, { isNegative, isCommerce }) {
+  if (!context.contactCardUrl) {
+    return '没有名片卡片时，先让对方在当前私信窗口回复“资料”或“继续了解”。';
+  }
+
+  if (isNegative) {
+    return `先在当前私信把具体情况或报告发来；确认愿意继续后，再点${context.contactCardType}进入人工复核入口：${context.contactCardUrl}`;
+  }
+
+  if (isCommerce) {
+    return `如平台规则允许，可点${context.contactCardType}进入已确认客服入口；否则先留在平台内客服沟通：${context.contactCardUrl}`;
+  }
+
+  return `如果方便，可以点${context.contactCardType}进入私域入口继续聊：${context.contactCardUrl}`;
 }
 
 function buildInvitationTarget(context, { isNegative, isCommerce }) {
@@ -341,7 +439,7 @@ function buildRiskNotes({ isNegative, isCommerce }) {
   const base = '仅基于公开互动生成一次性私信建议；发送前建议人工确认，不夸大承诺，不索要敏感信息。';
 
   if (isNegative) {
-    return `${base} 负面评论先安抚和澄清，不硬推成交。`;
+    return `${base} 负面评论先安抚和澄清，不硬推业务。`;
   }
 
   if (isCommerce) {
@@ -355,6 +453,7 @@ function buildMessage({
   context,
   isNegative,
   isCommerce,
+  sceneOpening,
   identityIntro,
   reasonForContact,
   sourceTrace,
@@ -366,8 +465,14 @@ function buildMessage({
   needHypothesis,
   trustProof,
   verificationChecklist,
+  questionAnswer,
+  solutionLine,
+  guaranteeLine,
   valueHook,
+  benefitLine,
   offerLine,
+  contactCard,
+  cardCta,
   invitationTarget,
   invitationDecision,
   primaryCta,
@@ -380,6 +485,7 @@ function buildMessage({
   if (isNegative) {
     return [
       `${greeting}，打扰您一下。${identityIntro}`,
+      `${sceneOpening}`,
       `${reasonForContact}${regionLine}`,
       `${sourceTrace}`,
       `我看到您的留言是“${context.commentText}”，理解您会有顾虑。${contextSummary}`,
@@ -387,10 +493,13 @@ function buildMessage({
       `我这边先按这些信息判断：${signalAssessment}`,
       `知识库路由：${knowledgeRouting}`,
       `会优先参考这类知识：${knowledgeFocus}`,
-      `${needHypothesis}${valueHook}`,
-      `${trustProof}${offerLine}`,
+      `${needHypothesis}${questionAnswer}`,
+      `${solutionLine}${valueHook}`,
+      `${guaranteeLine}${benefitLine}${offerLine}`,
+      `名片卡片：${contactCard}`,
       `核验清单：${verificationChecklist}`,
       `建议承接位置：${invitationTarget}。${invitationDecision}`,
+      `${cardCta}`,
       `${primaryCta}`,
       `${fallbackCta}`
     ]
@@ -400,6 +509,7 @@ function buildMessage({
 
   return [
     `${greeting}，打扰您一下。${identityIntro}`,
+    `${sceneOpening}`,
     `${reasonForContact}${regionLine}`,
     `${sourceTrace}`,
     `${contextSummary}`,
@@ -407,10 +517,13 @@ function buildMessage({
     `我这边先按这些信息判断：${signalAssessment}`,
     `知识库路由：${knowledgeRouting}`,
     `会优先参考这类知识：${knowledgeFocus}`,
-    `${needHypothesis}${valueHook}`,
-    `${trustProof}${offerLine}`,
+    `${needHypothesis}${questionAnswer}`,
+    `${solutionLine}${valueHook}`,
+    `${guaranteeLine}${benefitLine}${offerLine}`,
+    `名片卡片：${contactCard}`,
     `核验清单：${verificationChecklist}`,
     `建议承接位置：${invitationTarget}。${invitationDecision}`,
+    `${cardCta}`,
     `${primaryCta}`,
     `${fallbackCta}`
   ]

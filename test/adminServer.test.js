@@ -307,6 +307,10 @@ test('admin API generates one-time private message context safely', async () => 
         officialSiteUrl: 'https://example.com/verify',
         groupInviteUrl: 'https://example.com/group',
         contactUrl: 'https://example.com/contact',
+        contactCardType: '企业微信名片',
+        contactCardTitle: '儿童过敏护理顾问',
+        contactCardDescription: '点击后进入企业微信私域领取护理清单',
+        contactCardUrl: 'https://example.com/card',
         companyVerification: '企业主体和资质可公开核验',
         secret: 'sk-this-value-must-not-leak'
       }
@@ -326,6 +330,8 @@ test('admin API generates one-time private message context safely', async () => 
     assert.match(result.invitationDecision, /抖音群|平台群/);
     assert.match(result.trustProof, /https:\/\/example\.com\/verify/);
     assert.match(result.primaryCta, /https:\/\/example\.com\/group/);
+    assert.match(result.contactCard, /企业微信名片|儿童过敏护理顾问|https:\/\/example\.com\/card/);
+    assert.match(result.cardCta, /名片|私域入口|https:\/\/example\.com\/card/);
     assert.match(result.riskNotes, /人工确认/);
     assert.doesNotMatch(JSON.stringify(result), /sk-this-value-must-not-leak|secret=/i);
   } finally {
@@ -574,6 +580,114 @@ test('admin API exposes project progress without leaking credentials', async () 
     assert.ok(progress.modules.every((module) => module.percentText.endsWith('%')));
     assert.equal(serialized.includes('WECOM_BOT_SECRET'), false);
     assert.equal(serialized.includes('DOUYIN_APP_SECRET'), false);
+  } finally {
+    server.close();
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('admin API exposes call and CRM blueprint without side effects', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'wecom-admin-'));
+  const envPath = join(dir, '.env');
+  await writeFile(
+    envPath,
+    [
+      'CALL_PROVIDER=demo-call',
+      'CALL_API_BASE_URL=https://call.example.test',
+      'CALL_API_KEY=call-secret-value',
+      'YUNKE_API_BASE_URL=https://yunke.example.test',
+      'YUNKE_API_TOKEN=yunke-secret-value',
+      'CRM_API_BASE_URL=https://crm.example.test',
+      'CRM_API_TOKEN=crm-secret-value'
+    ].join('\n')
+  );
+  const store = new JsonDataStore({ dataDir: dir });
+  await store.init();
+  const server = createAdminServer({
+    store,
+    answerService: { answer: async () => ({ answer: '', matches: [] }) },
+    configSummary: {},
+    platformConfigEnvPath: envPath,
+    env: {}
+  });
+
+  try {
+    server.listen(0, '127.0.0.1');
+    await once(server, 'listening');
+    const blueprint = await requestJson(`http://127.0.0.1:${server.address().port}/api/call-crm-blueprint`);
+    const serialized = JSON.stringify(blueprint);
+
+    assert.equal(blueprint.safeMode, true);
+    assert.equal(blueprint.sideEffectsEnabled, false);
+    assert.equal(blueprint.modules.length, 3);
+    assert.ok(blueprint.modules.some((module) => module.id === 'ai-call'));
+    assert.ok(blueprint.modules.some((module) => module.id === 'yunke-call-import'));
+    assert.ok(blueprint.modules.some((module) => module.id === 'crm-import'));
+    assert.ok(blueprint.modules.every((module) => module.status === 'ready_for_sandbox'));
+    assert.equal(serialized.includes('call-secret-value'), false);
+    assert.equal(serialized.includes('yunke-secret-value'), false);
+    assert.equal(serialized.includes('crm-secret-value'), false);
+  } finally {
+    server.close();
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('admin API exposes resilience backup and agent access blueprints safely', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'wecom-admin-'));
+  const envPath = join(dir, '.env');
+  await writeFile(
+    envPath,
+    [
+      'OPEN_CLOUD_AGENT_BASE_URL=https://agent.example.test',
+      'OPEN_CLOUD_AGENT_TOKEN=open-cloud-secret',
+      'HERMES_AGENT_WEBHOOK_URL=https://hermes.example.test/hook',
+      'HERMES_AGENT_TOKEN=hermes-secret',
+      'CUSTOM_AGENT_NAME=销售复盘Agent',
+      'CUSTOM_AGENT_BASE_URL=https://custom.example.test',
+      'CUSTOM_AGENT_TOKEN=custom-secret'
+    ].join('\n'),
+    'utf8'
+  );
+  const store = new JsonDataStore({ dataDir: join(dir, 'data') });
+  await store.init();
+  const localOperations = {
+    getDataStatus: async () => ({
+      counts: { knowledge: 1, conversations: 0, growthLeads: 0, hermesCommands: 0, privateMessageApprovals: 0 },
+      latestBackup: { name: 'backup-20260628-100000-dashboard', path: '/tmp/backup' },
+      files: [{ name: 'knowledge.json', exists: true }],
+      admin: { processAlive: true, httpOk: true }
+    })
+  };
+  const server = createAdminServer({
+    store,
+    answerService: { answer: async () => ({ answer: '', matches: [] }) },
+    configSummary: {},
+    localOperations,
+    platformConfigEnvPath: envPath,
+    env: {}
+  });
+
+  try {
+    server.listen(0, '127.0.0.1');
+    await once(server, 'listening');
+    const baseUrl = `http://127.0.0.1:${server.address().port}`;
+
+    const resilience = await requestJson(`${baseUrl}/api/resilience-backup-blueprint`);
+    const agents = await requestJson(`${baseUrl}/api/agent-access-blueprint`);
+    const serialized = JSON.stringify({ resilience, agents });
+
+    assert.equal(resilience.name, '容灾备份中心');
+    assert.equal(resilience.summary.latestBackupName, 'backup-20260628-100000-dashboard');
+    assert.equal(agents.safeMode, true);
+    assert.equal(agents.sideEffectsEnabled, false);
+    assert.ok(agents.agents.some((agent) => agent.id === 'open-cloud-agent'));
+    assert.ok(agents.agents.some((agent) => agent.name === 'Hermes agent'));
+    assert.ok(agents.agents.some((agent) => agent.name === '销售复盘Agent'));
+    assert.equal(serialized.includes('open-cloud-secret'), false);
+    assert.equal(serialized.includes('hermes-secret'), false);
+    assert.equal(serialized.includes('custom-secret'), false);
+    assert.equal(serialized.includes('https://agent.example.test'), false);
   } finally {
     server.close();
     await rm(dir, { recursive: true, force: true });

@@ -3,6 +3,7 @@ export const appearanceStorageKey = 'wecom-ai-customer-service.appearance';
 export const defaultAppearance = {
   accentColor: '#0284c7',
   sidebarColor: '#0c4a6e',
+  skinColor: '#dbeafe',
   backgroundColor: '#f0f8ff',
   panelColor: '#ffffff',
   textColor: '#1f2937',
@@ -27,6 +28,7 @@ export function normalizeAppearance(input = {}) {
   return {
     accentColor: normalizeHexColor(input.accentColor, defaultAppearance.accentColor),
     sidebarColor: normalizeHexColor(input.sidebarColor, defaultAppearance.sidebarColor),
+    skinColor: normalizeHexColor(input.skinColor, defaultAppearance.skinColor),
     backgroundColor: normalizeHexColor(input.backgroundColor, defaultAppearance.backgroundColor),
     panelColor: normalizeHexColor(input.panelColor, defaultAppearance.panelColor),
     textColor: normalizeHexColor(input.textColor, defaultAppearance.textColor),
@@ -51,6 +53,9 @@ export function applyAppearanceSettings(settings, root) {
   root.style.setProperty('--accent-strong', darkenHexColor(normalized.accentColor, 0.22));
   root.style.setProperty('--accent-soft', mixHexColors(normalized.panelColor, normalized.accentColor, 0.12));
   root.style.setProperty('--accent-contrast', contrastTextColor(normalized.accentColor));
+  root.style.setProperty('--skin', normalized.skinColor);
+  root.style.setProperty('--skin-soft', mixHexColors(normalized.panelColor, normalized.skinColor, 0.58));
+  root.style.setProperty('--skin-strong', mixHexColors(normalized.skinColor, normalized.accentColor, 0.28));
   root.style.setProperty('--sidebar-bg', normalized.sidebarColor);
   root.style.setProperty('--sidebar-hover', mixHexColors(normalized.sidebarColor, '#ffffff', 0.1));
   root.style.setProperty('--sidebar-accent', mixHexColors(normalized.sidebarColor, normalized.accentColor, 0.38));
@@ -99,6 +104,7 @@ export function bindAppearanceSettings({ elements, root, storage } = {}) {
   [
     elements.accentColor,
     elements.sidebarColor,
+    elements.skinColor,
     elements.backgroundColor,
     elements.panelColor,
     elements.textColor,
@@ -123,6 +129,7 @@ export function readAppearanceForm(elements = {}) {
   return normalizeAppearance({
     accentColor: elements.accentColor?.value,
     sidebarColor: elements.sidebarColor?.value,
+    skinColor: elements.skinColor?.value,
     backgroundColor: elements.backgroundColor?.value,
     panelColor: elements.panelColor?.value,
     textColor: elements.textColor?.value,
@@ -136,6 +143,7 @@ export function writeAppearanceForm(elements = {}, settings = defaultAppearance)
   const normalized = normalizeAppearance(settings);
   setElementValue(elements.accentColor, normalized.accentColor);
   setElementValue(elements.sidebarColor, normalized.sidebarColor);
+  setElementValue(elements.skinColor, normalized.skinColor);
   setElementValue(elements.backgroundColor, normalized.backgroundColor);
   setElementValue(elements.panelColor, normalized.panelColor);
   setElementValue(elements.textColor, normalized.textColor);

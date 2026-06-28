@@ -24,9 +24,13 @@ test('builds countdown progress for all dashboard sections', () => {
     'status',
     'input-center',
     'data-import',
+    'yunke-call-import',
+    'crm-import',
+    'resilience-backup',
+    'agent-access',
     'device-ports',
     'api-center',
-    'voice-input',
+    'ai-call',
     'knowledge',
     'qa',
     'channels',
@@ -46,8 +50,14 @@ test('builds countdown progress for all dashboard sections', () => {
   assert.ok(progress.modules.some((module) => module.title === '私信/评论转化剧本'));
   assert.ok(progress.modules.some((module) => module.title === 'Hermes 指令收件箱'));
   assert.ok(progress.modules.some((module) => module.title === '统一输入中心'));
+  assert.ok(progress.modules.some((module) => module.title === '人工呼叫导入云客'));
+  assert.ok(progress.modules.some((module) => module.title === '导入到CRM系统'));
+  assert.ok(progress.modules.some((module) => module.title === '容灾备份中心'));
+  assert.ok(progress.modules.some((module) => module.title === 'Agent接入中心'));
   assert.ok(progress.modules.some((module) => module.title === 'API接口中心'));
-  assert.ok(progress.modules.some((module) => module.title === 'AI语音输入'));
+  assert.ok(progress.modules.some((module) => module.title === 'AI呼叫模块'));
+  assert.equal(progress.modules.some((module) => module.id === 'voice-input'), false);
+  assert.equal(progress.modules.find((module) => module.id === 'input-center').nextStep.includes('语音按钮'), true);
 
   const channels = progress.modules.find((module) => module.id === 'channels');
   assert.equal(channels.percentText.endsWith('%'), true);
