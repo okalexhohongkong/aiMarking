@@ -27,6 +27,7 @@ test('builds countdown progress for all dashboard sections', () => {
     'yunke-call-import',
     'crm-import',
     'resilience-backup',
+    'data-warehouse',
     'agent-access',
     'device-ports',
     'api-center',
@@ -53,6 +54,7 @@ test('builds countdown progress for all dashboard sections', () => {
   assert.ok(progress.modules.some((module) => module.title === '人工呼叫导入云客'));
   assert.ok(progress.modules.some((module) => module.title === '导入到CRM系统'));
   assert.ok(progress.modules.some((module) => module.title === '容灾备份中心'));
+  assert.ok(progress.modules.some((module) => module.title === '数据建仓与仓库权限'));
   assert.ok(progress.modules.some((module) => module.title === 'Agent接入中心'));
   assert.ok(progress.modules.some((module) => module.title === 'API接口中心'));
   assert.ok(progress.modules.some((module) => module.title === 'AI呼叫模块'));

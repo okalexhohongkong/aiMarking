@@ -1,0 +1,17 @@
+[
+  {
+    "id": "PLiEw0b8bcZXa5bVjyy9j",
+    "source": "codex",
+    "sender": "codex",
+    "text": "并行任务调度需要用户协助：当前模块 platforms / platforms-wecom 需要用户协助。 缺少资料：A 平台接入并行线：企业微信优先联调，抖音私信/客服第二位推进 下一步：企业微信优先联调，抖音私信/客服第二位推进",
+    "status": "new",
+    "priority": "high",
+    "direction": "outbound",
+    "type": "blocker",
+    "target": "apple",
+    "moduleId": "platforms",
+    "taskId": "platforms-wecom",
+    "createdAt": "2026-06-22T22:52:37.817Z",
+    "updatedAt": "2026-06-22T22:52:37.817Z"
+  }
+]

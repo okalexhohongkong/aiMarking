@@ -1,0 +1,12 @@
+{
+  "name": "backup-20260629-014551-manual",
+  "createdAt": "2026-06-28T17:45:51.667Z",
+  "projectDir": "/Users/apple/Documents/企业微信 智能客服",
+  "files": [
+    "knowledge.json",
+    "growth.json",
+    "conversations.json",
+    "hermesCommands.json",
+    "privateMessageApprovals.json"
+  ]
+}

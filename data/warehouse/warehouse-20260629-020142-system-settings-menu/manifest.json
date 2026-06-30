@@ -1,0 +1,13 @@
+{
+  "name": "warehouse-20260629-020142-system-settings-menu",
+  "createdAt": "2026-06-28T18:03:12.761Z",
+  "label": "system-settings-menu-normal",
+  "copiedFiles": [
+    "knowledge.json",
+    "growth.json",
+    "conversations.json",
+    "hermesCommands.json",
+    "privateMessageApprovals.json"
+  ],
+  "note": "一级菜单收拢为业务主线，API/外设/Agent/导入导出/容灾/建仓归入系统设置。"
+}

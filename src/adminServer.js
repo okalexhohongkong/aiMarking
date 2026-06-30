@@ -12,6 +12,7 @@ import { ChannelMessageService } from './channelMessageService.js';
 import { listChannelPorts } from './channelPorts.js';
 import { readAdminConfig, readConfigSummary } from './config.js';
 import { getCustomerLifecycleBlueprint } from './customerLifecycle.js';
+import { buildDataWarehouseBlueprint } from './dataWarehouseBlueprint.js';
 import { buildDouyinReadiness } from './douyinReadiness.js';
 import { getEngagementPlaybooks } from './engagementPlaybooks.js';
 import { generateGrowthReply } from './growthEngine.js';
@@ -301,6 +302,11 @@ async function routeRequest({
 
   if (url.pathname === '/api/resilience-backup-blueprint' && request.method === 'GET') {
     sendJson(response, 200, buildResilienceBackupBlueprint({ localStatus: await localOperations.getDataStatus() }));
+    return;
+  }
+
+  if (url.pathname === '/api/data-warehouse-blueprint' && request.method === 'GET') {
+    sendJson(response, 200, buildDataWarehouseBlueprint({ localStatus: await localOperations.getDataStatus() }));
     return;
   }
 

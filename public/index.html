@@ -12,7 +12,6 @@
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <button id="sidebarPeekZone" class="sidebar-peek-zone" type="button" aria-label="靠近展开菜单，双击固定显示" title="靠近展开菜单，双击固定显示"></button>
     <main class="app-shell">
       <aside class="app-sidebar">
         <div class="sidebar-brand">
@@ -24,7 +23,7 @@
         </div>
         <div class="sidebar-status-card">
           <strong>母菜单总纲</strong>
-          <small>业务流程、输入方式、接口外设和系统设置统一入口。</small>
+          <small>业务主流程在前，系统底座和系统设置在后。</small>
         </div>
         <div class="sidebar-toolbar" aria-label="菜单快捷入口">
           <label class="menu-search">
@@ -34,7 +33,6 @@
           <div class="sidebar-actions">
             <button id="sidebarSettingsButton" class="sidebar-tool-button" type="button" title="系统设置" aria-label="系统设置">⚙</button>
             <button id="sidebarLockButton" class="sidebar-tool-button" type="button" title="解锁菜单布局" aria-label="解锁菜单布局" aria-pressed="true">🔒</button>
-            <button id="sidebarCollapseButton" class="sidebar-tool-button" type="button" title="固定显示菜单" aria-label="固定显示菜单" aria-pressed="false">📌</button>
           </div>
         </div>
         <nav id="primaryNav" class="primary-nav" aria-label="一级业务菜单"></nav>
@@ -54,7 +52,7 @@
       <section class="workflow-context">
         <div>
           <h2 id="workflowTitle">锚定目标</h2>
-          <p id="workflowDescription">先看系统目标、七维闭环和当前运行状态。</p>
+          <p id="workflowDescription">先确定品牌、产品、人群、区域、成交目标和七维闭环总方向。</p>
         </div>
         <span id="workflowStep" class="count">1 / 11</span>
       </section>
@@ -180,6 +178,76 @@
             <div id="targetProfilePreview" class="target-profile-preview-box"></div>
           </aside>
         </div>
+        <div class="target-template-panel" data-menu-section="target-profile-templates">
+          <div class="panel-head compact-head">
+            <h2>画像模板库</h2>
+            <span id="targetProfileTemplateSummary" class="count">0 个模板</span>
+          </div>
+          <form id="targetProfileTemplateForm" class="target-template-form">
+            <div class="four-col">
+              <label>
+                模板标题
+                <input id="targetTemplateTitleInput" maxlength="120" placeholder="例如：深圳高意向宝妈画像" required />
+              </label>
+              <label>
+                模板类型
+                <select id="targetTemplateTypeInput">
+                  <option value="目标人群画像">目标人群画像</option>
+                  <option value="目标对手画像">目标对手画像</option>
+                  <option value="消费人群画像">消费人群画像</option>
+                  <option value="自己假想目标画像">自己假想目标画像</option>
+                </select>
+              </label>
+              <label>
+                主题
+                <input id="targetTemplateThemeInput" maxlength="160" placeholder="例如：儿童过敏护理获客" required />
+              </label>
+              <label>
+                创建人
+                <input id="targetTemplateCreatorInput" maxlength="80" value="Alex Ho" placeholder="例如：Alex Ho" />
+              </label>
+            </div>
+            <div class="two-col">
+              <label>
+                关键词
+                <input id="targetTemplateKeywordsInput" maxlength="240" placeholder="例如：宝妈、深圳、过敏、咨询、资料领取" />
+              </label>
+              <label>
+                特征描述
+                <textarea id="targetTemplateFeatureInput" rows="3" maxlength="1000" placeholder="不填时自动使用当前画像摘要。"></textarea>
+              </label>
+            </div>
+            <div class="actions">
+              <button type="submit">保存为画像模板</button>
+            </div>
+          </form>
+          <div id="targetProfileTemplateList" class="target-template-list"></div>
+        </div>
+      </section>
+
+      <section class="panel target-profile-panel" data-workflow-view="competitor" data-menu-section="competitor-calibration">
+        <div class="panel-head">
+          <h2>对手/对象标定</h2>
+          <span class="count">对手 / 客户 / 媒体习惯</span>
+        </div>
+        <div class="import-route-grid">
+          <article>
+            <h3>对手是谁</h3>
+            <p>记录对标品牌、对手商品、价格带、内容风格、直播/短视频打法和主要卖点。</p>
+          </article>
+          <article>
+            <h3>对手客户在哪里</h3>
+            <p>判断对手评论区、粉丝群、私信咨询、搜索关键词和线下消费场景是不是我们要的人群。</p>
+          </article>
+          <article>
+            <h3>对象怎么被吸引</h3>
+            <p>标定目标对象几点看内容、看什么平台、被什么标题、案例、价格、优惠或专家背书打动。</p>
+          </article>
+          <article>
+            <h3>沉淀为画像模板</h3>
+            <p>对手画像、消费人群画像、目标人群画像和自己假想目标画像都可以保存为模板。</p>
+          </article>
+        </div>
       </section>
 
       <section class="panel appearance-panel" data-workflow-view="settings" data-menu-section="appearance-settings">
@@ -187,55 +255,71 @@
           <h2>界面设置</h2>
           <span class="count">颜色 / 字体 / 字号</span>
         </div>
-        <form id="appearanceForm" class="appearance-grid">
-          <label>
-            主色
-            <input id="accentColorInput" type="color" value="#0284c7" />
-          </label>
-          <label>
-            母菜单
-            <input id="sidebarColorInput" type="color" value="#0c4a6e" />
-          </label>
-          <label>
-            肤色
-            <input id="skinColorInput" type="color" value="#dbeafe" />
-          </label>
-          <label>
-            背景
-            <input id="backgroundColorInput" type="color" value="#f0f8ff" />
-          </label>
-          <label>
-            面板
-            <input id="panelColorInput" type="color" value="#ffffff" />
-          </label>
-          <label>
-            文字
-            <input id="textColorInput" type="color" value="#1f2937" />
-          </label>
-          <label>
-            字体
-            <select id="fontPresetInput">
-              <option value="system">系统默认</option>
-              <option value="heiti">黑体 / 微软雅黑</option>
-              <option value="songti">宋体</option>
-              <option value="kaiti">楷体</option>
-              <option value="mono">等宽字体</option>
-              <option value="custom">自定义字体</option>
-            </select>
-          </label>
-          <label>
-            自定义字体
-            <input id="customFontInput" maxlength="120" placeholder="例如：PingFang SC, Microsoft YaHei" />
-          </label>
-          <label class="font-size-control">
-            字号 <span id="fontSizeLabel">14px</span>
-            <input id="fontSizeInput" type="range" min="13" max="24" step="1" value="14" />
-          </label>
-          <label>
-            字号数值
-            <input id="fontSizeNumberInput" type="number" min="13" max="24" step="1" value="14" />
-          </label>
-          <button id="resetAppearanceButton" class="secondary" type="button">恢复默认</button>
+        <form id="appearanceForm" class="appearance-grid compact-appearance-grid">
+          <fieldset class="appearance-group">
+            <legend>字体</legend>
+            <label>
+              字体
+              <select id="fontPresetInput">
+                <option value="system">系统默认</option>
+                <option value="heiti">黑体 / 微软雅黑</option>
+                <option value="songti">宋体</option>
+                <option value="kaiti">楷体</option>
+                <option value="mono">等宽字体</option>
+                <option value="custom">自定义字体</option>
+              </select>
+            </label>
+            <label>
+              自定义
+              <input id="customFontInput" maxlength="120" placeholder="PingFang SC, Microsoft YaHei" />
+            </label>
+          </fieldset>
+
+          <fieldset class="appearance-group appearance-size-group">
+            <legend>字号</legend>
+            <label class="font-size-control">
+              当前 <span id="fontSizeLabel">14px</span>
+              <input id="fontSizeInput" type="range" min="13" max="24" step="1" value="14" />
+            </label>
+            <label>
+              数值
+              <input id="fontSizeNumberInput" type="number" min="13" max="24" step="1" value="14" />
+            </label>
+          </fieldset>
+
+          <fieldset class="appearance-group appearance-color-group">
+            <legend>色块</legend>
+            <div class="appearance-color-grid">
+              <label>
+                <span>主色</span>
+                <input id="accentColorInput" type="color" value="#0284c7" />
+              </label>
+              <label>
+                <span>母菜单</span>
+                <input id="sidebarColorInput" type="color" value="#0c4a6e" />
+              </label>
+              <label>
+                <span>肤色</span>
+                <input id="skinColorInput" type="color" value="#dbeafe" />
+              </label>
+              <label>
+                <span>背景</span>
+                <input id="backgroundColorInput" type="color" value="#f0f8ff" />
+              </label>
+              <label>
+                <span>面板</span>
+                <input id="panelColorInput" type="color" value="#ffffff" />
+              </label>
+              <label>
+                <span>文字</span>
+                <input id="textColorInput" type="color" value="#1f2937" />
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="appearance-actions">
+            <button id="resetAppearanceButton" class="secondary" type="button">恢复默认</button>
+          </div>
         </form>
       </section>
 
@@ -243,6 +327,18 @@
         <div class="panel-head">
           <h2>模块管理</h2>
           <span id="moduleSettingsSummary" class="count">一级菜单 / 二级页面板块</span>
+        </div>
+        <div id="sectionTitleModeControl" class="section-title-mode-control" aria-label="页面小标题方案">
+          <strong>页面小标题</strong>
+          <label>
+            <input type="radio" name="sectionTitleMode" value="chip" checked />
+            方案A 小角标
+          </label>
+          <label>
+            <input type="radio" name="sectionTitleMode" value="ribbon" />
+            方案B 标题条
+          </label>
+          <span>二级板块可在下方拖拽排序，也可以改所属一级菜单。</span>
         </div>
         <div id="moduleSettingsList" class="module-settings-list"></div>
         <div class="module-settings-actions">
@@ -282,7 +378,42 @@
         <div id="resilienceBackupBlueprint" class="resilience-backup-list"></div>
       </section>
 
-      <section class="panel input-center-panel" data-workflow-view="input-center" data-menu-section="input-center-methods">
+      <section class="panel data-warehouse-panel" data-workflow-view="settings" data-menu-section="data-warehouse-center">
+        <div class="panel-head">
+          <h2>数据建仓与仓库权限</h2>
+          <span id="dataWarehouseSummary" class="count">夜间建仓 / 口令审批</span>
+        </div>
+        <div class="platform-config-notice">
+          数据建仓默认安排在每天 00:00-02:00，或等导入、同步、审批、备份等任务跑完后自动进入建仓批次。仓库共享、平仓、清仓、删除、恢复、克隆和外部导出必须先得到 Alex 同意，再完成口令确认和三人审批。
+        </div>
+        <div id="dataWarehouseBlueprint" class="data-warehouse-list"></div>
+      </section>
+
+      <section class="panel system-base-panel" data-workflow-view="system-base" data-menu-section="system-base-overview">
+        <div class="panel-head">
+          <h2>系统底座</h2>
+          <span class="count">基础能力层 / 非业务主流程</span>
+        </div>
+        <div class="platform-config-notice">
+          系统底座和系统设置是两码事：系统设置负责管理入口和界面；系统底座负责 API、外设、安全Agent、数据建仓、容灾备份、审批和审计这些基础能力。
+        </div>
+        <div class="import-route-grid">
+          <article>
+            <h3>接口地图</h3>
+            <p>平台开放 API、Webhook、业务系统 API、CRM、商城、呼叫平台和数据回调统一登记。</p>
+          </article>
+          <article>
+            <h3>安全Agent</h3>
+            <p>Open cloud agent、Hermes agent 和自定义Agent默认只进沙盒预览，不直接执行高风险动作。</p>
+          </article>
+          <article>
+            <h3>数据安全</h3>
+            <p>导入导出、夜间建仓、共享口令、容灾备份和克隆机动作都进入审批和审计。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel input-center-panel" data-workflow-view="settings" data-menu-section="input-center-methods">
         <div class="panel-head">
           <h2>统一输入中心</h2>
           <span class="count">手动 / 表格 / 数据库 / API / 语音按钮</span>
@@ -312,7 +443,7 @@
         <div id="inputModeMatrix" class="input-mode-matrix"></div>
       </section>
 
-      <section class="panel data-import-panel" data-workflow-view="data-import" data-menu-section="data-import-center">
+      <section class="panel data-import-panel" data-workflow-view="settings" data-menu-section="data-import-center">
         <div class="panel-head">
           <h2>数据导入/导出中心</h2>
           <span class="count">导入 / 导出 / 模板 / 数据库</span>
@@ -345,7 +476,51 @@
         </div>
       </section>
 
-      <section class="panel data-import-panel" data-workflow-view="data-import" data-menu-section="yunke-call-import">
+      <section class="panel data-import-panel" data-workflow-view="settings" data-menu-section="customer-cm-system">
+        <div class="panel-head">
+          <h2>客户CM系统</h2>
+          <span class="count">客户主档 / 云客库 / 多平台客户库</span>
+        </div>
+        <div class="platform-config-notice">
+          营销客户数据先进入客户CM主档，统一身份、来源、标签、授权、意向等级和最近互动；再按权限同步到云客库、企业微信库、个人微信库、飞书/飞信库、抖音库、商城和门店系统。
+        </div>
+        <div class="import-route-grid">
+          <article data-menu-section="cm-master-profile">
+            <h3>CM客户主档</h3>
+            <p>统一客户姓名/昵称、来源平台、手机号脱敏值、意向等级、标签、授权来源、最近互动和跟进人。</p>
+          </article>
+          <article data-menu-section="yunke-customer-db">
+            <h3>云客库</h3>
+            <p>对接云客手机数据库，支持电话跟进、聊天承接、通话结果和客户阶段回流。</p>
+          </article>
+          <article data-menu-section="wecom-customer-db">
+            <h3>企业微信库</h3>
+            <p>同步到企微客户池、企微群、跟进人和群内维护任务。</p>
+          </article>
+          <article data-menu-section="personal-wechat-db">
+            <h3>个人微信库</h3>
+            <p>预留个人微信私域承接、人工跟进和关系维护。</p>
+          </article>
+          <article data-menu-section="feishu-customer-db">
+            <h3>飞书/飞信库</h3>
+            <p>同步到飞书协作库或飞信类客户库，用于团队协作和线索分派。</p>
+          </article>
+          <article data-menu-section="douyin-group-db">
+            <h3>抖音群库</h3>
+            <p>承接抖音粉丝群、活动群和群内互动线索。</p>
+          </article>
+          <article data-menu-section="douyin-private-db">
+            <h3>抖音1对1私信库</h3>
+            <p>承接抖音单聊私信、名片跳转、加群邀请和私域转化。</p>
+          </article>
+          <article data-menu-section="commerce-store-db">
+            <h3>商城/门店库</h3>
+            <p>对接线上商城、线下门店、预约、订单和售后系统。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel data-import-panel" data-workflow-view="settings" data-menu-section="yunke-call-import">
         <div class="panel-head">
           <h2>人工呼叫导入云客</h2>
           <span id="yunkeCallImportSummary" class="count">通话记录 / 意向分级 / 跟进人</span>
@@ -367,7 +542,7 @@
         </div>
       </section>
 
-      <section class="panel data-import-panel" data-workflow-view="data-import" data-menu-section="crm-import">
+      <section class="panel data-import-panel" data-workflow-view="settings" data-menu-section="crm-import">
         <div class="panel-head">
           <h2>导入到CRM系统</h2>
           <span id="crmImportSummary" class="count">字段映射 / 去重 / 同步策略</span>
@@ -389,7 +564,7 @@
         </div>
       </section>
 
-      <section class="panel device-port-panel" data-workflow-view="device-ports" data-menu-section="device-port-center">
+      <section class="panel device-port-panel" data-workflow-view="settings" data-menu-section="device-port-center">
         <div class="panel-head">
           <h2>外设接口</h2>
           <span class="count">手机 / 语音 / 平台终端</span>
@@ -414,7 +589,7 @@
         </div>
       </section>
 
-      <section class="panel api-center-panel" data-workflow-view="api-center" data-menu-section="api-overview">
+      <section class="panel api-center-panel" data-workflow-view="settings" data-menu-section="api-overview">
         <div class="panel-head">
           <h2>API接口中心</h2>
           <span class="count">凭证 / Webhook / 回调</span>
@@ -435,7 +610,7 @@
         </div>
       </section>
 
-      <section class="panel agent-access-panel" data-workflow-view="api-center" data-menu-section="agent-access-center">
+      <section class="panel agent-access-panel" data-workflow-view="settings" data-menu-section="agent-access-center">
         <div class="panel-head">
           <h2>Agent接入中心</h2>
           <span id="agentAccessSummary" class="count">Open cloud agent / Hermes agent / 自定义Agent</span>
@@ -538,7 +713,7 @@
         </section>
       </section>
 
-      <section class="panel channel-panel" data-workflow-view="api-center" data-menu-section="api-platform-config">
+      <section class="panel channel-panel" data-workflow-view="settings" data-menu-section="api-platform-config">
         <div class="panel-head">
           <h2>平台凭证配置中心</h2>
           <span id="platformConfigSummary" class="count">加载中</span>
@@ -557,6 +732,27 @@
         </div>
         <div id="integrationRoadmap" class="integration-roadmap"></div>
         <div id="channelPortList" class="channel-port-grid"></div>
+      </section>
+
+      <section class="panel channel-panel" data-workflow-view="distribution" data-menu-section="account-matrix-distribution">
+        <div class="panel-head">
+          <h2>账号矩阵分发</h2>
+          <span class="count">平台 / 账号 / 排期 / 线索入口</span>
+        </div>
+        <div class="call-module-grid">
+          <article>
+            <h3>平台矩阵</h3>
+            <p>抖音、快手、小红书、视频号、头条号、百家号、B站、知乎、电商和海外平台先按接口状态分批接入。</p>
+          </article>
+          <article>
+            <h3>账号排期</h3>
+            <p>同一故事逻辑可以生成不同标题、背景、素材形态和发布时间，避免内容机械重复。</p>
+          </article>
+          <article>
+            <h3>线索入口</h3>
+            <p>评论、留资、私信、加群、商城、预约、到店和呼叫中心都统一进入后续承接流程。</p>
+          </article>
+        </div>
       </section>
 
       <section class="panel channel-panel" data-workflow-view="ai-service" data-menu-section="ai-call-center">
@@ -658,6 +854,27 @@
             <h3>合规边界</h3>
             <ul id="marketingCompliance"></ul>
           </section>
+        </div>
+      </section>
+
+      <section class="panel marketing-system-panel" data-workflow-view="content" data-menu-section="content-fission">
+        <div class="panel-head">
+          <h2>原创/伪原创生产</h2>
+          <span class="count">头部提炼 / 升级文案 / 裂变版本</span>
+        </div>
+        <div class="import-route-grid">
+          <article>
+            <h3>头部内容提炼</h3>
+            <p>提取重点、亮点、结构、转折、评论触发点和平台流量风格。</p>
+          </article>
+          <article>
+            <h3>升级版文案</h3>
+            <p>把头部内容规律和自身产品服务优点结合，生成更贴合业务目标的新内容。</p>
+          </article>
+          <article>
+            <h3>标题/背景裂变</h3>
+            <p>同一故事逻辑生成多标题、多故事背景、多表达风格，保留人工审批。</p>
+          </article>
         </div>
       </section>
 
@@ -881,6 +1098,27 @@
           <button type="submit">加入双向中心</button>
         </form>
         <div id="hermesCommandList" class="hermes-command-list"></div>
+      </section>
+
+      <section class="panel lifecycle-panel" data-workflow-view="aftersale" data-menu-section="aftersale-retention">
+        <div class="panel-head">
+          <h2>售后管理与复购</h2>
+          <span class="count">服务 / 复购 / 转介绍</span>
+        </div>
+        <div class="call-module-grid">
+          <article>
+            <h3>售后服务</h3>
+            <p>记录交付结果、问题类型、满意度、投诉升级和人工处理状态。</p>
+          </article>
+          <article>
+            <h3>复购跟进</h3>
+            <p>按周期提醒、权益、会员等级和客户状态进行维护，不做无授权骚扰。</p>
+          </article>
+          <article>
+            <h3>转介绍机会</h3>
+            <p>识别老客户推荐、口碑案例、复购素材和可公开使用的正向反馈。</p>
+          </article>
+        </div>
       </section>
 
       <section class="panel orchestration-panel" data-workflow-view="settings" data-menu-section="orchestration-plan">

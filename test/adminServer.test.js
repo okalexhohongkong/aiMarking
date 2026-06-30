@@ -674,11 +674,18 @@ test('admin API exposes resilience backup and agent access blueprints safely', a
     const baseUrl = `http://127.0.0.1:${server.address().port}`;
 
     const resilience = await requestJson(`${baseUrl}/api/resilience-backup-blueprint`);
+    const warehouse = await requestJson(`${baseUrl}/api/data-warehouse-blueprint`);
     const agents = await requestJson(`${baseUrl}/api/agent-access-blueprint`);
-    const serialized = JSON.stringify({ resilience, agents });
+    const serialized = JSON.stringify({ resilience, warehouse, agents });
 
     assert.equal(resilience.name, '容灾备份中心');
     assert.equal(resilience.summary.latestBackupName, 'backup-20260628-100000-dashboard');
+    assert.equal(warehouse.name, '数据建仓与仓库权限中心');
+    assert.equal(warehouse.safeMode, true);
+    assert.equal(warehouse.sideEffectsEnabled, false);
+    assert.equal(warehouse.permissionPolicy.ownerConsentRequired, true);
+    assert.equal(warehouse.permissionPolicy.passphraseRequired, true);
+    assert.match(warehouse.schedule.window, /00:00-02:00/);
     assert.equal(agents.safeMode, true);
     assert.equal(agents.sideEffectsEnabled, false);
     assert.ok(agents.agents.some((agent) => agent.id === 'open-cloud-agent'));

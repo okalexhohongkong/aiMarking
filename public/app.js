@@ -2,10 +2,16 @@ import { bindAppearanceSettings } from './appearanceSettings.js';
 
 const workflowSettingsStorageKey = 'wecom-ai-customer-service.workflow-settings';
 const targetProfileStorageKey = 'wecom-ai-customer-service.target-profile';
+const targetProfileTemplatesStorageKey = 'wecom-ai-customer-service.target-profile-templates';
 const sidebarLayoutStorageKey = 'wecom-ai-customer-service.sidebar-layout';
 const inputAssistStorageKey = 'wecom-ai-customer-service.input-assist-custom-options';
 const menuExpansionStorageKey = 'wecom-ai-customer-service.menu-expansion';
-let sidebarAutoHideTimer = null;
+const sidebarLayoutVersion = 2;
+const sidebarDefaultWidth = 236;
+const sidebarMinWidth = 236;
+const sidebarMaxWidth = 340;
+const pinnedWorkflowTail = ['system-base', 'settings'];
+const pinnedSettingsSectionTail = ['resilience-backup-center'];
 
 const workflowViews = [
   {
@@ -13,88 +19,88 @@ const workflowViews = [
     icon: 'target',
     title: '锚定目标',
     step: '1 / 11',
-    description: '先看系统目标、七维闭环、运行状态和当前项目定位。',
+    description: '先确定品牌、产品、人群、区域、成交目标和七维闭环总方向。',
     moduleIds: ['marketing', 'status']
+  },
+  {
+    id: 'competitor',
+    icon: 'competitor',
+    title: '标定对手/对象',
+    step: '2 / 11',
+    description: '标定对手是谁、对手客户在哪里、目标对象被什么内容吸引。',
+    moduleIds: ['marketing']
   },
   {
     id: 'content',
     icon: 'content',
-    title: '生成内容',
-    step: '2 / 11',
-    description: '整理知识库、知识图谱和内容资产，为后续问答、私信和成交承接提供素材。',
+    title: '内容原创/伪原创',
+    step: '3 / 11',
+    description: '整理知识库、知识图谱、头部内容参考和升级版文案素材。',
     moduleIds: ['knowledge']
+  },
+  {
+    id: 'distribution',
+    icon: 'distribution',
+    title: '账号矩阵分发',
+    step: '4 / 11',
+    description: '把优质内容分发到多平台、多账号和不同内容形态，形成线索入口。',
+    moduleIds: ['channels']
   },
   {
     id: 'engagement',
     icon: 'chat',
-    title: '评论私信管理',
-    step: '3 / 11',
-    description: '把评论、私信、资料领取、报价、案例和活动咨询沉淀为可复用转化剧本。',
+    title: '评论区管理',
+    step: '5 / 11',
+    description: '管理正向留言分级、负面风险处理、公开回复和意向承接。',
     moduleIds: ['playbooks']
   },
   {
     id: 'private-message',
     icon: 'message',
-    title: '加私信',
-    step: '4 / 11',
+    title: '私信引导',
+    step: '6 / 11',
     description: '根据来源、地域、作品、留言和权益生成一次性私信，并进入人工审批队列。',
     moduleIds: ['private-message']
   },
   {
     id: 'ai-service',
     icon: 'service',
-    title: 'AI客服',
-    step: '5 / 11',
-    description: '在同一工作台查看平台接入、端口、问答测试和知识图谱，验证统一客服引擎。',
+    title: 'AI客服/群内维护',
+    step: '7 / 11',
+    description: '用知识库、问答测试、群内维护和呼叫模块承接持续对话。',
     moduleIds: ['ai-call', 'channels', 'qa', 'simulator']
   },
   {
     id: 'conversion',
     icon: 'deal',
     title: '引流成交',
-    step: '6 / 11',
+    step: '8 / 11',
     description: '按客户生命周期、高意向线索和私域话术推动预约、定金、下单和复购。',
     moduleIds: ['lifecycle', 'growth', 'leads']
   },
   {
-    id: 'input-center',
-    icon: 'input',
-    title: '输入中心',
-    step: '7 / 11',
-    description: '统一管理手动输入、表格导入、数据库导入和 API 导入；所有文字输入口都带语音按钮。',
-    moduleIds: ['input-center']
-  },
-  {
-    id: 'data-import',
-    icon: 'data',
-    title: '数据导入/导出',
-    step: '8 / 11',
-    description: '把知识库、评论私信样本、目标画像和外部业务数据统一导入系统，也支持模板和知识库导出。',
-    moduleIds: ['data-import', 'yunke-call-import', 'crm-import']
-  },
-  {
-    id: 'device-ports',
-    icon: 'device',
-    title: '外设接口',
+    id: 'aftersale',
+    icon: 'aftersale',
+    title: '售后复购',
     step: '9 / 11',
-    description: '预留手机、企业微信、个人微信、平台客服终端、语音录音和会议输入。',
-    moduleIds: ['device-ports']
+    description: '成交后继续做售后服务、客户维护、复购提醒和转介绍沉淀。',
+    moduleIds: ['lifecycle', 'growth']
   },
   {
-    id: 'api-center',
-    icon: 'api',
-    title: 'API接口',
+    id: 'system-base',
+    icon: 'base',
+    title: '系统底座',
     step: '10 / 11',
-    description: '集中管理平台开放 API、业务系统 API、Webhook 回调和凭证配置。',
-    moduleIds: ['api-center', 'agent-access', 'channels']
+    description: '独立承载架构、权限、审计、运行健康和底层能力边界，具体接口配置仍放在系统设置里。',
+    moduleIds: ['system-base', 'status']
   },
   {
     id: 'settings',
     icon: 'settings',
     title: '系统设置',
     step: '11 / 11',
-    description: '集中管理界面皮肤、母菜单、容灾备份、交付入口、Hermes 指令和并行任务调度。',
-    moduleIds: ['appearance', 'resilience-backup', 'hermes']
+    description: '集中管理界面、输入导入、客户CM、API接口、外设、安全Agent、建仓权限和容灾备份。',
+    moduleIds: ['appearance', 'input-center', 'data-import', 'customer-cm', 'yunke-call-import', 'crm-import', 'api-center', 'agent-access', 'device-ports', 'data-warehouse', 'resilience-backup', 'hermes']
   }
 ];
 
@@ -104,7 +110,7 @@ const menuBlueprint = {
       id: 'workflow-overview',
       viewId: 'target',
       title: '七维流程总控台',
-      description: '总览 11 个一级入口和整体完成度。',
+      description: '总览业务主线和系统设置的整体完成度。',
       children: [
         { id: 'marketing-system', viewId: 'target', title: '七维闭环', description: '查看业务流程、合规边界和系统定位。' },
         { id: 'runtime-status', viewId: 'target', title: '运行状态', description: '查看后台、知识库和本机工具状态。' }
@@ -117,7 +123,19 @@ const menuBlueprint = {
       description: '采集品牌、产品、人群、竞品、区域和媒体偏好。',
       children: [
         { id: 'target-profile-form', viewId: 'target', parentId: 'target-profile', title: '画像表单', description: '手动填写目标画像字段。' },
-        { id: 'target-profile-preview', viewId: 'target', parentId: 'target-profile', title: '画像摘要', description: '生成 AI 使用口径。' }
+        { id: 'target-profile-preview', viewId: 'target', parentId: 'target-profile', title: '画像摘要', description: '生成 AI 使用口径。' },
+        { id: 'target-profile-templates', viewId: 'target', parentId: 'target-profile', title: '画像模板库', description: '保存目标人群、目标对手、消费人群和自己假想目标画像。' }
+      ]
+    },
+    {
+      id: 'competitor-calibration',
+      viewId: 'competitor',
+      title: '对手/对象标定',
+      description: '确认对标品牌、对手商品、对手客户和目标对象来源。',
+      children: [
+        { id: 'competitor-brand', viewId: 'competitor', parentId: 'competitor-calibration', title: '对手品牌', description: '记录对标品牌、品类和内容打法。' },
+        { id: 'competitor-audience', viewId: 'competitor', parentId: 'competitor-calibration', title: '对手客户', description: '判断对手客户是不是我们想要的人群。' },
+        { id: 'audience-media-habit', viewId: 'competitor', parentId: 'competitor-calibration', title: '媒体习惯', description: '标定目标对象看什么媒体、几点看、被什么钩子吸引。' }
       ]
     },
     {
@@ -131,13 +149,39 @@ const menuBlueprint = {
       ]
     },
     {
+      id: 'content-fission',
+      viewId: 'content',
+      title: '原创/伪原创生产',
+      description: '从头部内容提炼亮点，结合产品卖点生成新文案、视频脚本和海报内容。',
+      children: [
+        { id: 'headline-collection', viewId: 'content', parentId: 'content-fission', title: '头部内容提炼', description: '提取重点、亮点、结构和平台规则。' },
+        { id: 'script-upgrade', viewId: 'content', parentId: 'content-fission', title: '升级版文案', description: '结合产品优点生成可发布脚本。' },
+        { id: 'title-variants', viewId: 'content', parentId: 'content-fission', title: '标题/背景裂变', description: '生成多标题、多故事背景和多表达版本。' }
+      ]
+    },
+    {
+      id: 'account-matrix-distribution',
+      viewId: 'distribution',
+      title: '账号矩阵分发',
+      description: '把内容按平台、账号、时间和素材形态分发，形成评论、留资和私信入口。',
+      children: [
+        { id: 'platform-matrix', viewId: 'distribution', parentId: 'account-matrix-distribution', title: '平台矩阵', description: '抖音、快手、小红书、视频号、电商、B站、知乎等。' },
+        { id: 'account-schedule', viewId: 'distribution', parentId: 'account-matrix-distribution', title: '账号排期', description: '配置账号、发布时间和素材版本。' },
+        { id: 'lead-entry', viewId: 'distribution', parentId: 'account-matrix-distribution', title: '线索入口', description: '追踪留言、留资、私信和进群入口。' }
+      ]
+    },
+    {
       id: 'engagement-playbooks',
       viewId: 'engagement',
-      title: '评论私信剧本',
-      description: '沉淀评论区、私信和资料领取转化 SOP。',
+      title: '评论区分级管理',
+      description: '沉淀正向 1-5 级意向、负面风险和公开回复 SOP。',
       children: [
-        { id: 'comment-negative', viewId: 'engagement', parentId: 'engagement-playbooks', title: '负面评论处理', description: '先安抚澄清，再转人工。' },
-        { id: 'comment-positive', viewId: 'engagement', parentId: 'engagement-playbooks', title: '正向留言承接', description: '识别意向，进入私信或客服承接。' }
+        { id: 'positive-level-1', viewId: 'engagement', parentId: 'engagement-playbooks', title: '正1级好感', description: '认可模式或觉得不错。' },
+        { id: 'positive-level-2', viewId: 'engagement', parentId: 'engagement-playbooks', title: '正2级认同', description: '认同服务价值或表达想了解。' },
+        { id: 'positive-level-3', viewId: 'engagement', parentId: 'engagement-playbooks', title: '正3级需求', description: '强意向咨询、购买或希望服务。' },
+        { id: 'positive-level-4', viewId: 'engagement', parentId: 'engagement-playbooks', title: '正4级强合作', description: '强烈合作但没有联系方式。' },
+        { id: 'positive-level-5', viewId: 'engagement', parentId: 'engagement-playbooks', title: '正5级可联系', description: '留下电话、微信或其他联系方式。' },
+        { id: 'comment-negative', viewId: 'engagement', parentId: 'engagement-playbooks', title: '负面风险处理', description: '保留证据、澄清事实、转人工和平台申诉。' }
       ]
     },
     {
@@ -202,75 +246,113 @@ const menuBlueprint = {
       ]
     },
     {
+      id: 'aftersale-retention',
+      viewId: 'aftersale',
+      title: '售后管理与复购',
+      description: '成交后维护关系、记录服务结果、复购提醒和转介绍机会。',
+      children: [
+        { id: 'aftercare-service', viewId: 'aftersale', parentId: 'aftersale-retention', title: '售后服务', description: '记录交付、问题、满意度和人工升级。' },
+        { id: 'repurchase-followup', viewId: 'aftersale', parentId: 'aftersale-retention', title: '复购跟进', description: '按周期提醒、权益和会员关系维护。' },
+        { id: 'referral-opportunity', viewId: 'aftersale', parentId: 'aftersale-retention', title: '转介绍机会', description: '识别老客户推荐、案例和口碑素材。' }
+      ]
+    },
+    {
+      id: 'system-base-overview',
+      viewId: 'system-base',
+      title: '系统底座',
+      description: '系统底座是基础能力层，和系统设置分开：这里看架构、权限、审计和运行健康，具体接口配置放到系统设置。',
+      children: [
+        { id: 'base-architecture-map', viewId: 'system-base', parentId: 'system-base-overview', title: '底座架构', description: '统一查看业务层、数据层、消息层和审计层的关系。' },
+        { id: 'base-permission-audit', viewId: 'system-base', parentId: 'system-base-overview', title: '权限与审计', description: '定义高权限动作、审批人、口令和操作留痕。' },
+        { id: 'base-runtime-health', viewId: 'system-base', parentId: 'system-base-overview', title: '运行健康', description: '查看本机服务、数据文件、备份状态和异常提示。' }
+      ]
+    },
+    {
       id: 'input-center-methods',
-      viewId: 'input-center',
+      viewId: 'settings',
       title: '统一输入中心',
       description: '手动、表格、数据库、API 统一入口；文字框旁边直接语音输入。',
       children: [
-        { id: 'manual-input', viewId: 'input-center', parentId: 'input-center-methods', title: '手动输入', description: '快速录入目标、内容、私信和客服问题。' },
-        { id: 'api-input', viewId: 'input-center', parentId: 'input-center-methods', title: 'API 输入', description: '由外部系统写入结构化数据。' }
+        { id: 'manual-input', viewId: 'settings', parentId: 'input-center-methods', title: '手动输入', description: '快速录入目标、内容、私信和客服问题。' },
+        { id: 'api-input', viewId: 'settings', parentId: 'input-center-methods', title: 'API 输入', description: '由外部系统写入结构化数据。' }
       ]
     },
     {
       id: 'data-import-center',
-      viewId: 'data-import',
+      viewId: 'settings',
       title: '数据导入/导出中心',
       description: '导入知识库、评论私信样本、目标画像和业务数据，也导出知识库和导入模板。',
       children: [
-        { id: 'knowledge-import', viewId: 'data-import', parentId: 'data-import-center', title: '知识库导入', description: '批量导入 FAQ、案例和流程。' },
-        { id: 'profile-import', viewId: 'data-import', parentId: 'data-import-center', title: '画像导入', description: '批量导入目标人群和竞品。' },
-        { id: 'data-export', viewId: 'data-import', parentId: 'data-import-center', title: '数据导出', description: '导出知识库和导入模板，供人工复核或跨系统迁移。' }
+        { id: 'knowledge-import', viewId: 'settings', parentId: 'data-import-center', title: '知识库导入', description: '批量导入 FAQ、案例和流程。' },
+        { id: 'profile-import', viewId: 'settings', parentId: 'data-import-center', title: '画像导入', description: '批量导入目标人群和竞品。' },
+        { id: 'data-export', viewId: 'settings', parentId: 'data-import-center', title: '数据导出', description: '导出知识库和导入模板，供人工复核或跨系统迁移。' }
+      ]
+    },
+    {
+      id: 'customer-cm-system',
+      viewId: 'settings',
+      title: '客户CM系统',
+      description: '营销客户数据先归拢到客户CM主档，再同步到云客、企微、个微、飞书、抖音和商城门店。',
+      children: [
+        { id: 'cm-master-profile', viewId: 'settings', parentId: 'customer-cm-system', title: 'CM客户主档', description: '统一客户身份、来源、标签、意向、授权和最近互动。' },
+        { id: 'yunke-customer-db', viewId: 'settings', parentId: 'customer-cm-system', title: '云客库', description: '同步给云客手机数据库，承接电话和聊天。' },
+        { id: 'wecom-customer-db', viewId: 'settings', parentId: 'customer-cm-system', title: '企业微信库', description: '同步到企业微信客户池、企微群和跟进人。' },
+        { id: 'personal-wechat-db', viewId: 'settings', parentId: 'customer-cm-system', title: '个人微信库', description: '预留个人微信私域承接和人工跟进。' },
+        { id: 'feishu-customer-db', viewId: 'settings', parentId: 'customer-cm-system', title: '飞书/飞信库', description: '同步到飞书协作库或飞信类客户库。' },
+        { id: 'douyin-group-db', viewId: 'settings', parentId: 'customer-cm-system', title: '抖音群库', description: '承接抖音群、粉丝群和群内互动。' },
+        { id: 'douyin-private-db', viewId: 'settings', parentId: 'customer-cm-system', title: '抖音1对1私信库', description: '承接抖音单聊私信和后续私域转化。' },
+        { id: 'commerce-store-db', viewId: 'settings', parentId: 'customer-cm-system', title: '商城/门店库', description: '同步到线上商城、线下商店、预约和订单系统。' }
       ]
     },
     {
       id: 'yunke-call-import',
-      viewId: 'data-import',
+      viewId: 'settings',
       title: '人工呼叫导入云客',
       description: '把人工呼叫记录、客户意向和跟进结果导入云客模块。',
       children: [
-        { id: 'yunke-call-template', viewId: 'data-import', parentId: 'yunke-call-import', title: '导入模板', description: '手机号、来源、通话结果、意向等级和跟进人字段。' },
-        { id: 'yunke-call-review', viewId: 'data-import', parentId: 'yunke-call-import', title: '导入前校验', description: '去重、脱敏、授权和异常数据检查。' }
+        { id: 'yunke-call-template', viewId: 'settings', parentId: 'yunke-call-import', title: '导入模板', description: '手机号、来源、通话结果、意向等级和跟进人字段。' },
+        { id: 'yunke-call-review', viewId: 'settings', parentId: 'yunke-call-import', title: '导入前校验', description: '去重、脱敏、授权和异常数据检查。' }
       ]
     },
     {
       id: 'crm-import',
-      viewId: 'data-import',
+      viewId: 'settings',
       title: '导入到CRM系统',
       description: '把线索、客户阶段、标签和成交状态同步到 CRM。',
       children: [
-        { id: 'crm-field-mapping', viewId: 'data-import', parentId: 'crm-import', title: '字段映射', description: '客户、手机号、来源、阶段、标签、跟进人和备注。' },
-        { id: 'crm-sync-policy', viewId: 'data-import', parentId: 'crm-import', title: '同步策略', description: '新增、更新、去重、失败重试和审计记录。' }
+        { id: 'crm-field-mapping', viewId: 'settings', parentId: 'crm-import', title: '字段映射', description: '客户、手机号、来源、阶段、标签、跟进人和备注。' },
+        { id: 'crm-sync-policy', viewId: 'settings', parentId: 'crm-import', title: '同步策略', description: '新增、更新、去重、失败重试和审计记录。' }
       ]
     },
     {
       id: 'device-port-center',
-      viewId: 'device-ports',
+      viewId: 'settings',
       title: '外设接口',
       description: '手机、平台客服终端、录音和会议输入。',
       children: [
-        { id: 'wechat-device', viewId: 'device-ports', parentId: 'device-port-center', title: '微信终端', description: '个人微信、企业微信和群机器人。' },
-        { id: 'voice-device', viewId: 'device-ports', parentId: 'device-port-center', title: '语音终端', description: '麦克风、通话和会议转写。' }
+        { id: 'wechat-device', viewId: 'settings', parentId: 'device-port-center', title: '微信终端', description: '个人微信、企业微信和群机器人。' },
+        { id: 'voice-device', viewId: 'settings', parentId: 'device-port-center', title: '语音终端', description: '麦克风、通话和会议转写。' }
       ]
     },
     {
       id: 'api-overview',
-      viewId: 'api-center',
+      viewId: 'settings',
       title: 'API接口中心',
       description: '平台开放 API、业务 API 和 Webhook。',
       children: [
-        { id: 'api-platform-config', viewId: 'api-center', title: '平台凭证配置', description: '配置企业微信、抖音、电商等凭证。' },
-        { id: 'webhook-callback', viewId: 'api-center', parentId: 'api-overview', title: 'Webhook 回调', description: '接收平台消息和业务事件。' }
+        { id: 'api-platform-config', viewId: 'settings', title: '平台凭证配置', description: '配置企业微信、抖音、电商等凭证。' },
+        { id: 'webhook-callback', viewId: 'settings', parentId: 'api-overview', title: 'Webhook 回调', description: '接收平台消息和业务事件。' }
       ]
     },
     {
       id: 'agent-access-center',
-      viewId: 'api-center',
+      viewId: 'settings',
       title: 'Agent接入中心',
       description: '接入 Open cloud agent、Hermes agent 和自定义Agent。',
       children: [
-        { id: 'open-cloud-agent', viewId: 'api-center', parentId: 'agent-access-center', title: 'Open cloud agent', description: '优先推荐，沙盒任务预览。' },
-        { id: 'hermes-agent', viewId: 'api-center', parentId: 'agent-access-center', title: 'Hermes agent', description: '优先推荐，双向指令与进度回传。' },
-        { id: 'custom-agent', viewId: 'api-center', parentId: 'agent-access-center', title: '自定义Agent', description: '自定义能力白名单和审计。' }
+        { id: 'open-cloud-agent', viewId: 'settings', parentId: 'agent-access-center', title: 'Open cloud agent', description: '优先推荐，沙盒任务预览。' },
+        { id: 'hermes-agent', viewId: 'settings', parentId: 'agent-access-center', title: 'Hermes agent', description: '优先推荐，双向指令与进度回传。' },
+        { id: 'custom-agent', viewId: 'settings', parentId: 'agent-access-center', title: '自定义Agent', description: '自定义能力白名单和审计。' }
       ]
     },
     {
@@ -294,6 +376,17 @@ const menuBlueprint = {
         { id: 'organization-backup', viewId: 'settings', parentId: 'resilience-backup-center', title: '组织架构备份', description: '保存部门、角色、权限和审批人。' },
         { id: 'node-port-backup', viewId: 'settings', parentId: 'resilience-backup-center', title: '节点协议端口备份', description: '保存端口、协议、Webhook 和 Agent 接入口。' },
         { id: 'clone-machine-backup', viewId: 'settings', parentId: 'resilience-backup-center', title: '完完全全克隆机备份', description: '生成克隆机清单和演练计划。' }
+      ]
+    },
+    {
+      id: 'data-warehouse-center',
+      viewId: 'settings',
+      title: '数据建仓与仓库权限',
+      description: '每天夜间建仓、仓库共享口令、平仓审批和审计回滚。',
+      children: [
+        { id: 'nightly-warehouse-build', viewId: 'settings', parentId: 'data-warehouse-center', title: '夜间自动建仓', description: '每天 00:00-02:00 或任务跑完后生成建仓批次。' },
+        { id: 'warehouse-share-approval', viewId: 'settings', parentId: 'data-warehouse-center', title: '共享口令审批', description: '共享仓库必须 Alex 同意、口令确认和审批。' },
+        { id: 'warehouse-closeout-approval', viewId: 'settings', parentId: 'data-warehouse-center', title: '平仓/清仓审批', description: '平仓、清仓、删除、恢复和克隆必须高权限审批。' }
       ]
     },
     {
@@ -333,6 +426,8 @@ const state = {
   orchestrationPlanError: '',
   resilienceBackupBlueprint: null,
   resilienceBackupBlueprintError: '',
+  dataWarehouseBlueprint: null,
+  dataWarehouseBlueprintError: '',
   agentAccessBlueprint: null,
   agentAccessBlueprintError: '',
   inputAssistCustoms: loadInputAssistCustoms(window.localStorage),
@@ -346,6 +441,7 @@ const state = {
   voiceRecognition: null,
   workflowSettings: loadWorkflowSettings(window.localStorage),
   targetProfile: loadTargetProfile(window.localStorage),
+  targetProfileTemplates: loadTargetProfileTemplates(window.localStorage),
   sidebarLayout: loadSidebarLayout(window.localStorage),
   menuExpansion: loadMenuExpansion(window.localStorage),
   menuSearch: ''
@@ -353,11 +449,13 @@ const state = {
 
 const inputModeRows = [
   ['锚定目标', '品牌、人群、区域、竞品、消费行为、媒体偏好', ['手动', '表格', '数据库', 'API', '语音']],
-  ['生成内容', '知识库、知识图谱、头部内容参考、文案素材', ['手动', '表格', '数据库', 'API', '语音']],
-  ['评论私信管理', '评论、私信、资料领取、负面反馈和意向分级', ['手动', '表格', '数据库', 'API', '语音']],
-  ['加私信', '一次性私信、来源说明、价值钩子、权益和链接', ['手动', '表格', '数据库', 'API', '语音']],
-  ['AI客服', '客户问题、平台消息、知识库答案和图谱推理', ['手动', '表格', '数据库', 'API', '语音']],
-  ['引流成交', '线索阶段、成交目标、复购跟单和权益策略', ['手动', '表格', '数据库', 'API', '语音']]
+  ['标定对手/对象', '对标品牌、对手客户、媒体习惯、消费触发点', ['手动', '表格', '数据库', 'API', '语音']],
+  ['内容原创/伪原创', '知识库、知识图谱、头部内容参考、文案素材', ['手动', '表格', '数据库', 'API', '语音']],
+  ['评论区管理', '评论、资料领取、负面反馈和意向分级', ['手动', '表格', '数据库', 'API', '语音']],
+  ['私信引导', '一次性私信、来源说明、价值钩子、权益和链接', ['手动', '表格', '数据库', 'API', '语音']],
+  ['AI客服/群内维护', '客户问题、平台消息、知识库答案和图谱推理', ['手动', '表格', '数据库', 'API', '语音']],
+  ['引流成交', '线索阶段、成交目标、复购跟单和权益策略', ['手动', '表格', '数据库', 'API', '语音']],
+  ['售后复购', '售后问题、满意度、复购周期、转介绍机会', ['手动', '表格', '数据库', 'API', '语音']]
 ];
 
 const $ = (selector) => document.querySelector(selector);
@@ -366,11 +464,8 @@ const elements = {
   statusLine: $('#statusLine'),
   primaryNav: $('#primaryNav'),
   menuSearch: $('#menuSearchInput'),
-  appSidebar: $('.app-sidebar'),
-  sidebarPeekZone: $('#sidebarPeekZone'),
   sidebarSettings: $('#sidebarSettingsButton'),
   sidebarLock: $('#sidebarLockButton'),
-  sidebarCollapse: $('#sidebarCollapseButton'),
   sidebarResizeHandle: $('#sidebarResizeHandle'),
   workflowTitle: $('#workflowTitle'),
   workflowDescription: $('#workflowDescription'),
@@ -380,6 +475,15 @@ const elements = {
   targetProfileForm: $('#targetProfileForm'),
   targetProfileSummary: $('#targetProfileSummary'),
   targetProfilePreview: $('#targetProfilePreview'),
+  targetProfileTemplateForm: $('#targetProfileTemplateForm'),
+  targetProfileTemplateSummary: $('#targetProfileTemplateSummary'),
+  targetProfileTemplateList: $('#targetProfileTemplateList'),
+  targetTemplateTitle: $('#targetTemplateTitleInput'),
+  targetTemplateType: $('#targetTemplateTypeInput'),
+  targetTemplateTheme: $('#targetTemplateThemeInput'),
+  targetTemplateKeywords: $('#targetTemplateKeywordsInput'),
+  targetTemplateCreator: $('#targetTemplateCreatorInput'),
+  targetTemplateFeature: $('#targetTemplateFeatureInput'),
   targetBrand: $('#targetBrandInput'),
   targetProduct: $('#targetProductInput'),
   targetSellingPoint: $('#targetSellingPointInput'),
@@ -432,6 +536,7 @@ const elements = {
   fontSizeLabel: $('#fontSizeLabel'),
   resetAppearance: $('#resetAppearanceButton'),
   moduleSettingsSummary: $('#moduleSettingsSummary'),
+  sectionTitleModeControl: $('#sectionTitleModeControl'),
   moduleSettingsList: $('#moduleSettingsList'),
   resetModuleSettings: $('#resetModuleSettingsButton'),
   inputModeMatrix: $('#inputModeMatrix'),
@@ -515,6 +620,8 @@ const elements = {
   blockerReportBox: $('#blockerReportBox'),
   resilienceBackupSummary: $('#resilienceBackupSummary'),
   resilienceBackupBlueprint: $('#resilienceBackupBlueprint'),
+  dataWarehouseSummary: $('#dataWarehouseSummary'),
+  dataWarehouseBlueprint: $('#dataWarehouseBlueprint'),
   agentAccessSummary: $('#agentAccessSummary'),
   agentAccessBlueprint: $('#agentAccessBlueprint'),
   growthSummary: $('#growthSummary'),
@@ -562,6 +669,7 @@ await refreshAll();
 
 elements.refresh.addEventListener('click', refreshAll);
 elements.primaryNav.addEventListener('click', handleWorkflowNavClick);
+elements.primaryNav.addEventListener('dblclick', handleWorkflowMenuDoubleClick);
 elements.primaryNav.addEventListener('dragstart', handleMenuTreeDragStart);
 elements.primaryNav.addEventListener('dragover', handleMenuTreeDragOver);
 elements.primaryNav.addEventListener('drop', handleMenuTreeDrop);
@@ -569,21 +677,14 @@ elements.primaryNav.addEventListener('dragend', handleMenuTreeDragEnd);
 elements.menuSearch.addEventListener('input', handleMenuSearchInput);
 elements.sidebarSettings.addEventListener('click', () => showWorkflowView('settings'));
 elements.sidebarLock.addEventListener('click', toggleSidebarLock);
-elements.sidebarCollapse.addEventListener('click', toggleSidebarMode);
-elements.appSidebar.addEventListener('pointerenter', openSidebarPeek);
-elements.appSidebar.addEventListener('pointerleave', scheduleSidebarAutoHide);
-elements.appSidebar.addEventListener('dblclick', handleSidebarDoubleClick);
-elements.sidebarPeekZone.addEventListener('pointerenter', openSidebarPeek);
-elements.sidebarPeekZone.addEventListener('pointerleave', scheduleSidebarAutoHide);
-elements.sidebarPeekZone.addEventListener('focus', openSidebarPeek);
-elements.sidebarPeekZone.addEventListener('blur', scheduleSidebarAutoHide);
-elements.sidebarPeekZone.addEventListener('click', openSidebarPeek);
-elements.sidebarPeekZone.addEventListener('dblclick', handleSidebarDoubleClick);
 elements.sidebarResizeHandle.addEventListener('pointerdown', startSidebarResize);
 elements.targetProfileForm.addEventListener('submit', saveTargetProfile);
 elements.targetProfileForm.addEventListener('input', previewTargetProfileFromForm);
 elements.resetTargetProfile.addEventListener('click', resetTargetProfile);
+elements.targetProfileTemplateForm.addEventListener('submit', saveTargetProfileTemplate);
+elements.targetProfileTemplateList.addEventListener('click', handleTargetProfileTemplateClick);
 elements.moduleSettingsList.addEventListener('change', handleWorkflowSettingsChange);
+elements.sectionTitleModeControl.addEventListener('change', handleSectionTitleModeChange);
 elements.moduleSettingsList.addEventListener('dragstart', handleWorkflowDragStart);
 elements.moduleSettingsList.addEventListener('dragover', handleWorkflowDragOver);
 elements.moduleSettingsList.addEventListener('drop', handleWorkflowDrop);
@@ -629,6 +730,7 @@ async function refreshAll() {
     privateMessageApprovals,
     orchestrationPlanResult,
     resilienceBackupResult,
+    dataWarehouseResult,
     agentAccessResult
   ] = await Promise.all([
     api('/api/status'),
@@ -649,6 +751,7 @@ async function refreshAll() {
     api('/api/private-message/approvals'),
     optionalApi('/api/orchestration-plan'),
     optionalApi('/api/resilience-backup-blueprint'),
+    optionalApi('/api/data-warehouse-blueprint'),
     optionalApi('/api/agent-access-blueprint')
   ]);
 
@@ -672,6 +775,8 @@ async function refreshAll() {
   state.orchestrationPlanError = orchestrationPlanResult.error;
   state.resilienceBackupBlueprint = resilienceBackupResult.data;
   state.resilienceBackupBlueprintError = resilienceBackupResult.error;
+  state.dataWarehouseBlueprint = dataWarehouseResult.data;
+  state.dataWarehouseBlueprintError = dataWarehouseResult.error;
   state.agentAccessBlueprint = agentAccessResult.data;
   state.agentAccessBlueprintError = agentAccessResult.error;
   state.graph = await api('/api/knowledge-graph');
@@ -705,6 +810,7 @@ async function refreshAll() {
   renderPrivateApprovals();
   renderOrchestrationPlan();
   renderResilienceBackupBlueprint();
+  renderDataWarehouseBlueprint();
   renderAgentAccessBlueprint();
   renderConversations();
   renderGrowth();
@@ -743,6 +849,25 @@ function handleWorkflowNavClick(event) {
     return;
   }
   showWorkflowView(button.dataset.workflowTab);
+}
+
+function handleWorkflowMenuDoubleClick(event) {
+  if (event.target.closest('[data-menu-toggle-view], [data-menu-toggle-section]')) {
+    return;
+  }
+
+  const sectionButton = event.target.closest('.workflow-submenu-button[data-menu-section-target]');
+  if (sectionButton) {
+    event.preventDefault();
+    toggleMenuSection(sectionButton.dataset.menuSectionTarget);
+    return;
+  }
+
+  const primaryButton = event.target.closest('.workflow-menu-primary[data-workflow-tab]');
+  if (primaryButton) {
+    event.preventDefault();
+    toggleMenuView(primaryButton.dataset.workflowTab);
+  }
 }
 
 function handleMenuSearchInput(event) {
@@ -828,8 +953,8 @@ function scrollToMenuSection(sectionId) {
 function renderWorkflowMenu() {
   const views = filteredWorkflowViews();
   elements.primaryNav.innerHTML = views.length ? views.map((view) => {
-    const summary = workflowMenuSummary(view);
     const sections = orderedMenuSections().filter((section) => effectiveSectionViewId(section) === view.id);
+    const summary = workflowMenuSummary(view);
     const expanded = isMenuExpanded(`view:${view.id}`);
     return `
       <section class="workflow-menu-group" data-menu-group="${escapeHtml(view.id)}" data-menu-drag-id="view:${escapeHtml(view.id)}" draggable="true">
@@ -838,7 +963,7 @@ function renderWorkflowMenu() {
           ${renderWorkflowLogo(view)}
           <span class="menu-copy">
             <span class="menu-title">${escapeHtml(view.title)}</span>
-            <span class="menu-meta">${escapeHtml(summary.meta)}</span>
+            <span class="menu-meta">${escapeHtml(secondLevelCountText(sections.length))}</span>
           </span>
         </button>
           <button type="button" class="menu-expand-button" data-menu-toggle-view="${escapeHtml(view.id)}" aria-expanded="${expanded}" title="${expanded ? '收起菜单' : '展开菜单'}">
@@ -884,11 +1009,15 @@ function renderWorkflowSubmenu(section, viewId) {
 function renderWorkflowLogo(view) {
   const icons = {
     target: '<circle cx="12" cy="12" r="7"></circle><circle cx="12" cy="12" r="2"></circle><path d="M12 3v3M12 18v3M3 12h3M18 12h3"></path>',
+    competitor: '<path d="M5 5h6v6H5zM13 13h6v6h-6z"></path><path d="M11 8h3M10 14l4-4"></path>',
     content: '<path d="M6 4h9l3 3v13H6z"></path><path d="M14 4v4h4"></path><path d="M8.5 11h7M8.5 15h5"></path>',
+    distribution: '<circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="6" r="3"></circle><circle cx="18" cy="18" r="3"></circle><path d="M8.6 10.7 15.4 7.3M8.6 13.3l6.8 3.4"></path>',
     chat: '<path d="M5 6.5h14v9H9l-4 3z"></path><path d="M8.5 10h7M8.5 13h4"></path>',
     message: '<path d="M4 6h16v12H4z"></path><path d="m4 7 8 6 8-6"></path>',
     service: '<path d="M5 12a7 7 0 0 1 14 0"></path><path d="M5 12v4h3v-4zM16 12v4h3v-4z"></path><path d="M16 18h-3"></path>',
     deal: '<path d="M7 13l3 3 7-8"></path><path d="M5 5h14v14H5z"></path>',
+    aftersale: '<path d="M5 12a7 7 0 0 1 12-5"></path><path d="M17 4v5h-5"></path><path d="M19 12a7 7 0 0 1-12 5"></path><path d="M7 20v-5h5"></path>',
+    base: '<path d="M4 17h16"></path><path d="M6 17V8l6-4 6 4v9"></path><path d="M9 17v-5h6v5"></path><path d="M8 9h8"></path>',
     input: '<path d="M5 6h14v12H5z"></path><path d="M8 10h8M8 14h5"></path><path d="M17 9l2 2-2 2"></path>',
     data: '<ellipse cx="12" cy="6" rx="6" ry="3"></ellipse><path d="M6 6v6c0 1.7 2.7 3 6 3s6-1.3 6-3V6"></path><path d="M6 12v4c0 1.7 2.7 3 6 3s6-1.3 6-3v-4"></path>',
     device: '<rect x="7" y="3" width="10" height="18" rx="2"></rect><path d="M11 18h2"></path><path d="M9 6h6"></path>',
@@ -902,9 +1031,17 @@ function renderWorkflowLogo(view) {
 function orderedWorkflowViews() {
   const order = state.workflowSettings.order || workflowViews.map((view) => view.id);
   const byId = new Map(workflowViews.map((view) => [view.id, view]));
-  const ordered = order.map((id) => byId.get(id)).filter(Boolean);
+  const ordered = pinWorkflowTail(order).map((id) => byId.get(id)).filter(Boolean);
   const missing = workflowViews.filter((view) => !order.includes(view.id));
-  return [...ordered, ...missing];
+  const merged = [...ordered, ...missing];
+  return pinWorkflowTail(merged.map((view) => view.id)).map((id) => byId.get(id)).filter(Boolean);
+}
+
+function pinWorkflowTail(order = []) {
+  const unique = order.filter((id, index, array) => workflowViews.some((view) => view.id === id) && array.indexOf(id) === index);
+  const head = unique.filter((id) => !pinnedWorkflowTail.includes(id));
+  const tail = pinnedWorkflowTail.filter((id) => unique.includes(id));
+  return [...head, ...tail];
 }
 
 function visibleWorkflowViews() {
@@ -958,6 +1095,7 @@ function renderModuleSettings() {
   const sections = orderedMenuSections();
   const lockedCount = Object.values(state.workflowSettings.sectionLocks || {}).filter(Boolean).length;
   elements.moduleSettingsSummary.textContent = `${visibleCount}/${ordered.length} 一级显示 · ${sections.length} 个二级页面板块 · ${lockedCount} 个已锁定`;
+  renderSectionTitleModeControl();
   const primaryCards = ordered.map((view, index) => {
     const summary = workflowMenuSummary(view);
     const isHidden = hidden.has(view.id);
@@ -992,6 +1130,7 @@ function renderModuleSettings() {
 
 function renderSectionSettingCard(section, index) {
   const parentId = effectiveSectionViewId(section);
+  const parentView = workflowViews.find((view) => view.id === parentId);
   const size = state.workflowSettings.sectionSizes?.[section.id] || 'normal';
   const locked = Boolean(state.workflowSettings.sectionLocks?.[section.id]);
   const children = orderedSectionChildren(section);
@@ -1001,7 +1140,7 @@ function renderSectionSettingCard(section, index) {
       <div>
         <h3>${escapeHtml(index + 1)}. ${escapeHtml(section.title)}</h3>
         <p>${escapeHtml(section.description || '页面板块')}</p>
-        <small>三级菜单：${escapeHtml(children.map((child) => child.title).join(' / ') || '无')}</small>
+        <small>当前归属：${escapeHtml(parentView?.title || '未指定')} · 三级菜单：${escapeHtml(children.map((child) => child.title).join(' / ') || '无')}</small>
         ${children.length ? `
           <div class="child-setting-list">
             ${children.map((child) => `
@@ -1040,6 +1179,16 @@ function renderSectionSettingCard(section, index) {
   `;
 }
 
+function renderSectionTitleModeControl() {
+  if (!elements.sectionTitleModeControl) {
+    return;
+  }
+  const mode = normalizeSectionTitleMode(state.workflowSettings.sectionTitleMode);
+  elements.sectionTitleModeControl.querySelectorAll('input[name="sectionTitleMode"]').forEach((input) => {
+    input.checked = input.value === mode;
+  });
+}
+
 function workflowMenuSummary(view) {
   const modules = workflowModules(view);
   if (!modules.length) {
@@ -1067,6 +1216,10 @@ function workflowMenuSummary(view) {
 function workflowModules(view) {
   const progressById = new Map((state.projectProgress?.modules || []).map((module) => [module.id, module]));
   return (view.moduleIds || []).map((id) => progressById.get(id)).filter(Boolean);
+}
+
+function secondLevelCountText(count) {
+  return `${String(count || 0).padStart(2, '0')} 个二级菜单`;
 }
 
 function workflowStepNumber(step) {
@@ -1152,14 +1305,15 @@ function saveWorkflowSettings() {
 
 function defaultWorkflowSettings() {
   return {
-    order: workflowViews.map((view) => view.id),
+    order: pinWorkflowTail(workflowViews.map((view) => view.id)),
     hidden: [],
-    sectionOrder: menuSections.map((section) => section.id),
+    sectionOrder: pinSettingsSectionTail(menuSections.map((section) => section.id)),
     sectionParents: {},
     sectionSizes: {},
     sectionLocks: {},
     childOrder: {},
-    childLocks: {}
+    childLocks: {},
+    sectionTitleMode: 'chip'
   };
 }
 
@@ -1180,8 +1334,9 @@ function normalizeWorkflowSettings(input = {}) {
   const sectionLocks = normalizeSectionRecord(input.sectionLocks, (value) => value === true);
   const childOrder = normalizeChildOrderRecord(input.childOrder);
   const childLocks = normalizeChildLockRecord(input.childLocks);
-  const mergedOrder = [...order, ...validIds.filter((id) => !order.includes(id))];
-  const mergedSectionOrder = [...sectionOrder, ...validSectionIds.filter((id) => !sectionOrder.includes(id))];
+  const sectionTitleMode = normalizeSectionTitleMode(input.sectionTitleMode);
+  const mergedOrder = pinWorkflowTail([...order, ...validIds.filter((id) => !order.includes(id))]);
+  const mergedSectionOrder = pinSettingsSectionTail([...sectionOrder, ...validSectionIds.filter((id) => !sectionOrder.includes(id))]);
   const visibleIds = validIds.filter((id) => !hidden.includes(id));
   return {
     order: mergedOrder,
@@ -1191,8 +1346,13 @@ function normalizeWorkflowSettings(input = {}) {
     sectionSizes,
     sectionLocks,
     childOrder,
-    childLocks
+    childLocks,
+    sectionTitleMode
   };
+}
+
+function normalizeSectionTitleMode(value) {
+  return ['chip', 'ribbon'].includes(value) ? value : 'chip';
 }
 
 function normalizeSectionRecord(input, isValidValue) {
@@ -1213,9 +1373,17 @@ function flattenMenuSections(sections = menuSections) {
 function orderedMenuSections() {
   const order = state.workflowSettings.sectionOrder || menuSections.map((section) => section.id);
   const byId = new Map(menuSections.map((section) => [section.id, section]));
-  const ordered = order.map((id) => byId.get(id)).filter(Boolean);
+  const ordered = pinSettingsSectionTail(order).map((id) => byId.get(id)).filter(Boolean);
   const missing = menuSections.filter((section) => !order.includes(section.id));
-  return [...ordered, ...missing];
+  const merged = [...ordered, ...missing];
+  return pinSettingsSectionTail(merged.map((section) => section.id)).map((id) => byId.get(id)).filter(Boolean);
+}
+
+function pinSettingsSectionTail(order = []) {
+  const unique = order.filter((id, index, array) => menuSections.some((section) => section.id === id) && array.indexOf(id) === index);
+  const head = unique.filter((id) => !pinnedSettingsSectionTail.includes(id));
+  const tail = pinnedSettingsSectionTail.filter((id) => unique.includes(id));
+  return [...head, ...tail];
 }
 
 function orderedSectionChildren(section = {}) {
@@ -1255,6 +1423,15 @@ function handleWorkflowSettingsChange(event) {
     hidden.add(id);
   }
   state.workflowSettings.hidden = [...hidden];
+  saveWorkflowSettings();
+}
+
+function handleSectionTitleModeChange(event) {
+  const input = event.target.closest('input[name="sectionTitleMode"]');
+  if (!input) {
+    return;
+  }
+  state.workflowSettings.sectionTitleMode = normalizeSectionTitleMode(input.value);
   saveWorkflowSettings();
 }
 
@@ -1513,10 +1690,12 @@ function defaultMenuExpansion() {
 
 function normalizeMenuExpansion(input = {}) {
   const allowed = new Set(defaultMenuExpansion().expanded);
+  const defaultExpanded = defaultMenuExpansion().expanded;
   const expanded = Array.isArray(input.expanded)
     ? input.expanded.filter((id, index, array) => allowed.has(id) && array.indexOf(id) === index)
-    : defaultMenuExpansion().expanded;
-  return { expanded };
+    : defaultExpanded;
+  const hasExpandedPrimary = expanded.some((id) => id.startsWith('view:'));
+  return { expanded: hasExpandedPrimary ? expanded : defaultExpanded };
 }
 
 function isMenuExpanded(id) {
@@ -1577,13 +1756,44 @@ function normalizeChildLockRecord(input) {
 function applyPanelLayoutSettings() {
   const settings = normalizeWorkflowSettings(state.workflowSettings);
   state.workflowSettings = settings;
-  document.querySelectorAll('[data-menu-section]').forEach((panel) => {
+  document.querySelectorAll('.panel[data-menu-section]').forEach((panel) => {
     const sectionId = panel.dataset.menuSection;
     const size = settings.sectionSizes[sectionId] || 'normal';
     const locked = Boolean(settings.sectionLocks[sectionId]);
     panel.classList.remove('panel-size-normal', 'panel-size-wide', 'panel-size-tall', 'panel-size-large', 'panel-size-compact', 'panel-locked');
     panel.classList.add(`panel-size-${size}`);
     panel.classList.toggle('panel-locked', locked);
+  });
+  applyPanelSectionTitles(settings);
+}
+
+function applyPanelSectionTitles(settings = state.workflowSettings) {
+  const mode = normalizeSectionTitleMode(settings.sectionTitleMode);
+  document.querySelectorAll('.panel[data-menu-section]').forEach((panel) => {
+    panel.querySelector(':scope > .panel-section-title')?.remove();
+    const section = findMenuSection(panel.dataset.menuSection);
+    if (!section) {
+      return;
+    }
+    const parentView = workflowViews.find((view) => view.id === effectiveSectionViewId(section));
+    const label = document.createElement('div');
+    label.className = `panel-section-title panel-section-title-${mode}`;
+    label.dataset.generatedSectionTitle = section.id;
+
+    const eyebrow = document.createElement('span');
+    eyebrow.textContent = parentView ? `${parentView.title} / 二级页面` : '二级页面';
+    const title = document.createElement('strong');
+    title.textContent = section.title;
+    const desc = document.createElement('em');
+    desc.textContent = section.description || '页面板块';
+
+    label.append(eyebrow, title, desc);
+    const head = panel.querySelector(':scope > .panel-head');
+    if (head) {
+      head.insertAdjacentElement('afterend', label);
+    } else {
+      panel.prepend(label);
+    }
   });
 }
 
@@ -1602,18 +1812,15 @@ function loadSidebarLayout(storage) {
 function defaultSidebarLayout() {
   return {
     locked: true,
-    collapsed: true,
-    mode: 'auto-hide',
-    width: 208
+    collapsed: false,
+    width: 236
   };
 }
 
 function normalizeSidebarLayout(input = {}) {
-  const mode = input.mode === 'fixed' ? 'fixed' : 'auto-hide';
   return {
     locked: input.locked !== false,
-    collapsed: mode === 'auto-hide',
-    mode,
+    collapsed: false,
     width: clampSidebarWidth(input.width)
   };
 }
@@ -1626,29 +1833,16 @@ function saveSidebarLayout() {
 
 function applySidebarLayout() {
   const layout = normalizeSidebarLayout(state.sidebarLayout);
-  const isAutoHide = layout.mode === 'auto-hide';
   state.sidebarLayout = layout;
-  document.documentElement.style.setProperty('--sidebar-panel-width', `${layout.width}px`);
-  document.documentElement.style.setProperty('--sidebar-width', isAutoHide ? '0px' : `${layout.width}px`);
-  document.body.classList.toggle('sidebar-auto-hide', isAutoHide);
-  document.body.classList.toggle('sidebar-pinned', !isAutoHide);
-  document.body.classList.toggle('sidebar-unlocked', !layout.locked && !isAutoHide);
-  document.body.classList.toggle('menu-layout-editing', !layout.locked && !isAutoHide);
+  document.documentElement.style.setProperty('--sidebar-width', `${layout.width}px`);
+  document.body.classList.toggle('sidebar-unlocked', !layout.locked);
+  document.body.classList.toggle('menu-layout-editing', !layout.locked);
+  document.body.classList.remove('sidebar-auto-hide');
   document.body.classList.remove('sidebar-collapsed');
-  if (!isAutoHide) {
-    clearSidebarAutoHideTimer();
-    document.body.classList.remove('sidebar-peeking');
-  }
   elements.sidebarLock.setAttribute('aria-pressed', String(layout.locked));
   elements.sidebarLock.textContent = layout.locked ? '🔒' : '🔓';
   elements.sidebarLock.title = layout.locked ? '解锁菜单布局' : '锁定菜单布局';
   elements.sidebarLock.setAttribute('aria-label', elements.sidebarLock.title);
-  elements.sidebarCollapse.setAttribute('aria-pressed', String(isAutoHide));
-  elements.sidebarCollapse.textContent = isAutoHide ? '📌' : '⇤';
-  elements.sidebarCollapse.title = isAutoHide ? '固定显示菜单' : '解除固定，自动隐藏菜单';
-  elements.sidebarCollapse.setAttribute('aria-label', elements.sidebarCollapse.title);
-  elements.sidebarPeekZone.setAttribute('aria-hidden', String(!isAutoHide));
-  elements.sidebarPeekZone.tabIndex = isAutoHide ? 0 : -1;
 }
 
 function toggleSidebarLock() {
@@ -1656,69 +1850,9 @@ function toggleSidebarLock() {
   saveSidebarLayout();
 }
 
-function toggleSidebarCollapse() {
-  toggleSidebarMode();
-}
-
-function toggleSidebarMode() {
-  const layout = normalizeSidebarLayout(state.sidebarLayout);
-  setSidebarMode(layout.mode === 'auto-hide' ? 'fixed' : 'auto-hide');
-}
-
-function setSidebarMode(mode) {
-  const nextMode = mode === 'auto-hide' ? 'auto-hide' : 'fixed';
-  state.sidebarLayout.mode = nextMode;
-  state.sidebarLayout.collapsed = nextMode === 'auto-hide';
-  saveSidebarLayout();
-  if (nextMode === 'auto-hide') {
-    closeSidebarPeek();
-    elements.sidebarCollapse.blur();
-    elements.sidebarLock.blur();
-    elements.sidebarSettings.blur();
-  }
-}
-
-function handleSidebarDoubleClick(event) {
-  if (event.target.closest('input, textarea, select, label, .sidebar-resize-handle')) {
-    return;
-  }
-  event.preventDefault();
-  toggleSidebarMode();
-}
-
-function clearSidebarAutoHideTimer() {
-  if (sidebarAutoHideTimer) {
-    window.clearTimeout(sidebarAutoHideTimer);
-    sidebarAutoHideTimer = null;
-  }
-}
-
-function openSidebarPeek() {
-  const layout = normalizeSidebarLayout(state.sidebarLayout);
-  if (layout.mode !== 'auto-hide') {
-    return;
-  }
-  clearSidebarAutoHideTimer();
-  document.body.classList.add('sidebar-peeking');
-}
-
-function closeSidebarPeek() {
-  clearSidebarAutoHideTimer();
-  document.body.classList.remove('sidebar-peeking');
-}
-
-function scheduleSidebarAutoHide() {
-  const layout = normalizeSidebarLayout(state.sidebarLayout);
-  if (layout.mode !== 'auto-hide') {
-    return;
-  }
-  clearSidebarAutoHideTimer();
-  sidebarAutoHideTimer = window.setTimeout(closeSidebarPeek, 1000);
-}
-
 function startSidebarResize(event) {
   const layout = normalizeSidebarLayout(state.sidebarLayout);
-  if (layout.locked || layout.mode === 'auto-hide') {
+  if (layout.locked) {
     return;
   }
   event.preventDefault();
@@ -1747,9 +1881,9 @@ function startSidebarResize(event) {
 function clampSidebarWidth(value) {
   const width = Number.parseInt(value, 10);
   if (!Number.isFinite(width)) {
-    return 208;
+    return 236;
   }
-  return Math.max(166, Math.min(340, width));
+  return Math.max(236, Math.min(340, width));
 }
 
 function renderInputModeMatrix() {
@@ -1771,7 +1905,7 @@ function renderInputModeMatrix() {
 }
 
 function enhanceVoiceInputControls(root = document) {
-  root.querySelectorAll('input, textarea').forEach((field) => {
+  root.querySelectorAll('input, textarea, select').forEach((field) => {
     if (!isVoiceEligibleField(field) || field.dataset.voiceEnhanced === 'true') {
       return;
     }
@@ -1822,6 +1956,9 @@ function microphoneIconSvg() {
 function isVoiceEligibleField(field) {
   if (!field || field.disabled || field.readOnly) {
     return false;
+  }
+  if (field.tagName === 'SELECT') {
+    return true;
   }
   if (field.tagName === 'TEXTAREA') {
     return true;
@@ -1875,6 +2012,15 @@ function handleInlineVoiceClick(event) {
     return;
   }
 
+  const customVoiceButton = event.target.closest('[data-custom-suggestion-voice]');
+  if (customVoiceButton) {
+    const customInput = state.activeSuggestionMenu?.querySelector('[data-custom-suggestion-input]');
+    if (customInput) {
+      startInlineVoiceInput(customInput, customVoiceButton);
+    }
+    return;
+  }
+
   if (!event.target.closest('.input-suggestion-menu')) {
     closeSuggestionMenu();
   }
@@ -1922,11 +2068,18 @@ function renderSuggestionMenu(field, button) {
   customInput.maxLength = 120;
   customInput.placeholder = '自定义常用项';
   customInput.dataset.customSuggestionInput = 'true';
+  const customVoiceButton = document.createElement('button');
+  customVoiceButton.type = 'button';
+  customVoiceButton.className = 'field-voice-button input-assist-button';
+  customVoiceButton.dataset.customSuggestionVoice = field.id;
+  customVoiceButton.title = '语音填写自定义项';
+  customVoiceButton.setAttribute('aria-label', '语音填写自定义项');
+  customVoiceButton.innerHTML = microphoneIconSvg();
   const customButton = document.createElement('button');
   customButton.type = 'button';
   customButton.dataset.addCustomSuggestion = field.id;
   customButton.textContent = '加入常用';
-  customRow.append(customInput, customButton);
+  customRow.append(customInput, customVoiceButton, customButton);
   menu.appendChild(customRow);
 
   wrapper.appendChild(menu);
@@ -1996,7 +2149,9 @@ function applySuggestionToField(field, value) {
   if (!text) {
     return;
   }
-  if (field.tagName === 'TEXTAREA') {
+  if (field.tagName === 'SELECT') {
+    selectOrAppendOption(field, text);
+  } else if (field.tagName === 'TEXTAREA') {
     field.value = field.value ? `${field.value}\n${text}` : text;
   } else {
     field.value = text;
@@ -2067,10 +2222,39 @@ function stopVoiceInput() {
 }
 
 function writeVoiceTextToField(field, text) {
+  if (field.tagName === 'SELECT') {
+    selectOrAppendOption(field, text);
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+    field.dispatchEvent(new Event('change', { bubbles: true }));
+    setVoiceSummary('语音已匹配或加入当前选项');
+    return;
+  }
   const separator = field.tagName === 'TEXTAREA' && field.value.trim() ? '\n' : '';
   field.value = field.value ? `${field.value}${separator}${text}` : text;
   field.dispatchEvent(new Event('input', { bubbles: true }));
   setVoiceSummary('语音已写入当前输入框');
+}
+
+function selectOrAppendOption(select, value) {
+  const text = normalizeCustomSuggestion(value);
+  if (!text) {
+    return;
+  }
+  const existing = [...select.options].find((option) => {
+    const optionValue = normalizeCustomSuggestion(option.value || option.textContent);
+    const optionText = normalizeCustomSuggestion(option.textContent);
+    return optionValue === text || optionText === text || text.includes(optionText) || optionText.includes(text);
+  });
+  if (existing) {
+    select.value = existing.value;
+    return;
+  }
+  const option = document.createElement('option');
+  option.value = text;
+  option.textContent = text;
+  option.dataset.customOption = 'true';
+  select.appendChild(option);
+  select.value = text;
 }
 
 function setVoiceSummary(message) {
@@ -2109,6 +2293,7 @@ function saveInputAssistCustoms(storage, customs) {
 function renderTargetProfile() {
   writeTargetProfileForm(state.targetProfile);
   renderTargetProfilePreview(state.targetProfile);
+  renderTargetProfileTemplates();
 }
 
 function loadTargetProfile(storage) {
@@ -2127,6 +2312,133 @@ function saveTargetProfile(event) {
   state.targetProfile = readTargetProfileForm();
   window.localStorage?.setItem(targetProfileStorageKey, JSON.stringify(state.targetProfile));
   renderTargetProfilePreview(state.targetProfile);
+}
+
+function loadTargetProfileTemplates(storage) {
+  if (!storage) {
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(storage.getItem(targetProfileTemplatesStorageKey) || '[]');
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+    return parsed.map(normalizeTargetProfileTemplate).filter((template) => template.title);
+  } catch {
+    return [];
+  }
+}
+
+function saveTargetProfileTemplates() {
+  state.targetProfileTemplates = state.targetProfileTemplates.map(normalizeTargetProfileTemplate).filter((template) => template.title);
+  window.localStorage?.setItem(targetProfileTemplatesStorageKey, JSON.stringify(state.targetProfileTemplates));
+  renderTargetProfileTemplates();
+}
+
+function saveTargetProfileTemplate(event) {
+  event.preventDefault();
+  const profile = readTargetProfileForm();
+  const now = new Date().toISOString();
+  const template = normalizeTargetProfileTemplate({
+    id: `target-template-${Date.now()}`,
+    title: elements.targetTemplateTitle.value,
+    type: elements.targetTemplateType.value,
+    theme: elements.targetTemplateTheme.value,
+    keywords: elements.targetTemplateKeywords.value,
+    featureDescription: elements.targetTemplateFeature.value || buildTargetProfilePrompt(profile),
+    creator: elements.targetTemplateCreator.value || 'Alex Ho',
+    createdAt: now,
+    profile
+  });
+  state.targetProfileTemplates = [
+    template,
+    ...state.targetProfileTemplates.filter((item) => item.id !== template.id)
+  ].slice(0, 50);
+  saveTargetProfileTemplates();
+  elements.targetProfileTemplateForm.reset();
+  elements.targetTemplateCreator.value = template.creator || 'Alex Ho';
+  elements.targetTemplateType.value = template.type || '目标人群画像';
+}
+
+function normalizeTargetProfileTemplate(input = {}) {
+  return {
+    id: normalizeProfileText(input.id || `target-template-${Date.now()}`, 'templateMeta'),
+    title: normalizeProfileText(input.title, 'templateMeta'),
+    type: normalizeProfileText(input.type || '目标人群画像', 'templateMeta'),
+    theme: normalizeProfileText(input.theme, 'templateMeta'),
+    keywords: normalizeProfileText(input.keywords, 'templateMeta'),
+    featureDescription: normalizeProfileText(input.featureDescription, 'templateLong'),
+    creator: normalizeProfileText(input.creator || 'Alex Ho', 'templateMeta'),
+    createdAt: normalizeProfileText(input.createdAt || new Date().toISOString(), 'templateMeta'),
+    profile: normalizeTargetProfile(input.profile || {})
+  };
+}
+
+function renderTargetProfileTemplates() {
+  const templates = state.targetProfileTemplates || [];
+  elements.targetProfileTemplateSummary.textContent = `${templates.length} 个模板`;
+  if (!templates.length) {
+    elements.targetProfileTemplateList.innerHTML = '<div class="empty">还没有画像模板。填写画像后，可以保存目标人群、目标对手、消费人群或自己假想目标模板。</div>';
+    return;
+  }
+
+  elements.targetProfileTemplateList.innerHTML = templates.map((template) => `
+    <article class="target-template-card">
+      <div class="channel-port-head">
+        <div>
+          <h3>${escapeHtml(template.title)}</h3>
+          <p>${escapeHtml(template.featureDescription || buildTargetProfilePrompt(template.profile))}</p>
+        </div>
+        <span class="tag status active">${escapeHtml(template.type)}</span>
+      </div>
+      <div class="target-template-meta">
+        <span>主题：${escapeHtml(template.theme || '未填写')}</span>
+        <span>关键词：${escapeHtml(template.keywords || '未填写')}</span>
+        <span>创建人：${escapeHtml(template.creator || 'Alex Ho')}</span>
+        <span>时间：${escapeHtml(formatTemplateTime(template.createdAt))}</span>
+      </div>
+      <div class="item-actions">
+        <button type="button" class="secondary" data-apply-target-template="${escapeHtml(template.id)}">套用模板</button>
+        <button type="button" class="secondary" data-delete-target-template="${escapeHtml(template.id)}">删除</button>
+      </div>
+    </article>
+  `).join('');
+}
+
+function handleTargetProfileTemplateClick(event) {
+  const applyButton = event.target.closest('[data-apply-target-template]');
+  if (applyButton) {
+    applyTargetProfileTemplate(applyButton.dataset.applyTargetTemplate);
+    return;
+  }
+
+  const deleteButton = event.target.closest('[data-delete-target-template]');
+  if (deleteButton) {
+    deleteTargetProfileTemplate(deleteButton.dataset.deleteTargetTemplate);
+  }
+}
+
+function applyTargetProfileTemplate(id) {
+  const template = (state.targetProfileTemplates || []).find((item) => item.id === id);
+  if (!template) {
+    return;
+  }
+  state.targetProfile = normalizeTargetProfile(template.profile);
+  window.localStorage?.setItem(targetProfileStorageKey, JSON.stringify(state.targetProfile));
+  renderTargetProfile();
+}
+
+function deleteTargetProfileTemplate(id) {
+  state.targetProfileTemplates = (state.targetProfileTemplates || []).filter((item) => item.id !== id);
+  saveTargetProfileTemplates();
+}
+
+function formatTemplateTime(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value || '未记录';
+  }
+  return date.toLocaleString();
 }
 
 function previewTargetProfileFromForm() {
@@ -2168,7 +2480,7 @@ function normalizeTargetProfile(input = {}) {
 }
 
 function normalizeProfileText(value, key) {
-  const max = ['behavior', 'pain', 'media', 'contentPreference'].includes(key) ? 1000 : 240;
+  const max = ['behavior', 'pain', 'media', 'contentPreference', 'templateLong'].includes(key) ? 1000 : 240;
   return String(value || '').trim().replace(/\s+/g, ' ').slice(0, max);
 }
 
@@ -2740,6 +3052,100 @@ function renderResilienceBlockers(blockers = []) {
   `;
 }
 
+function renderDataWarehouseBlueprint() {
+  const blueprint = state.dataWarehouseBlueprint;
+  if (!elements.dataWarehouseSummary || !elements.dataWarehouseBlueprint) {
+    return;
+  }
+  if (!blueprint) {
+    elements.dataWarehouseSummary.textContent = state.dataWarehouseBlueprintError ? '建仓接口待恢复' : '加载中';
+    elements.dataWarehouseBlueprint.innerHTML = '<div class="empty">正在读取数据建仓与仓库权限策略。</div>';
+    return;
+  }
+
+  elements.dataWarehouseSummary.textContent =
+    `${blueprint.schedule?.window || '夜间建仓'} · ${blueprint.permissionPolicy?.owner || 'Owner'} 同意 · 口令审批`;
+  elements.dataWarehouseBlueprint.innerHTML = `
+    <div class="data-warehouse-grid">
+      <article class="data-warehouse-card schedule">
+        <div class="channel-port-head">
+          <div>
+            <h3>夜间自动建仓</h3>
+            <p>${escapeHtml(blueprint.schedule?.dependencyRule || '等待任务跑完后建仓。')}</p>
+          </div>
+          <span class="tag status connected">${escapeHtml(blueprint.schedule?.preferredRunAt || '02:00')}</span>
+        </div>
+        <div class="roadmap-facts">
+          <span>${escapeHtml(blueprint.schedule?.window || '每天 00:00-02:00')}</span>
+          <span>${blueprint.schedule?.autoBuildEnabled ? '自动建仓计划已登记' : '手动建仓'}</span>
+          <span>正式写入需审批</span>
+        </div>
+        <div class="meta-line">兜底规则：${escapeHtml(blueprint.schedule?.fallbackRule || '超过窗口转人工复核')}</div>
+      </article>
+      <article class="data-warehouse-card authority">
+        <div class="channel-port-head">
+          <div>
+            <h3>仓库共享/平仓口令</h3>
+            <p>${escapeHtml(blueprint.permissionPolicy?.rule || '高风险动作必须审批。')}</p>
+          </div>
+          <span class="tag status blocked">最高权限</span>
+        </div>
+        <div class="roadmap-facts">
+          <span>${escapeHtml(blueprint.permissionPolicy?.owner || 'Owner')} 同意</span>
+          <span>口令确认</span>
+          <span>${Number(blueprint.permissionPolicy?.requiredApprovals || 3)} 人审批</span>
+        </div>
+        <div class="tags">
+          ${(blueprint.permissionPolicy?.blockedWithoutOwner || []).map((item) => `<span class="tag">${escapeHtml(item)}</span>`).join('')}
+        </div>
+      </article>
+      ${(blueprint.warehouseLayers || []).map((layer) => `
+        <article class="data-warehouse-card">
+          <h3>${escapeHtml(layer.name)}</h3>
+          <p>${escapeHtml(layer.scope)}</p>
+          <div class="meta-line">产出：${escapeHtml(layer.output)}</div>
+        </article>
+      `).join('')}
+    </div>
+    <div class="resilience-action-grid">
+      ${(blueprint.actions || []).map((action) => `
+        <article class="resilience-action-card dry">
+          <div class="channel-port-head">
+            <h3>${escapeHtml(action.name)}</h3>
+            <span class="tag status blocked">只做预览</span>
+          </div>
+          <p>${escapeHtml(action.description)}</p>
+          <div class="roadmap-facts">
+            <span>${escapeHtml(action.mode)}</span>
+            <span>${escapeHtml(action.window || '人工确认')}</span>
+            <span>${action.sideEffectsEnabled ? '可执行' : '不自动执行'}</span>
+          </div>
+        </article>
+      `).join('')}
+    </div>
+    ${renderDataWarehouseBlockers(blueprint.blockers)}
+    ${moduleList('建仓来源统计', (blueprint.sourceCounts || []).map((item) => `${item.name}：${Number(item.count || 0)} 条`))}
+    ${moduleList('安全规则', blueprint.guardrails || [])}
+  `;
+}
+
+function renderDataWarehouseBlockers(blockers = []) {
+  if (!blockers.length) {
+    return '<div class="credential-checklist ready">建仓链路当前无阻塞；仓库共享和平仓仍必须 Alex 同意、口令确认和三人审批。</div>';
+  }
+  return `
+    <div class="credential-checklist">
+      <strong>建仓前阻塞</strong>
+      ${blockers.map((blocker) => `
+        <span>
+          <b>${escapeHtml(blocker.title)}</b>
+          <em>${escapeHtml(blocker.nextStep)}</em>
+        </span>
+      `).join('')}
+    </div>
+  `;
+}
+
 function renderAgentAccessBlueprint() {
   const blueprint = state.agentAccessBlueprint;
   if (!elements.agentAccessSummary || !elements.agentAccessBlueprint) {
@@ -2789,7 +3195,7 @@ function renderAgentAccessCard(agent) {
       <div class="tags">${(agent.capabilities || []).map((capability) => `<span class="tag">${escapeHtml(capability)}</span>`).join('')}</div>
       ${renderSandboxValidation(agent.sandboxValidation)}
       <div class="call-blueprint-actions">
-        <button type="button" class="secondary" data-menu-jump="api-platform-config" data-workflow-target="api-center">去配置Agent凭证</button>
+        <button type="button" class="secondary" data-menu-jump="api-platform-config" data-workflow-target="settings">去配置Agent凭证</button>
       </div>
     </article>
   `;
@@ -2828,7 +3234,7 @@ function renderCallCrmModule(module, blueprint = {}) {
       ${renderFieldMappingPreview(module.fieldMappings)}
       ${renderOperationPreview(module.preview)}
       <div class="call-blueprint-actions">
-        <button type="button" class="secondary" data-menu-jump="api-platform-config" data-workflow-target="api-center">
+        <button type="button" class="secondary" data-menu-jump="api-platform-config" data-workflow-target="settings">
           去配置凭证
         </button>
       </div>

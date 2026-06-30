@@ -1,0 +1,31 @@
+{
+  "name": "warehouse-20260629-014734-ui-normal",
+  "createdAt": "2026-06-28T17:47:35.387Z",
+  "createdBy": "Codex for Alex Ho",
+  "projectDir": "/Users/apple/Documents/企业微信 智能客服",
+  "reason": "界面确认正常后，把当前业务数据保存到本机数据仓库，防止丢失。",
+  "safeMode": true,
+  "sideEffects": "只写入本机 data/warehouse 快照；不上传、不共享、不平仓。",
+  "copiedFiles": [
+    "knowledge.json",
+    "growth.json",
+    "conversations.json",
+    "hermesCommands.json",
+    "privateMessageApprovals.json"
+  ],
+  "counts": {
+    "knowledge.json": 15,
+    "growth.json": {
+      "scripts": 6,
+      "materials": 5,
+      "rules": 6,
+      "leads": 0
+    },
+    "conversations.json": 4,
+    "hermesCommands.json": 1,
+    "privateMessageApprovals.json": 1
+  },
+  "browserLocalStateFile": "browser-local-state.json",
+  "uiCheckFile": "ui-check.json",
+  "localBackup": "/Users/apple/Documents/企业微信 智能客服/backups/backup-20260629-014551-manual"
+}

@@ -1,0 +1,42 @@
+{
+  "activeTitle": "系统设置",
+  "checkedAt": "2026-06-28T18:03:12.653Z",
+  "layout": {
+    "contentWidth": 1386,
+    "sidebarWidth": 236
+  },
+  "oldStandalonePanels": 0,
+  "primary": [
+    "锚定目标",
+    "标定对手/对象",
+    "内容原创/伪原创",
+    "账号矩阵分发",
+    "评论区管理",
+    "私信引导",
+    "AI客服/群内维护",
+    "引流成交",
+    "售后复购",
+    "系统设置"
+  ],
+  "primaryCount": 10,
+  "settingsSections": [
+    "appearance-settings",
+    "module-settings",
+    "delivery-center",
+    "resilience-backup-center",
+    "data-warehouse-center",
+    "system-base-overview",
+    "input-center-methods",
+    "data-import-center",
+    "yunke-call-import",
+    "crm-import",
+    "device-port-center",
+    "api-overview",
+    "agent-access-center",
+    "api-platform-config",
+    "hermes-inbox",
+    "orchestration-plan"
+  ],
+  "sidebarPollutionElements": 0,
+  "url": "http://127.0.0.1:8787/?v=system-settings-menu-20260629#settings"
+}

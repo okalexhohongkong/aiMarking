@@ -80,29 +80,6 @@ button.secondary:hover {
   align-items: stretch;
 }
 
-.sidebar-peek-zone {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 60;
-  display: none;
-  width: var(--sidebar-peek-width);
-  min-height: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  appearance: none;
-  background: transparent;
-  cursor: pointer;
-}
-
-.sidebar-peek-zone:hover,
-.sidebar-peek-zone:focus-visible {
-  background: linear-gradient(90deg, rgba(56, 189, 248, 0.46), rgba(56, 189, 248, 0));
-  outline: none;
-}
-
 .app-sidebar {
   position: sticky;
   top: 0;
@@ -126,53 +103,6 @@ button.secondary:hover {
   user-select: none;
 }
 
-.sidebar-auto-hide {
-  --sidebar-width: 0px;
-}
-
-.sidebar-auto-hide .app-shell {
-  grid-template-columns: 0 minmax(0, 1fr);
-}
-
-.sidebar-auto-hide .sidebar-peek-zone {
-  display: block;
-}
-
-.sidebar-auto-hide .app-sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 50;
-  width: var(--sidebar-panel-width);
-  height: 100vh;
-  max-height: 100vh;
-  transform: translateX(calc(-100% + var(--sidebar-peek-width)));
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease;
-  box-shadow: none;
-}
-
-.sidebar-auto-hide .sidebar-peek-zone:hover + .app-shell .app-sidebar,
-.sidebar-auto-hide.sidebar-peeking .app-sidebar,
-.sidebar-auto-hide .app-sidebar:hover,
-.sidebar-auto-hide .app-sidebar:focus-within {
-  transform: translateX(0);
-  box-shadow: 12px 0 28px rgba(15, 23, 42, 0.18);
-}
-
-.sidebar-auto-hide .sidebar-resize-handle {
-  display: none !important;
-}
-
-.sidebar-collapsed {
-  --sidebar-width: 66px;
-}
-
-.sidebar-collapsed .app-sidebar {
-  padding: 12px 7px;
-}
-
 .app-content {
   min-width: 0;
   padding: 18px;
@@ -183,11 +113,6 @@ button.secondary:hover {
   align-items: center;
   gap: 8px;
   padding: 4px 5px 13px;
-}
-
-.sidebar-collapsed .sidebar-brand {
-  justify-content: center;
-  padding-inline: 0;
 }
 
 .sidebar-brand-mark {
@@ -216,13 +141,6 @@ button.secondary:hover {
   margin-top: 3px;
   font-size: 12px;
   line-height: 1.45;
-}
-
-.sidebar-collapsed .sidebar-brand div,
-.sidebar-collapsed .sidebar-status-card,
-.sidebar-collapsed .menu-search,
-.sidebar-collapsed .menu-meta {
-  display: none;
 }
 
 .sidebar-status-card {
@@ -280,10 +198,6 @@ button.secondary:hover {
 
 .sidebar-tool-button:hover {
   background: var(--sidebar-hover);
-}
-
-.sidebar-collapsed .sidebar-actions {
-  grid-template-columns: 1fr;
 }
 
 .sidebar-resize-handle {
@@ -372,8 +286,8 @@ button.secondary:hover {
   background: transparent;
   color: #cbd5e1;
   justify-content: flex-start;
-  font-weight: 760;
-  font-size: 14px;
+  font-weight: 800;
+  font-size: 15px;
   line-height: 1.3;
   padding: 8px 8px 8px 12px;
   text-align: left;
@@ -397,17 +311,6 @@ button.secondary:hover {
   grid-template-columns: minmax(0, 1fr) 28px;
   gap: 3px;
   align-items: center;
-}
-
-.sidebar-collapsed .primary-nav button {
-  grid-template-columns: 1fr;
-  justify-items: center;
-  min-height: 40px;
-  padding: 8px 0;
-}
-
-.sidebar-collapsed .primary-nav .menu-copy {
-  display: none;
 }
 
 .primary-nav button::before {
@@ -497,6 +400,8 @@ button.secondary:hover {
 
 .primary-nav .menu-title {
   color: inherit;
+  font-weight: 840;
+  font-size: 15px;
 }
 
 .primary-nav .menu-meta {
@@ -524,13 +429,27 @@ button.secondary:hover {
   border-radius: 5px;
   background: transparent;
   color: #b8c7d8;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   line-height: 1.25;
 }
 
 .workflow-submenu-button {
   grid-template-columns: 1fr;
+}
+
+.primary-nav .workflow-submenu-button {
+  font-size: 14px;
+  font-weight: 720;
+}
+
+.primary-nav .workflow-tertiary-menu button {
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: currentColor;
 }
 
 .workflow-tertiary-menu {
@@ -544,17 +463,18 @@ button.secondary:hover {
 .workflow-tertiary-menu button {
   justify-content: start;
   color: #8fb0c8;
-  font-size: 11px;
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: currentColor;
 }
 
 .workflow-submenu-button:hover,
 .workflow-tertiary-menu button:hover {
   background: rgba(255, 255, 255, 0.08);
   color: #ffffff;
-}
-
-.sidebar-collapsed .workflow-submenu {
-  display: none;
 }
 
 .primary-nav button:hover {
@@ -680,7 +600,8 @@ button.secondary:hover {
 }
 
 .input-assist-wrap > input,
-.input-assist-wrap > textarea {
+.input-assist-wrap > textarea,
+.input-assist-wrap > select {
   width: 100%;
   padding-right: 52px;
 }
@@ -786,13 +707,20 @@ button.secondary:hover {
 
 .input-suggestion-custom {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) 24px auto;
   gap: 6px;
+  align-items: center;
 }
 
 .input-suggestion-custom input {
   min-height: 30px;
   font-size: 12px;
+}
+
+.input-suggestion-custom .input-assist-button {
+  width: 24px;
+  height: 24px;
+  min-height: 24px;
 }
 
 .input-suggestion-custom button {
@@ -801,6 +729,14 @@ button.secondary:hover {
   padding: 0 8px;
   font-size: 12px;
   white-space: nowrap;
+}
+
+.input-suggestion-custom .field-voice-button {
+  width: 24px;
+  height: 24px;
+  min-height: 24px;
+  border-radius: 999px;
+  padding: 0;
 }
 
 .inline-action-row {
@@ -814,6 +750,70 @@ button.secondary:hover {
   display: grid;
   grid-template-columns: repeat(6, minmax(112px, 1fr)) minmax(160px, 1.1fr) minmax(220px, 1.4fr) minmax(180px, 1fr) minmax(110px, 0.7fr) auto;
   gap: 10px;
+  align-items: end;
+}
+
+.compact-appearance-grid {
+  grid-template-columns: minmax(260px, 1fr) minmax(220px, 0.8fr) minmax(360px, 1.3fr) auto;
+  align-items: stretch;
+}
+
+.appearance-group {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  background: #fbfcfe;
+}
+
+.appearance-group legend {
+  padding: 0 5px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.appearance-group label {
+  min-width: 0;
+}
+
+.appearance-size-group {
+  grid-template-columns: minmax(0, 1fr) 82px;
+  align-items: end;
+}
+
+.appearance-size-group legend,
+.appearance-color-group legend {
+  grid-column: 1 / -1;
+}
+
+.appearance-color-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(46px, 1fr));
+  gap: 8px;
+}
+
+.appearance-color-grid label {
+  display: grid;
+  gap: 5px;
+  justify-items: center;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.appearance-color-grid input[type="color"] {
+  width: 34px;
+  height: 30px;
+  min-height: 30px;
+  padding: 2px;
+}
+
+.appearance-actions {
+  display: grid;
   align-items: end;
 }
 
@@ -1014,6 +1014,7 @@ button.secondary:hover {
 .device-port-grid,
 .api-center-grid,
 .call-module-grid,
+.data-warehouse-grid,
 .resilience-backup-grid,
 .resilience-action-grid,
 .agent-access-grid {
@@ -1027,6 +1028,7 @@ button.secondary:hover {
 .device-port-grid article,
 .api-center-grid article,
 .call-module-grid article,
+.data-warehouse-card,
 .input-mode-row,
 .voice-policy-box {
   border: 1px solid var(--line);
@@ -1072,11 +1074,13 @@ button.secondary:hover {
 }
 
 .resilience-backup-panel,
+.data-warehouse-panel,
 .agent-access-panel {
   margin-bottom: 16px;
 }
 
 .resilience-backup-list,
+.data-warehouse-list,
 .agent-access-list {
   display: grid;
   gap: 12px;
@@ -1092,6 +1096,7 @@ button.secondary:hover {
 
 .resilience-backup-card,
 .resilience-action-card,
+.data-warehouse-card,
 .agent-access-card {
   display: grid;
   gap: 9px;
@@ -1103,8 +1108,14 @@ button.secondary:hover {
 }
 
 .resilience-backup-card.authority,
+.data-warehouse-card.authority,
 .resilience-action-card.manual {
   background: #fff7ed;
+}
+
+.data-warehouse-card.schedule {
+  border-left-color: #0284c7;
+  background: #f0f9ff;
 }
 
 .resilience-action-card.dry {
@@ -1127,6 +1138,8 @@ button.secondary:hover {
 .resilience-backup-card p,
 .resilience-action-card h3,
 .resilience-action-card p,
+.data-warehouse-card h3,
+.data-warehouse-card p,
 .agent-access-card h3,
 .agent-access-card p {
   margin: 0;
@@ -1134,6 +1147,7 @@ button.secondary:hover {
 
 .resilience-backup-card p,
 .resilience-action-card p,
+.data-warehouse-card p,
 .agent-access-card p {
   color: var(--muted);
   line-height: 1.48;
@@ -3182,6 +3196,569 @@ textarea:focus {
   color: #8a5300;
 }
 
+/* Compact workbench density: keep the fixed sidebar stable while tightening every page. */
+.app-content {
+  padding: 12px 14px 14px;
+}
+
+.app-sidebar {
+  padding: 10px 8px;
+}
+
+.sidebar-brand {
+  gap: 7px;
+  padding: 2px 4px 8px;
+}
+
+.sidebar-brand-mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  font-size: 12px;
+}
+
+.sidebar-brand small,
+.sidebar-status-card small {
+  margin-top: 2px;
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.sidebar-status-card {
+  gap: 1px;
+  margin-bottom: 8px;
+  padding: 7px;
+}
+
+.sidebar-toolbar {
+  gap: 6px;
+  margin-bottom: 7px;
+}
+
+.menu-search {
+  gap: 3px;
+}
+
+.menu-search input,
+.sidebar-tool-button {
+  min-height: 30px;
+}
+
+.primary-nav {
+  gap: 2px;
+}
+
+.workflow-menu-group {
+  gap: 1px;
+}
+
+.workflow-menu-primary-row,
+.workflow-submenu-row {
+  grid-template-columns: minmax(0, 1fr) 22px;
+  gap: 2px;
+}
+
+.primary-nav button {
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 5px;
+  min-height: 34px;
+  padding: 5px 6px 5px 8px;
+  font-size: 15px;
+  font-weight: 820;
+  line-height: 1.16;
+}
+
+.primary-nav .menu-logo {
+  width: 23px;
+  height: 22px;
+  border-radius: 5px;
+}
+
+.primary-nav .menu-logo svg {
+  width: 15px;
+  height: 15px;
+}
+
+.primary-nav .menu-copy {
+  gap: 1px;
+}
+
+.primary-nav .menu-title,
+.primary-nav .menu-meta {
+  white-space: nowrap;
+}
+
+.primary-nav .menu-title {
+  font-size: 15px;
+  font-weight: 840;
+}
+
+.primary-nav .menu-meta {
+  font-size: 10px;
+  line-height: 1.05;
+}
+
+.menu-expand-button {
+  min-height: 24px;
+  border-radius: 4px;
+}
+
+.menu-expand-button.small {
+  min-height: 22px;
+}
+
+.workflow-submenu {
+  gap: 1px;
+  margin: 0 0 2px 27px;
+}
+
+.workflow-submenu-item {
+  gap: 1px;
+}
+
+.workflow-submenu-button,
+.workflow-tertiary-menu button {
+  min-height: 24px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 720;
+  line-height: 1.15;
+  white-space: nowrap;
+  text-align: left;
+  text-overflow: ellipsis;
+}
+
+.primary-nav .workflow-submenu-button,
+.primary-nav .workflow-tertiary-menu button {
+  display: block;
+  grid-template-columns: none;
+  justify-content: start;
+}
+
+.primary-nav .workflow-submenu-button {
+  font-size: 14px;
+  font-weight: 720;
+}
+
+.primary-nav .workflow-tertiary-menu button {
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: currentColor;
+}
+
+.workflow-submenu-button span,
+.workflow-tertiary-menu button {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workflow-tertiary-menu {
+  gap: 1px;
+  margin-left: 8px;
+  padding-left: 6px;
+}
+
+.workflow-tertiary-menu button {
+  min-height: 22px;
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: currentColor;
+}
+
+button {
+  min-height: 34px;
+  padding: 0 12px;
+}
+
+.topbar {
+  gap: 10px;
+  padding: 0 0 8px;
+}
+
+.topbar h1 {
+  font-size: 22px;
+}
+
+.topbar p {
+  margin-top: 3px;
+}
+
+.workflow-context {
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+}
+
+.workflow-context h2 {
+  font-size: 18px;
+}
+
+.workflow-context p {
+  margin-top: 3px;
+  line-height: 1.35;
+}
+
+.panel {
+  padding: 12px;
+}
+
+.panel h2 {
+  font-size: 17px;
+}
+
+.panel-head {
+  gap: 9px;
+  margin-bottom: 10px;
+}
+
+.layout,
+.insight-layout,
+.growth-layout,
+.orchestration-layout {
+  gap: 10px;
+}
+
+.growth-layout,
+.insight-layout,
+.channel-panel,
+.readiness-hub-panel,
+.simulate-panel,
+.marketing-system-panel,
+.private-message-panel,
+.hermes-panel,
+.orchestration-panel {
+  margin-top: 10px;
+}
+
+.appearance-panel,
+.input-center-panel,
+.data-import-panel,
+.device-port-panel,
+.api-center-panel,
+.module-settings-panel,
+.delivery-panel,
+.resilience-backup-panel,
+.data-warehouse-panel,
+.agent-access-panel,
+.workflow-overview-panel,
+.target-profile-panel {
+  margin-bottom: 10px;
+}
+
+.form,
+.ask-form,
+.module-settings-list,
+.resilience-backup-list,
+.data-warehouse-list,
+.agent-access-list,
+.call-blueprint-list,
+.marketing-module-list,
+.knowledge-list,
+.conversation-list,
+.lifecycle-stage-list,
+.playbook-list,
+.hermes-command-list,
+.private-message-result,
+.private-approval-list,
+.orchestration-workstream-list,
+.orchestration-merge-list,
+.operation-preview-list,
+.review-queue-list {
+  gap: 8px;
+}
+
+.two-col,
+.three-col,
+.four-col,
+.appearance-grid,
+.delivery-grid,
+.input-method-grid,
+.import-route-grid,
+.device-port-grid,
+.api-center-grid,
+.call-module-grid,
+.data-warehouse-grid,
+.resilience-backup-grid,
+.resilience-action-grid,
+.agent-access-grid,
+.target-profile-layout,
+.channel-port-grid,
+.integration-step-list,
+.readiness-hub-grid,
+.readiness-grid,
+.readiness-plan,
+.platform-config-list,
+.platform-field-grid,
+.private-message-fields,
+.module-columns,
+.module-columns.three,
+.marketing-bottom,
+.orchestration-layout,
+.field-mapping-row,
+.operation-preview-details,
+.preview-control-grid,
+.sandbox-validation-grid,
+.hermes-command-form,
+.hermes-direction-summary {
+  gap: 8px;
+}
+
+.three-col {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.four-col {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+label {
+  gap: 4px;
+}
+
+input,
+select,
+textarea {
+  min-height: 34px;
+  padding: 7px 9px;
+}
+
+input[type="color"] {
+  min-height: 34px;
+}
+
+textarea,
+.target-profile-form textarea {
+  min-height: 76px;
+}
+
+.input-assist-wrap > input,
+.input-assist-wrap > textarea,
+.input-assist-wrap > select {
+  padding-right: 48px;
+}
+
+.input-assist-tools {
+  top: 4px;
+  right: 4px;
+}
+
+.workflow-overview-grid {
+  grid-template-columns: repeat(auto-fit, minmax(305px, 1fr));
+  gap: 8px;
+}
+
+.workflow-overview-card {
+  grid-template-columns: 28px minmax(0, 1fr) minmax(92px, 0.28fr);
+  min-height: 128px;
+  gap: 8px;
+  padding: 9px;
+}
+
+.workflow-overview-copy {
+  gap: 4px;
+}
+
+.workflow-overview-progress {
+  grid-column: auto;
+  align-content: start;
+  gap: 3px;
+  min-width: 0;
+  padding-top: 0;
+  padding-left: 8px;
+  border-top: 0;
+  border-left: 1px solid var(--line);
+}
+
+.workflow-overview-progress b {
+  font-size: 16px;
+}
+
+.workflow-overview-copy em,
+.workflow-overview-copy small,
+.workflow-overview-progress small,
+.readiness-platform-head p,
+.readiness-platform-card p,
+.platform-config-card p,
+.integration-step p,
+.channel-port-card p,
+.item p,
+.lifecycle-card p,
+.playbook-card p,
+.hermes-command-card p {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+}
+
+.workflow-overview-copy em,
+.workflow-overview-copy small,
+.integration-step p,
+.channel-port-card p {
+  -webkit-line-clamp: 2;
+}
+
+.workflow-overview-progress small,
+.readiness-platform-head p,
+.readiness-platform-card p,
+.platform-config-card p,
+.item p,
+.lifecycle-card p,
+.playbook-card p,
+.hermes-command-card p {
+  -webkit-line-clamp: 3;
+}
+
+.target-profile-preview {
+  padding: 10px;
+}
+
+.target-profile-preview h3 {
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+.target-profile-preview-box dl {
+  gap: 6px;
+}
+
+.target-profile-preview-box div {
+  padding-top: 6px;
+}
+
+.target-profile-brief {
+  margin-top: 8px;
+  padding: 9px;
+}
+
+.integration-step {
+  min-height: 156px;
+  gap: 7px;
+  padding: 10px;
+}
+
+.integration-step-list,
+.platform-config-list {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.readiness-hub-grid,
+.readiness-grid,
+.readiness-plan {
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+
+.channel-port-grid {
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+
+.channel-port-card,
+.readiness-check {
+  min-height: 132px;
+}
+
+.platform-config-card,
+.readiness-platform-card,
+.readiness-check,
+.channel-port-card,
+.module-setting-card,
+.delivery-grid article,
+.input-method-grid article,
+.import-route-grid article,
+.device-port-grid article,
+.api-center-grid article,
+.call-module-grid article,
+.resilience-backup-card,
+.resilience-action-card,
+.data-warehouse-card,
+.agent-access-card,
+.call-blueprint-card,
+.item,
+.lifecycle-card,
+.playbook-card,
+.hermes-command-card,
+.private-message-copy,
+.private-approval-card,
+.private-message-fields article,
+.template-box,
+.orchestration-card,
+.orchestration-merge-card,
+.hermes-policy-box,
+.preview-control-card,
+.operation-preview,
+.operation-preview-row,
+.sandbox-validation-panel,
+.sandbox-validation-check,
+.review-queue-item {
+  gap: 7px;
+  padding: 10px;
+}
+
+.platform-config-card,
+.readiness-platform-card {
+  min-height: 0;
+}
+
+.roadmap-summary,
+.readiness-summary,
+.platform-config-notice,
+.field-mapping-preview,
+.review-queue-list,
+.credential-checklist,
+.import-template-preview {
+  padding: 9px 10px;
+}
+
+.status-panel dl {
+  margin-top: 8px;
+}
+
+.status-panel dl > div {
+  padding: 8px 0;
+}
+
+.local-tools,
+.graph-head,
+.logs-head {
+  margin-top: 12px;
+  padding-top: 10px;
+}
+
+.answer-box,
+.graph-box {
+  min-height: 92px;
+  margin-top: 10px;
+  padding: 10px;
+}
+
+.tool-output {
+  min-height: 92px;
+}
+
+.tags,
+.meta-line,
+.steps-list,
+.item-actions,
+.inline-action-row,
+.module-settings-actions,
+.input-mode-matrix,
+.readiness-plan.compact,
+.orchestration-card .roadmap-meter,
+.hermes-policy-box,
+#blockerReportButton,
+.private-message-result,
+.private-approval-list {
+  margin-top: 8px;
+}
+
 @media (max-width: 1100px) {
   .app-shell {
     grid-template-columns: 190px minmax(0, 1fr);
@@ -3284,14 +3861,6 @@ textarea:focus {
     padding: 0;
   }
 
-  .sidebar-auto-hide .sidebar-peek-zone {
-    display: none;
-  }
-
-  .sidebar-auto-hide .app-shell {
-    display: block;
-  }
-
   .app-sidebar {
     position: static;
     height: auto;
@@ -3300,28 +3869,12 @@ textarea:focus {
     overflow: visible;
   }
 
-  .sidebar-auto-hide .app-sidebar {
-    position: static;
-    width: auto;
-    height: auto;
-    max-height: none;
-    transform: none;
-    box-shadow: none;
-  }
-
   .sidebar-resize-handle {
     display: none !important;
   }
 
-  .sidebar-collapsed .sidebar-brand div,
-  .sidebar-collapsed .menu-search,
-  .sidebar-collapsed .menu-meta {
-    display: block;
-  }
-
-  .sidebar-collapsed .sidebar-actions,
   .sidebar-actions {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .app-content {

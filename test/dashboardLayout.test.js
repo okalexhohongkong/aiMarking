@@ -26,12 +26,15 @@ test('adds searchable, lockable, and resizable sidebar controls', async () => {
   assert.match(html, /id="menuSearchInput"/);
   assert.match(html, /id="sidebarSettingsButton"/);
   assert.match(html, /id="sidebarLockButton"/);
-  assert.match(html, /id="sidebarCollapseButton"/);
   assert.match(html, /id="sidebarResizeHandle"/);
   assert.match(css, /--sidebar-width/);
   assert.match(css, /\.sidebar-resize-handle/);
   assert.match(css, /\.sidebar-unlocked/);
-  assert.match(css, /\.sidebar-collapsed/);
+  assert.doesNotMatch(html, /id="sidebarCollapseButton"/);
+  assert.doesNotMatch(css, /\.sidebar-collapsed/);
+  assert.doesNotMatch(css, /\.sidebar-auto-hide/);
+  assert.doesNotMatch(app, /function toggleSidebarMode/);
+  assert.doesNotMatch(app, /mode === 'auto-hide'/);
   assert.match(app, /sidebarLayoutStorageKey/);
   assert.match(app, /function handleMenuSearchInput/);
   assert.match(app, /function toggleSidebarLock/);
@@ -39,32 +42,20 @@ test('adds searchable, lockable, and resizable sidebar controls', async () => {
   assert.match(app, /showWorkflowView\('settings'\)/);
 });
 
-test('lets the primary sidebar switch between fixed and hover auto-hide modes', async () => {
+test('locks the primary sidebar against collapse and auto-hide pollution', async () => {
   const html = await readFile('public/index.html', 'utf8');
   const css = await readFile('public/styles.css', 'utf8');
   const app = await readFile('public/app.js', 'utf8');
 
-  assert.match(html, /id="sidebarPeekZone"/);
-  assert.match(html, /靠近展开菜单，双击固定显示/);
-  assert.match(app, /mode:\s*'auto-hide'/);
-  assert.match(app, /mode === 'auto-hide'/);
-  assert.match(app, /function toggleSidebarMode/);
-  assert.match(app, /function handleSidebarDoubleClick/);
-  assert.match(app, /addEventListener\('dblclick', handleSidebarDoubleClick\)/);
-  assert.match(app, /function openSidebarPeek/);
-  assert.match(app, /function scheduleSidebarAutoHide/);
-  assert.match(app, /setTimeout\([^)]*1000/s);
-  assert.match(app, /sidebar-peeking/);
-  assert.match(app, /sidebar-auto-hide/);
-  assert.match(css, /\.sidebar-peek-zone/);
-  assert.match(css, /\.sidebar-auto-hide\s*{\s*--sidebar-width:\s*0px/s);
-  assert.match(css, /\.sidebar-auto-hide \.app-sidebar\s*{[^}]*position:\s*fixed/s);
-  assert.match(css, /\.sidebar-auto-hide \.sidebar-peek-zone:hover \+ \.app-shell \.app-sidebar/s);
-  assert.match(css, /\.sidebar-auto-hide\.sidebar-peeking \.app-sidebar/s);
-  assert.match(css, /\.sidebar-auto-hide \.app-sidebar:hover/s);
+  assert.doesNotMatch(html, /id="sidebarPeekZone"/);
+  assert.doesNotMatch(html, /自动隐藏菜单/);
+  assert.doesNotMatch(app, /setSidebarMode/);
+  assert.doesNotMatch(app, /sidebarPeekZone/);
+  assert.doesNotMatch(css, /\.sidebar-peek-zone/);
+  assert.match(app, /collapsed:\s*false/);
 });
 
-test('shows an eleven-entry workflow overview on the target homepage without a standalone voice module', async () => {
+test('shows an eleven-entry business workflow overview without exposing technical modules as primary menu', async () => {
   const html = await readFile('public/index.html', 'utf8');
   const css = await readFile('public/styles.css', 'utf8');
   const app = await readFile('public/app.js', 'utf8');
@@ -73,10 +64,19 @@ test('shows an eleven-entry workflow overview on the target homepage without a s
   assert.match(html, /id="workflowOverviewCards"/);
   assert.match(html, /1 \/ 11/);
   assert.match(app, /step:\s*'11 \/ 11'/);
-  assert.match(app, /title:\s*'输入中心'/);
-  assert.match(app, /title:\s*'数据导入\/导出'/);
-  assert.match(app, /title:\s*'外设接口'/);
-  assert.match(app, /title:\s*'API接口'/);
+  assert.match(app, /title:\s*'标定对手\/对象'/);
+  assert.match(app, /title:\s*'内容原创\/伪原创'/);
+  assert.match(app, /title:\s*'账号矩阵分发'/);
+  assert.match(app, /title:\s*'评论区管理'/);
+  assert.match(app, /title:\s*'私信引导'/);
+  assert.match(app, /title:\s*'AI客服\/群内维护'/);
+  assert.match(app, /title:\s*'售后复购'/);
+  assert.match(app, /title:\s*'系统底座'/);
+  assert.match(app, /title:\s*'系统设置'/);
+  assert.doesNotMatch(app, /id:\s*'input-center'/);
+  assert.doesNotMatch(app, /id:\s*'data-import'/);
+  assert.doesNotMatch(app, /id:\s*'device-ports'/);
+  assert.doesNotMatch(app, /id:\s*'api-center'/);
   assert.doesNotMatch(app, /id:\s*'voice-input'/);
   assert.doesNotMatch(app, /data-workflow-view="voice-input"/);
   assert.match(css, /\.workflow-overview-grid\s*{/);
@@ -111,9 +111,18 @@ test('adds AI HR style module management and delivery entry points', async () =>
   const app = await readFile('public/app.js', 'utf8');
 
   assert.match(html, /模块管理/);
+  assert.match(html, /compact-appearance-grid/);
+  assert.match(html, /<legend>字体<\/legend>/);
+  assert.match(html, /<legend>字号<\/legend>/);
+  assert.match(html, /<legend>色块<\/legend>/);
+  assert.match(html, /appearance-color-grid/);
   assert.match(html, /id="moduleSettingsList"/);
   assert.match(html, /交付入口/);
   assert.match(html, /黑卫士七维AI营销系统-1.0安装包/);
+  assert.match(css, /\.compact-appearance-grid\s*{/);
+  assert.match(css, /\.appearance-color-grid\s*{/);
+  assert.match(css, /text-decoration:\s*underline/);
+  assert.match(css, /text-underline-offset:\s*3px/);
   assert.match(css, /\.module-setting-card\s*{/);
   assert.match(css, /\.delivery-grid\s*{/);
   assert.match(app, /workflowSettingsStorageKey/);
@@ -127,6 +136,7 @@ test('adds AI HR style input, import/export, API, and device entries', async () 
   const css = await readFile('public/styles.css', 'utf8');
   const app = await readFile('public/app.js', 'utf8');
 
+  assert.match(html, /系统底座和系统设置是两码事/);
   assert.match(html, /统一输入中心/);
   assert.match(html, /数据导入\/导出中心/);
   assert.match(html, /数据导出/);
@@ -134,6 +144,15 @@ test('adds AI HR style input, import/export, API, and device entries', async () 
   assert.match(html, /id="dataExportTemplateButton"/);
   assert.match(html, /外设接口/);
   assert.match(html, /API接口中心/);
+  assert.match(html, /data-workflow-view="settings" data-menu-section="input-center-methods"/);
+  assert.match(html, /data-workflow-view="settings" data-menu-section="data-import-center"/);
+  assert.match(html, /data-workflow-view="settings" data-menu-section="device-port-center"/);
+  assert.match(html, /data-workflow-view="settings" data-menu-section="api-overview"/);
+  assert.match(html, /data-workflow-view="settings" data-menu-section="agent-access-center"/);
+  assert.doesNotMatch(html, /data-workflow-view="api-center"/);
+  assert.doesNotMatch(html, /data-workflow-view="input-center"/);
+  assert.doesNotMatch(html, /data-workflow-view="data-import"/);
+  assert.doesNotMatch(html, /data-workflow-view="device-ports"/);
   assert.match(html, /id="sidebarColorInput"/);
   assert.match(css, /\.input-method-grid\s*,/);
   assert.match(app, /const inputModeRows/);
@@ -154,18 +173,25 @@ test('adds compact input assist controls with voice and recommendation dropdowns
   assert.match(app, /function renderSuggestionMenu/);
   assert.match(app, /function addCustomSuggestion/);
   assert.match(app, /function applySuggestionToField/);
+  assert.match(app, /querySelectorAll\('input, textarea, select'\)/);
   assert.match(app, /data-voice-target-id/);
   assert.match(app, /data-suggestion-target-id/);
+  assert.match(app, /data-custom-suggestion-voice/);
   assert.match(app, /function startInlineVoiceInput/);
   assert.match(app, /function isVoiceEligibleField/);
+  assert.match(app, /field\.tagName === 'SELECT'/);
+  assert.match(app, /function selectOrAppendOption/);
   assert.match(app, /function microphoneIconSvg/);
   assert.match(app, /voiceButton\.innerHTML = microphoneIconSvg\(\)/);
+  assert.match(app, /customVoiceButton\.innerHTML = microphoneIconSvg\(\)/);
   assert.doesNotMatch(app, /voiceButton\.textContent = '麦'/);
   assert.match(css, /\.input-assist-wrap/);
   assert.match(css, /\.input-assist-tools/);
   assert.match(css, /\.field-voice-button/);
   assert.match(css, /\.field-suggestion-button/);
   assert.match(css, /\.input-suggestion-menu/);
+  assert.match(css, /\.input-assist-wrap > select/);
+  assert.match(css, /\.input-suggestion-custom \.field-voice-button/);
   assert.match(css, /\.voice-global-status/);
   assert.doesNotMatch(app, /voiceTargetInput/);
 });
@@ -196,16 +222,23 @@ test('connects first, second, and third level menu items to real page sections',
   const app = await readFile('public/app.js', 'utf8');
 
   assert.match(html, /data-menu-section="target-profile"/);
+  assert.match(html, /data-menu-section="competitor-calibration"/);
+  assert.match(html, /data-menu-section="account-matrix-distribution"/);
   assert.match(html, /data-menu-section="private-message-generator"/);
   assert.match(html, /data-menu-section="private-message-approval"/);
   assert.match(html, /data-menu-section="api-platform-config"/);
+  assert.match(html, /data-menu-section="aftersale-retention"/);
   assert.match(app, /menuSections:\s*\[/);
   assert.match(app, /icon:\s*'target'/);
   assert.match(app, /function renderWorkflowLogo/);
   assert.doesNotMatch(app, /class="menu-step"/);
+  assert.match(app, /\$\{renderWorkflowLogo\(view\)\}[\s\S]*menu-title/);
+  assert.doesNotMatch(app, /<span class="menu-step">/);
   assert.match(app, /menuExpansionStorageKey/);
   assert.match(app, /function toggleMenuView/);
   assert.match(app, /function toggleMenuSection/);
+  assert.match(app, /function handleWorkflowMenuDoubleClick/);
+  assert.match(app, /addEventListener\('dblclick', handleWorkflowMenuDoubleClick\)/);
   assert.match(app, /aria-expanded/);
   assert.match(app, /data-menu-drag-id/);
   assert.match(app, /function handleMenuTreeDrop/);
@@ -219,6 +252,7 @@ test('connects first, second, and third level menu items to real page sections',
   assert.match(css, /\.menu-expand-indicator/);
   assert.match(css, /\.menu-layout-editing/);
   assert.match(css, /\.workflow-submenu/);
+  assert.match(css, /\.primary-nav \.workflow-submenu-button/);
   assert.match(css, /\.workflow-tertiary-menu/);
 });
 
@@ -308,22 +342,32 @@ test('adds disaster recovery backup center and agent access center to the dashbo
 
   assert.match(html, /容灾备份中心/);
   assert.match(html, /id="resilienceBackupBlueprint"/);
+  assert.match(html, /数据建仓与仓库权限/);
+  assert.match(html, /id="dataWarehouseBlueprint"/);
+  assert.match(html, /00:00-02:00/);
+  assert.match(html, /口令确认/);
   assert.match(html, /Agent接入中心/);
   assert.match(html, /id="agentAccessBlueprint"/);
   assert.match(html, /Open cloud agent/);
   assert.match(html, /Hermes agent/);
   assert.match(html, /自定义Agent/);
   assert.match(html, /data-menu-section="resilience-backup-center"/);
+  assert.match(html, /data-menu-section="data-warehouse-center"/);
   assert.match(html, /data-menu-section="agent-access-center"/);
   assert.match(app, /id:\s*'resilience-backup-center'/);
+  assert.match(app, /id:\s*'data-warehouse-center'/);
   assert.match(app, /id:\s*'agent-access-center'/);
   assert.match(app, /optionalApi\('\/api\/resilience-backup-blueprint'\)/);
+  assert.match(app, /optionalApi\('\/api\/data-warehouse-blueprint'\)/);
   assert.match(app, /optionalApi\('\/api\/agent-access-blueprint'\)/);
   assert.match(app, /function renderResilienceBackupBlueprint/);
+  assert.match(app, /function renderDataWarehouseBlueprint/);
   assert.match(app, /function renderAgentAccessBlueprint/);
   assert.match(app, /dry_run_preview/);
   assert.match(app, /不自动执行/);
   assert.match(css, /\.resilience-backup-grid/);
+  assert.match(css, /\.data-warehouse-grid/);
+  assert.match(css, /\.data-warehouse-card/);
   assert.match(css, /\.agent-access-grid/);
   assert.match(css, /\.agent-access-card/);
 });

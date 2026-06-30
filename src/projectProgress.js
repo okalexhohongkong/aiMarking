@@ -58,6 +58,14 @@ const moduleDefinitions = [
     nextStep: '补时间胶囊、完整数据库、组织架构、节点协议端口和克隆机备份的三人审批演练'
   },
   {
+    id: 'data-warehouse',
+    title: '数据建仓与仓库权限',
+    basePercent: 52,
+    plannedHours: 8,
+    tone: 'normal',
+    nextStep: '补每天 00:00-02:00 夜间建仓、仓库共享口令和平仓审批演练'
+  },
+  {
     id: 'agent-access',
     title: 'Agent接入中心',
     basePercent: 54,

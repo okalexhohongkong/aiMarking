@@ -1,0 +1,59 @@
+[
+  {
+    "id": "HVmYVjfZ0oMeubJSqjzA0",
+    "question": "合同怎么签？",
+    "answer": "我先根据本地知识库回答：\n【合同签署资料】\n合同签署需要营业执照、联系人手机号和开票信息。",
+    "source": "dashboard",
+    "sender": null,
+    "roomId": null,
+    "matchedKnowledgeIds": [
+      "i2CtQdncHUKoLPo2uRpEu"
+    ],
+    "usedFallback": true,
+    "createdAt": "2026-06-18T21:33:47.717Z"
+  },
+  {
+    "id": "8fa06qLADH5froBz9cNQm",
+    "question": "售后电话是多少？",
+    "answer": "我先根据本地知识库回答：\n【售后电话】\n售后电话是 400-000-000。",
+    "source": "dashboard",
+    "sender": null,
+    "roomId": null,
+    "matchedKnowledgeIds": [
+      "R45H8zwVCZbeCCRVDZO_5"
+    ],
+    "usedFallback": true,
+    "createdAt": "2026-06-18T21:34:03.098Z"
+  },
+  {
+    "id": "SmoB1p8sCI_KWmGZ3tlmM",
+    "question": "新客户开户需要哪些资料？",
+    "answer": "结论：根据知识库「开户资料清单」，新客户开户需要营业执照、联系人手机号和开票信息。\n\n处理步骤：\n1. 准备营业执照\n2. 确认联系人手机号\n3. 提交开票信息\n\n补充说明：新客户开户需要营业执照、联系人手机号和开票信息。\n\n参考来源：「开户资料清单」、「合同签署资料」",
+    "source": "dashboard",
+    "sender": null,
+    "roomId": null,
+    "matchedKnowledgeIds": [
+      "_5WQFxaW1k3qjRMeZ0Y9b",
+      "i2CtQdncHUKoLPo2uRpEu"
+    ],
+    "usedFallback": true,
+    "createdAt": "2026-06-18T21:45:09.904Z"
+  },
+  {
+    "id": "HA079Ddmg4-V_EYweDvd3",
+    "question": "合同怎么签？",
+    "answer": "结论：根据知识库「合同签署资料」，合同签署需要营业执照、联系人手机号和开票信息。\n\n处理步骤：\n1. 合同签署需要营业执照、联系人手机号和开票信息\n\n补充说明：合同签署需要营业执照、联系人手机号和开票信息。\n\n参考来源：「合同签署资料」、「客户选型咨询回答框架」、「需要转人工的情况」、「不同平台客服语气原则」、「电商平台客服合规边界」",
+    "source": "whatsapp",
+    "sender": "sim-user",
+    "roomId": "sim-room",
+    "matchedKnowledgeIds": [
+      "i2CtQdncHUKoLPo2uRpEu",
+      "1JBLr9ruZYqJimF-ZaAWH",
+      "VDqBm2og50AqWD62RrU-q",
+      "aXl-POrj0T8I6SBuYROO4",
+      "nX6AI0djrKK4xesyBgt7o"
+    ],
+    "usedFallback": true,
+    "createdAt": "2026-06-22T22:52:14.506Z"
+  }
+]
